@@ -1,15 +1,14 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { WebSocketServer, WebSocket as WsClient } from 'ws';
+import { WebSocketServer } from 'ws';
 import nacl from 'tweetnacl';
 import naclUtil from 'tweetnacl-util';
 import ed2curve from 'ed2curve';
 import net from 'node:net';
 
-// RED: createClientTransport + RuntimeAgent don't exist yet
 import { createClientTransport } from '../src/transport/createClientTransport.js';
 import { RuntimeAgent } from '../src/handshake/RuntimeAgent.js';
 import { generateKeypair } from '../src/identity/keypair.js';
-import type { EncryptedPayloadMsg, Message } from '@sonar/shared';
+import type { EncryptedPayloadMsg, ITransport, Message } from '@sonar/shared';
 
 // Allocate an ephemeral port
 function allocPort(): Promise<number> {
@@ -39,16 +38,11 @@ function localEncrypt(payload: Uint8Array, edPubB64: string): EncryptedPayloadMs
   };
 }
 
-function sendToClient(ws: WsClient, msg: Message) {
-  ws.send(JSON.stringify(msg));
-}
-
 let wss: WebSocketServer | null = null;
 
 afterEach(async () => {
   if (wss) {
     await new Promise<void>((resolve) => {
-      // terminate all clients first
       wss!.clients.forEach((c) => c.terminate());
       wss!.close(() => resolve());
     });
@@ -63,6 +57,9 @@ describe('runtime.handshake', () => {
 
     const { keypair, pubkeyB64 } = generateKeypair();
 
+    // Use a holder so onOpen can reference transport after it's resolved
+    const transportHolder: { transport?: ITransport } = {};
+
     const registerPromise = new Promise<Message>((resolve) => {
       wss!.on('connection', (ws) => {
         ws.on('message', (raw) => {
@@ -75,11 +72,17 @@ describe('runtime.handshake', () => {
     const transport = await createClientTransport({
       url: `ws://127.0.0.1:${port}`,
       onOpen: () => {
-        transport.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 }).catch(() => {});
+        transportHolder.transport
+          ?.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 })
+          .catch(() => {});
       },
     });
+    transportHolder.transport = transport;
 
     new RuntimeAgent({ transport, runtimeId: 'alpha', signingKeypair: keypair });
+
+    // After transport is ready, send the register now in case onOpen already fired
+    await transport.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 }).catch(() => {});
 
     const msg = await registerPromise;
     expect(msg.type).toBe('register');
@@ -96,55 +99,13 @@ describe('runtime.handshake', () => {
     wss = new WebSocketServer({ port, host: '127.0.0.1' });
 
     const { keypair, pubkeyB64 } = generateKeypair();
-    let serverConn: WsClient;
-
-    const signedResponsePromise = new Promise<{ signature: string }>((resolve) => {
-      wss!.on('connection', (ws) => {
-        serverConn = ws;
-        ws.on('message', (raw) => {
-          const msg = JSON.parse(raw.toString()) as Message;
-          if (msg.type === 'register') {
-            // Send challenge
-            const nonce = naclUtil.encodeBase64(nacl.randomBytes(32));
-            ws.send(JSON.stringify({ type: 'challenge', nonce, runtimeId: 'alpha' }));
-          } else if (msg.type === 'signed_response') {
-            resolve({ signature: msg.signature });
-          }
-        });
-      });
-    });
-
-    let challengeNonce = '';
-    wss!.on('connection', (ws) => {
-      const orig = ws.listeners('message')[0] as (raw: Buffer) => void;
-      ws.removeListener('message', orig);
-      ws.on('message', (raw) => {
-        const msg = JSON.parse(raw.toString()) as Message;
-        if (msg.type === 'register') {
-          challengeNonce = naclUtil.encodeBase64(nacl.randomBytes(32));
-          ws.send(JSON.stringify({ type: 'challenge', nonce: challengeNonce, runtimeId: 'alpha' }));
-        } else if (msg.type === 'signed_response') {
-          signedResponsePromise;
-        }
-      });
-    });
-
-    // Simpler approach: build a direct test server
-    await new Promise<void>((resolve) => wss!.close(() => {
-      wss = null;
-      resolve();
-    }));
-
-    wss = new WebSocketServer({ port, host: '127.0.0.1' });
     let capturedNonce = '';
-    let capturedPubkey = '';
 
     const signedResponseP = new Promise<string>((resolve) => {
       wss!.on('connection', (ws) => {
         ws.on('message', (raw) => {
           const msg = JSON.parse(raw.toString()) as Message;
           if (msg.type === 'register') {
-            capturedPubkey = msg.pubkey;
             capturedNonce = naclUtil.encodeBase64(nacl.randomBytes(32));
             ws.send(JSON.stringify({ type: 'challenge', nonce: capturedNonce, runtimeId: 'alpha' }));
           } else if (msg.type === 'signed_response') {
@@ -156,12 +117,11 @@ describe('runtime.handshake', () => {
 
     const transport = await createClientTransport({ url: `ws://127.0.0.1:${port}` });
     new RuntimeAgent({ transport, runtimeId: 'alpha', signingKeypair: keypair });
-    // Register manually
     await transport.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 });
 
     const sig = await signedResponseP;
 
-    // Verify signature
+    // Verify signature using nacl.sign.detached.verify against concat(nonce, runtimeId)
     const nonceBytes = naclUtil.decodeBase64(capturedNonce);
     const idBytes = naclUtil.decodeUTF8('alpha');
     const message = new Uint8Array(nonceBytes.length + idBytes.length);
@@ -253,24 +213,16 @@ describe('runtime.handshake', () => {
     const closePromise = new Promise<number>((resolve) => {
       wss!.on('connection', (ws) => {
         ws.on('close', (code) => resolve(code));
+        // Send invalid frame once client connects
+        setImmediate(() => ws.send('totally not json'));
       });
     });
 
     const transport = await createClientTransport({ url: `ws://127.0.0.1:${port}` });
 
-    // Wait for connection to open, then wait for server to set up listener
-    await new Promise<void>((r) => setTimeout(r, 50));
-
-    // Get the raw ws from the server side and send invalid json
-    const serverWs = [...wss!.clients][0];
-    if (serverWs) {
-      serverWs.send('totally not json');
-    }
-
     const code = await closePromise;
     expect(code).toBe(1003);
 
-    // transport may already be closed by the server; just ignore close errors
     await transport.close().catch(() => {});
   }, 8000);
 
@@ -280,31 +232,41 @@ describe('runtime.handshake', () => {
 
     const { keypair, pubkeyB64 } = generateKeypair();
 
-    // Track connections and register messages
     let connectionCount = 0;
     const secondRegisterPromise = new Promise<Message>((resolve) => {
       wss!.on('connection', (ws) => {
         connectionCount++;
         ws.on('message', (raw) => {
           const msg = JSON.parse(raw.toString()) as Message;
-          if (msg.type === 'register' && connectionCount >= 2) {
-            resolve(msg);
-          } else if (msg.type === 'register' && connectionCount === 1) {
-            // Force close after first register
-            setTimeout(() => ws.close(), 50);
+          if (msg.type === 'register') {
+            if (connectionCount === 1) {
+              // Force close after first register
+              setTimeout(() => ws.close(), 50);
+            } else {
+              resolve(msg);
+            }
           }
         });
       });
     });
 
+    // Use holder pattern to avoid "cannot access before initialization"
+    const transportHolder: { transport?: ITransport } = {};
+
     const transport = await createClientTransport({
       url: `ws://127.0.0.1:${port}`,
       onOpen: () => {
-        transport.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 }).catch(() => {});
+        transportHolder.transport
+          ?.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 })
+          .catch(() => {});
       },
     });
+    transportHolder.transport = transport;
 
     new RuntimeAgent({ transport, runtimeId: 'alpha', signingKeypair: keypair });
+
+    // Send initial register
+    await transport.send({ type: 'register', runtimeId: 'alpha', pubkey: pubkeyB64 }).catch(() => {});
 
     const msg = await secondRegisterPromise;
     expect(msg.type).toBe('register');
