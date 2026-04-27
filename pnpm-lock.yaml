@@ -21,6 +21,54 @@ importers:
         specifier: ^5.4.0
         version: 5.4.2
 
+  apps/mcp:
+    dependencies:
+      '@sonar/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.4.2
+
+  apps/operator:
+    dependencies:
+      '@sonar/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.4.2
+
+  apps/runtime:
+    dependencies:
+      '@sonar/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.4.2
+
   packages/shared:
     dependencies:
       zod:
