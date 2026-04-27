@@ -1,0 +1,17 @@
+.badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: var(--lh-snug);
+  pointer-events: none;
+  z-index: var(--z-content);
+}

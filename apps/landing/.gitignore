@@ -1,0 +1,15 @@
+dist
+.vercel
+node_modules
+.lighthouseci
+playwright-report
+test-results
+coverage
+.vercel-preview-url
+*.tsbuildinfo
+vite.config.d.ts
+vite.config.js
+vitest.config.d.ts
+vitest.config.js
+playwright.config.d.ts
+playwright.config.js

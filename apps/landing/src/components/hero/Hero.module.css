@@ -1,0 +1,125 @@
+.hero {
+  position: relative;
+  width: 100%;
+  max-width: var(--container-wide);
+  margin: 0 auto;
+  padding: var(--space-4xl) clamp(var(--space-md), 4vw, var(--space-xl));
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2xl);
+  min-height: min(720px, 90vh);
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: var(--container-narrow);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.display {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-display);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--lh-normal);
+  color: var(--color-text-muted);
+  max-width: var(--container-narrow);
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.canvasSlot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: min(720px, 90vh);
+  z-index: var(--z-hero-canvas);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-tap-min);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-body);
+  line-height: var(--lh-snug);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.btnPrimary {
+  background: var(--color-accent-cyan);
+  color: var(--color-bg);
+}
+
+.btnPrimary:hover {
+  background: var(--color-accent-blue);
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.35);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btnSecondary:hover {
+  border-color: var(--color-accent-cyan);
+  color: var(--color-accent-cyan);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: var(--space-2xl) var(--space-md);
+    min-height: auto;
+    gap: var(--space-xl);
+  }
+
+  .canvasSlot {
+    min-height: 60vh;
+    aspect-ratio: 16 / 9;
+  }
+}
