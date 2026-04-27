@@ -32,6 +32,18 @@ export function PingScene() {
     const t = clock.elapsedTime % LOOP_SECONDS;
     const ring = ringRef.current;
     const ringMat = ringMatRef.current;
+    // Probe hooks for the Playwright animation-liveness assertion. Headless
+    // WebGL framebuffer readback (toDataURL/screenshot) is unreliable across
+    // platforms; exposing the per-frame counter + loop time on `window` lets
+    // the e2e suite prove the autonomous loop is actually advancing.
+    if (typeof window !== "undefined") {
+      const w = window as unknown as {
+        __pingFrames?: number;
+        __pingT?: number;
+      };
+      w.__pingFrames = (w.__pingFrames ?? 0) + 1;
+      w.__pingT = t;
+    }
     if (!ring || !ringMat) return;
 
     if (t < OUTGOING_END) {
@@ -70,7 +82,7 @@ export function PingScene() {
 
   return (
     <>
-      <mesh ref={ringRef}>
+      <mesh ref={ringRef} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.95, 1.0, 64]} />
         <meshBasicMaterial ref={ringMatRef} transparent />
       </mesh>

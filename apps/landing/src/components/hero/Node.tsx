@@ -15,7 +15,11 @@ export const Node = forwardRef<THREE.Mesh, NodeProps>(function Node(
   ref,
 ) {
   return (
-    <mesh ref={ref} position={[pos[0], pos[1], pos[2]]}>
+    <mesh
+      ref={ref}
+      position={[pos[0], pos[1], pos[2]]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
       <circleGeometry args={[0.18, 32]} />
       <meshBasicMaterial color={color.surface} />
     </mesh>
