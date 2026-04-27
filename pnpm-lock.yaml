@@ -21,6 +21,30 @@ importers:
         specifier: ^5.4.0
         version: 5.4.2
 
+  apps/contract: {}
+
+  apps/demo-ui:
+    dependencies:
+      '@sonar/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.4.2
+
+  apps/landing:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.4.2
+
   apps/mcp:
     dependencies:
       '@sonar/shared':
