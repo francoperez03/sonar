@@ -20,6 +20,7 @@ export const color = {
   accentCyan: "#22D3EE",
   accentBlue: "#3B82F6",
   accentEcho: "#F2F4F7",
+  accentCyanGlow: "rgba(34, 211, 238, 0.35)",
   destructive: "#F87171",
 } as const;
 

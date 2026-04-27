@@ -11,6 +11,7 @@
   --color-accent-cyan: #22D3EE;
   --color-accent-blue: #3B82F6;
   --color-accent-echo: #F2F4F7;
+  --color-accent-cyan-glow: rgba(34, 211, 238, 0.35);
   --color-destructive: #F87171;
 
   /* Spacing (multiples of 4) */
