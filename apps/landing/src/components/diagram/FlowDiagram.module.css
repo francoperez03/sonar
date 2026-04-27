@@ -1,0 +1,44 @@
+.flow {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.horizontal {
+  display: block;
+}
+
+.vertical {
+  display: none;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--color-text);
+}
+
+.node {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.connector {
+  stroke: var(--color-accent-cyan);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  fill: none;
+}
+
+@media (max-width: 640px) {
+  .horizontal {
+    display: none;
+  }
+  .vertical {
+    display: block;
+  }
+}
