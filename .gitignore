@@ -21,3 +21,10 @@ CLAUDE.md
 # editor / OS
 .vscode/
 .idea/
+
+# vercel + lighthouse + e2e
+.vercel/
+.lighthouseci/
+playwright-report/
+test-results/
+
