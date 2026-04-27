@@ -1,5 +1,5 @@
-import { createServer } from 'node:http';
-import express from 'express';
+import { createServer, type Server } from 'node:http';
+import express, { type Express } from 'express';
 import { WebSocketServer } from 'ws';
 import { jsonBody } from './middleware/json.js';
 import { distributeRoute } from './routes/distribute.js';
@@ -28,7 +28,7 @@ export interface OperatorDeps {
  * - WS   /runtime     (TRAN-02)
  * - WS   /logs        (OPER-03 broadcast)
  */
-export function createOperatorServer(deps: OperatorDeps) {
+export function createOperatorServer(deps: OperatorDeps): { app: Express; httpServer: Server; wssRuntime: WebSocketServer; wssLogs: WebSocketServer } {
   const app = express();
   app.use(jsonBody);
 
