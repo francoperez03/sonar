@@ -12,3 +12,12 @@ build/
 .vite/
 coverage/
 CLAUDE.md
+
+# pnpm + workspace
+**/node_modules
+**/dist
+.pnpm-store
+
+# editor / OS
+.vscode/
+.idea/
