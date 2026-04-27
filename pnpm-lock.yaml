@@ -166,6 +166,9 @@ importers:
       ws:
         specifier: 8.20.0
         version: 8.20.0
+      zod:
+        specifier: ^3.23.0
+        version: 3.23.8
     devDependencies:
       '@types/express':
         specifier: 5.0.6
@@ -6444,7 +6447,6 @@ packages:
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-    dev: true
 
   /zustand@3.7.2(react@18.3.1):
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}

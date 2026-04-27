@@ -16,6 +16,11 @@ interface PendingState {
     resolve: (result: { status: 'ready' } | { status: 'failed'; reason: string }) => void;
     reject: (err: Error) => void;
   };
+  /** Resolves with verified=true or rejects with identity_unverified when signed_response arrives */
+  verificationWaiter?: {
+    resolve: () => void;
+    reject: (err: Error) => void;
+  };
 }
 
 interface Deps {
@@ -116,11 +121,42 @@ export class HandshakeCoordinator {
     const valid = verifyChallenge(msg, state.nonce, record.pubkey);
     if (valid) {
       state.verified = true;
+      state.verificationWaiter?.resolve();
     } else {
       state.verified = false;
       this.logBus.logEntry(msg.runtimeId, 'warn', 'sig_verify_failed');
+      state.verificationWaiter?.reject(new Error('identity_unverified'));
       ws.close(4401, 'sig_verify_failed');
     }
+    delete state.verificationWaiter;
+  }
+
+  /**
+   * Wait for the runtime's signed_response to arrive and pass IDEN-01 verification.
+   * Called by the distribute route after issueChallenge() — resolves when verified=true,
+   * rejects with 'identity_unverified' if the signature fails.
+   * Times out after 10s (same budget as ack).
+   */
+  awaitVerification(runtimeId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const state = this.pending.get(runtimeId);
+      if (!state) {
+        reject(new Error('identity_unverified'));
+        return;
+      }
+      if (state.verified) {
+        resolve();
+        return;
+      }
+      const timeout = setTimeout(() => {
+        delete state.verificationWaiter;
+        reject(new Error('ack_timeout'));
+      }, 10_000);
+      state.verificationWaiter = {
+        resolve: () => { clearTimeout(timeout); resolve(); },
+        reject: (e) => { clearTimeout(timeout); reject(e); },
+      };
+    });
   }
 
   /**
