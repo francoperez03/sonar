@@ -30,7 +30,7 @@ export function HeroFallback() {
         strokeOpacity="0.18"
         strokeWidth="1"
       />
-      {/* alpha node — left, slightly upper */}
+      {/* alice node — left, slightly upper */}
       <circle
         cx="100"
         cy="146"
@@ -38,7 +38,7 @@ export function HeroFallback() {
         fill="var(--color-surface)"
         stroke="var(--color-border)"
       />
-      {/* beta node — right */}
+      {/* bob node — right */}
       <circle
         cx="312"
         cy="101"
@@ -46,7 +46,7 @@ export function HeroFallback() {
         fill="var(--color-surface)"
         stroke="var(--color-border)"
       />
-      {/* gamma node — lower-mid */}
+      {/* charlie node — lower-mid */}
       <circle
         cx="220"
         cy="191"

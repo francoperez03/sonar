@@ -10,7 +10,6 @@ const NODES = [
   "Runtime",
 ] as const;
 
-// Horizontal layout — desktop. viewBox 1080 x 160. 6 nodes evenly spaced.
 const H_NODE_W = 156;
 const H_NODE_H = 56;
 const H_GAP = 24;
@@ -18,12 +17,13 @@ const H_TOTAL = NODES.length * H_NODE_W + (NODES.length - 1) * H_GAP;
 const H_START_X = (1080 - H_TOTAL) / 2;
 const H_Y = 52;
 
-// Vertical layout — mobile. viewBox 320 x 720. 6 stacked nodes.
 const V_NODE_W = 240;
 const V_NODE_H = 56;
 const V_GAP = 56;
 const V_X = (320 - V_NODE_W) / 2;
 const V_START_Y = 24;
+
+const RIPPLE_DELAYS = [0, 1.0];
 
 export function FlowDiagram() {
   return (
@@ -36,7 +36,7 @@ export function FlowDiagram() {
         role="img"
         aria-label="Prompt to Agent to Sonar MCP to KeeperHub to Sonar to Runtime"
       >
-        {/* connectors */}
+        {/* flowing connectors */}
         {NODES.slice(0, -1).map((_, i) => {
           const x1 = H_START_X + (i + 1) * H_NODE_W + i * H_GAP;
           const x2 = x1 + H_GAP;
@@ -46,39 +46,44 @@ export function FlowDiagram() {
               key={`hc-${i}`}
               className={styles.connector}
               d={`M ${x1} ${y} L ${x2} ${y}`}
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.4 }}
-              transition={{
-                duration: 0.6,
-                delay: i * 0.08,
-                ease: [0.2, 0.8, 0.2, 1],
-              }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}
+              style={{ animationDelay: `${i * 0.1}s` }}
             />
           );
         })}
+
+        {/* nodes */}
         {NODES.map((label, i) => {
           const x = H_START_X + i * (H_NODE_W + H_GAP);
+          const isLast = i === NODES.length - 1;
+          const cx = x + H_NODE_W / 2;
+          const cy = H_Y + H_NODE_H / 2;
           return (
-            <g key={`hn-${label}`}>
+            <motion.g
+              key={`hn-${label}`}
+              initial={{ opacity: 0, y: 6 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.35, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
+            >
               <rect
                 className={styles.node}
-                x={x}
-                y={H_Y}
-                width={H_NODE_W}
-                height={H_NODE_H}
-                rx={8}
-                ry={8}
+                x={x} y={H_Y}
+                width={H_NODE_W} height={H_NODE_H}
+                rx={8} ry={8}
               />
+
               <text
                 className={styles.label}
-                x={x + H_NODE_W / 2}
-                y={H_Y + H_NODE_H / 2 + 4}
+                x={cx} y={cy + 4}
                 textAnchor="middle"
               >
                 {label}
               </text>
-            </g>
+            </motion.g>
           );
         })}
       </svg>
@@ -100,39 +105,43 @@ export function FlowDiagram() {
               key={`vc-${i}`}
               className={styles.connector}
               d={`M ${x} ${y1} L ${x} ${y2}`}
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.4 }}
-              transition={{
-                duration: 0.6,
-                delay: i * 0.08,
-                ease: [0.2, 0.8, 0.2, 1],
-              }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}
+              style={{ animationDelay: `${i * 0.1}s` }}
             />
           );
         })}
+
         {NODES.map((label, i) => {
           const y = V_START_Y + i * (V_NODE_H + V_GAP);
+          const isLast = i === NODES.length - 1;
+          const cx = V_X + V_NODE_W / 2;
+          const cy = y + V_NODE_H / 2;
           return (
-            <g key={`vn-${label}`}>
+            <motion.g
+              key={`vn-${label}`}
+              initial={{ opacity: 0, x: -6 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.35, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
+            >
               <rect
                 className={styles.node}
-                x={V_X}
-                y={y}
-                width={V_NODE_W}
-                height={V_NODE_H}
-                rx={8}
-                ry={8}
+                x={V_X} y={y}
+                width={V_NODE_W} height={V_NODE_H}
+                rx={8} ry={8}
               />
+
               <text
                 className={styles.label}
-                x={V_X + V_NODE_W / 2}
-                y={y + V_NODE_H / 2 + 4}
+                x={cx} y={cy + 4}
                 textAnchor="middle"
               >
                 {label}
               </text>
-            </g>
+            </motion.g>
           );
         })}
       </svg>

@@ -4,8 +4,8 @@ import { NodeBadge } from "../badges/NodeBadge";
 import { NODES, LOOP_SECONDS, OUTGOING_END, ECHO_END } from "./nodes";
 
 describe("nodes.ts contract", () => {
-  it("declares ALPHA, BETA, GAMMA in order with locked hitAt values", () => {
-    expect(NODES.map((n) => n.id)).toEqual(["ALPHA", "BETA", "GAMMA"]);
+  it("declares ALICE, BOB, CHARLIE in order with locked hitAt values", () => {
+    expect(NODES.map((n) => n.id)).toEqual(["ALICE", "BOB", "CHARLIE"]);
     expect(NODES.map((n) => n.hitAt)).toEqual([0.4, 0.65, 0.85]);
   });
 
@@ -25,8 +25,8 @@ describe("nodes.ts contract", () => {
 
 describe("NodeBadge", () => {
   it("renders the label uppercase and accepts positional style", () => {
-    render(<NodeBadge label="ALPHA" style={{ left: "22%", top: "62%" }} />);
-    const el = screen.getByText("ALPHA");
+    render(<NodeBadge label="ALICE" style={{ left: "22%", top: "62%" }} />);
+    const el = screen.getByText("ALICE");
     expect(el).toBeInTheDocument();
     expect(el.tagName).toBe("SPAN");
   });

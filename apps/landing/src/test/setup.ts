@@ -18,3 +18,19 @@ if (typeof globalThis.IntersectionObserver === "undefined") {
   (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver =
     IntersectionObserverStub;
 }
+
+if (typeof window.matchMedia === "undefined") {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+}

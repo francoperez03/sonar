@@ -21,10 +21,30 @@
   fill: var(--color-text);
 }
 
+.labelActive {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--color-accent-cyan);
+}
+
 .node {
   fill: var(--color-surface);
   stroke: var(--color-border);
   stroke-width: 1;
+}
+
+.nodeActive {
+  fill: var(--color-surface);
+  stroke: var(--color-accent-cyan);
+  stroke-width: 1;
+}
+
+.nodeActiveBorder {
+  stroke: var(--color-accent-cyan);
+  stroke-width: 1.5;
 }
 
 .connector {
@@ -32,6 +52,19 @@
   stroke-width: 1.5;
   stroke-dasharray: 4 4;
   fill: none;
+  animation: dashFlow 1.2s linear infinite;
+}
+
+.ripple {
+  fill: none;
+  stroke: var(--color-accent-cyan);
+  stroke-width: 1;
+}
+
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -8;
+  }
 }
 
 @media (max-width: 640px) {

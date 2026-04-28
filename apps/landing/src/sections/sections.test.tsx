@@ -35,18 +35,13 @@ describe("Sections — locked copy", () => {
     }
   });
 
-  it("DemoCtaSection contains primary + secondary CTA + testnet note", () => {
+  it("DemoCtaSection contains primary + secondary CTA both disabled with Soon badge", () => {
     render(<DemoCtaSection />);
-    expect(screen.getByText("Watch the 90s demo")).toBeInTheDocument();
-    expect(screen.getByText("Read the source")).toBeInTheDocument();
-    expect(screen.getByText("Base Sepolia testnet only")).toBeInTheDocument();
-  });
-
-  it("DemoCtaSection primary CTA href falls back to #demo when env unset", () => {
-    render(<DemoCtaSection />);
-    const cta = screen.getByText("Watch the 90s demo");
-    // VITE_DEMO_VIDEO_URL is unset in tests → fallback "#demo"
-    expect(cta).toHaveAttribute("href", "#demo");
+    const primary = screen.getByText("Watch the 90s demo").closest("button");
+    const secondary = screen.getByText("Read the source").closest("button");
+    expect(primary).toBeDisabled();
+    expect(secondary).toBeDisabled();
+    expect(screen.getAllByText("Soon").length).toBe(2);
   });
 });
 

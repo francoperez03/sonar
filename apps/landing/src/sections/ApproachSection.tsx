@@ -9,14 +9,12 @@ export function ApproachSection() {
         Ping the fleet. Only the real one echoes back.
       </h2>
       <p className={styles.body}>
-        The LLM runs the whole flow through KeeperHub — generate wallets, fund
-        them on Base Sepolia, distribute, deprecate the old ones on-chain.
-        Before any key is delivered, each runtime signs an Ed25519 challenge.
-        The private key never leaves memory, so a clone can't sign. It just
-        gets blocked.
+        The LLM orchestrates the full rotation, generate, fund, distribute and
+        deprecate on-chain without touching a single key. Each runtime signs
+        a challenge before anything is delivered. No valid signature, no key.
+        Clones don't pass.
       </p>
       <div className={styles.diagramSlot}>
-        <span className={styles.diagramEyebrow}>02 / FLOW</span>
         <FlowDiagram />
       </div>
     </Section>
