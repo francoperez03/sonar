@@ -18,6 +18,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 OPERATOR_PORT="${OPERATOR_PORT:-8787}"
 OPERATOR_URL="http://localhost:${OPERATOR_PORT}"
 LOG_FILE="/tmp/sonar-logs.log"
@@ -67,20 +70,31 @@ echo ""
 echo "=== Opening /logs subscriber ==="
 : > "$LOG_FILE"
 
-# Use a minimal Node.js WebSocket client to subscribe to /logs
-node -e "
-  const WebSocket = require('ws');
-  const ws = new WebSocket('ws://localhost:${OPERATOR_PORT}/logs');
-  ws.on('message', (raw) => {
-    const line = raw.toString();
-    process.stdout.write(line + '\n');
-    require('fs').appendFileSync('${LOG_FILE}', line + '\n');
-  });
-  ws.on('error', (err) => process.stderr.write('logs-sub error: ' + err.message + '\n'));
-  ws.on('close', () => process.stderr.write('logs-sub closed\n'));
-" &
+# Write a temporary TypeScript subscriber that uses ws from operator's node_modules
+SUBSCRIBER_TS="/tmp/sonar-logs-sub.ts"
+cat > "$SUBSCRIBER_TS" << 'SUBSCRIBER_EOF'
+import WebSocket from 'ws';
+import { appendFileSync } from 'node:fs';
+const port = process.env['OPERATOR_PORT'] ?? '8787';
+const logFile = process.env['LOG_FILE'] ?? '/tmp/sonar-logs.log';
+const ws = new WebSocket(`ws://localhost:${port}/logs`);
+ws.on('message', (raw: Buffer) => {
+  const line = raw.toString();
+  process.stdout.write(line + '\n');
+  try { appendFileSync(logFile, line + '\n'); } catch { /* ignore */ }
+});
+ws.on('error', (err: Error) => process.stderr.write('logs-sub error: ' + err.message + '\n'));
+ws.on('close', () => process.stderr.write('logs-sub: connection closed\n'));
+SUBSCRIBER_EOF
+
+# Run via tsx within operator package context (which has ws as a dependency)
+OPERATOR_PORT="${OPERATOR_PORT}" LOG_FILE="${LOG_FILE}" \
+  pnpm --filter @sonar/operator exec tsx "$SUBSCRIBER_TS" > /tmp/sonar-sub.log 2>&1 &
 SUB_PID=$!
 echo "  /logs subscriber PID: ${SUB_PID}"
+
+# Give subscriber a moment to connect
+sleep 1
 
 # ── Step 4: Wait for runtimes to register (3s) ───────────────────────────────
 echo ""
@@ -128,10 +142,14 @@ sleep 2
 
 echo ""
 echo "=== /logs transcript (last 50 lines) ==="
-tail -50 "$LOG_FILE" | while IFS= read -r line; do
-  # Pretty-print each JSON line
-  echo "$line" | python3 -m json.tool 2>/dev/null || echo "$line"
-done
+if [ -s "$LOG_FILE" ]; then
+  tail -50 "$LOG_FILE" | while IFS= read -r line; do
+    echo "$line" | python3 -m json.tool 2>/dev/null || echo "$line"
+  done
+else
+  echo "  (no log events captured — check /tmp/sonar-sub.log for subscriber errors)"
+  cat /tmp/sonar-sub.log 2>/dev/null || true
+fi
 
 echo ""
 echo "=== Final /runtimes state ==="
