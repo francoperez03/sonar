@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-28T02:55:00Z"
+last_updated: "2026-04-28T03:01:13.604Z"
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 8
-  percent: 67
+  completed_plans: 12
+  percent: 100
 ---
 
 # State: Sonar
@@ -24,16 +24,16 @@ progress:
 
 ## Current Position
 
-Phase: 03 (operator-runtime-identity-core) — EXECUTING
-Plan: 4 of 5
+Phase: 03 (operator-runtime-identity-core) — COMPLETE
+Plan: 5 of 5
 
-- **Phase**: 01-public-landing (4/4 plans complete — DONE) || 02-workspace-foundation (complete) || 03-operator-runtime-identity-core (3/5 plans complete)
-- **Plan**: Phase 1 closed; Phase 3 — 3/5 complete (03-01 Wave 0, 03-02 Operator core, 03-03 HTTP control plane)
-- **Status**: Plan 01-04 executed — Local LHCI 3/3 green (LCP median 676ms), Vercel-preview LHCI 3/3 green (LCP median 395ms), LCP element attribution proven = h1, axe-core a11y green. Phase 1 (Public Landing) DONE.
-- **Progress**: 2/7 phases complete
+- **Phase**: 01-public-landing (4/4 plans complete — DONE) || 02-workspace-foundation (complete) || 03-operator-runtime-identity-core (5/5 plans complete — DONE)
+- **Plan**: Phase 3 complete — 03-05 identity capstone tests green; all 6 ROADMAP success criteria met
+- **Status**: Plan 03-05 executed — 15 new tests (OPER-05 + IDEN-01 + IDEN-02 + IDEN-03 + distribute.happy); runFleetSmoke.ts helper; fleet-smoke.sh demo script; 46/46 tests green; Phase 3 DONE.
+- **Progress**: 3/7 phases complete
 
 ```
-[██░░░░░] 2/7
+[███░░░░] 3/7
 ```
 
 ## Performance Metrics
@@ -45,6 +45,7 @@ Plan: 4 of 5
 | v1 Requirements mapped | 40/40 |
 | Plans complete | 8 |
 | Days to deadline | 5 (as of 2026-04-28) |
+| Phase 03 P05 | 8 min | - tasks | - files |
 
 ## Accumulated Context
 
@@ -61,6 +62,9 @@ Plan: 4 of 5
 - 03-01: test:run uses vitest run --passWithNoTests so Wave 0 exits 0 before any spec files exist
 - 03-01: pnpm-lock.yaml committed per Phase 2 D-01 lockfile convention
 - 03-01: @types/node peer warning (vite 7 wants >=20.19.0, workspace has ^20.11.0) accepted as pre-existing
+- 03-05: nonceTtlMs test seam: scoped factory in tests only (not on HandshakeCoordinator constructor); compile-time only per T-03-36
+- 03-05: forceRevoke idempotence: guard registry.get() before setStatus — revoke of nonexistent id is no-op 200
+- 03-05: registry.persist flaky test fixed — per-uuid tmp prefix scan instead of full tmpdir scan
 
 ### Plan-Level Decisions (Phase 2)
 
@@ -112,8 +116,8 @@ Plan: 4 of 5
 
 ## Session Continuity
 
-- **Last action**: Executed Plan 01-04 (LCP/a11y/Lighthouse phase gate) on 2026-04-28 — 3 commits (1b8fd76, 7c38ba3, eadabb9). Local LHCI 3/3 PASS (LCP 490/676/688 ms), Vercel LHCI 3/3 PASS (LCP 354/395/398 ms vs https://sonar-henna.vercel.app/), LCP attribution proven = h1._display_*, axe-core WCAG2 A/AA clean. Phase 1 closed. Task 4 (human-verify) auto-deferred under workflow.auto_advance=true.
-- **Next action**: Plan 03-04 (Runtime client) or 03-05 (Identity capstone tests) — Phase 3 is now the only open critical path before Phase 4/5/6 unblock.
+- **Last action**: Executed Plan 03-05 (identity capstone tests) on 2026-04-28 — 3 commits (c00d0c5, 04fac91, 7f798b8). 7 files created, 2 modified; 15 new tests across 5 suites; 46/46 tests green; typecheck + build green. Phase 3 COMPLETE.
+- **Next action**: Phase 4 (MCP server tools) — Phase 3 complete unblocks Phase 4/5/6.
 - **Notes**: Phase 1 design-token contract locked (12+8+5+3+6 tokens with parity test). D-13 enforced via ESLint flat config no-restricted-syntax. LAND-04 LCP <= 2000ms gate is now CI-enforceable via .lighthouserc.cjs. Hero shell exposes data-testid hooks (hero, hero-canvas-slot) for stable Playwright selectors across plans 02-04.
 
 ### Plan 01-01 Performance Metrics

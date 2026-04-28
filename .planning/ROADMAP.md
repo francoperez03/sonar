@@ -59,8 +59,8 @@
   - [x] 03-01-PLAN.md — Wave 0: install Phase 3 deps (tweetnacl, ed2curve, express, ws, vitest, concurrently), scaffold vitest configs + test fixtures, gitignore registry.json, add dev:fleet root script (OPER-01, OPER-05, RUNT-01, TRAN-02)
   - [x] 03-02-PLAN.md — Operator core: Registry + atomic persist, ActiveSessions, LogBus, nonces, NaCl box + Ed25519 verify helpers, createServerTransport, HandshakeCoordinator (OPER-01, OPER-03, OPER-04, IDEN-01, TRAN-01, TRAN-02)
   - [x] 03-03-PLAN.md — Operator HTTP control plane + bootstrap: /distribute, /revoke, /runtimes routes, dual WS upgrade router, index.ts boot + integration tests (OPER-02, OPER-03, OPER-04, TRAN-02)
-  - [ ] 03-04-PLAN.md — Runtime client: Ed25519 keypair (memory-only), createClientTransport with heartbeat + reconnect, RuntimeAgent dispatch, decrypt helper, bootstrap (RUNT-01, RUNT-02, RUNT-03, IDEN-01, TRAN-01, TRAN-02)
-  - [ ] 03-05-PLAN.md — Identity capstone: OPER-05 static+behavioral invariant test, IDEN-01 gate test, IDEN-02 clone-rejection test, IDEN-03 revoke test, distribute happy e2e, fleet-smoke.sh demo script (OPER-05, RUNT-03, IDEN-01, IDEN-02, IDEN-03)
+  - [x] 03-04-PLAN.md — Runtime client: Ed25519 keypair (memory-only), createClientTransport with heartbeat + reconnect, RuntimeAgent dispatch, decrypt helper, bootstrap (RUNT-01, RUNT-02, RUNT-03, IDEN-01, TRAN-01, TRAN-02)
+  - [x] 03-05-PLAN.md — Identity capstone: OPER-05 static+behavioral invariant test, IDEN-01 gate test, IDEN-02 clone-rejection test, IDEN-03 revoke test, distribute happy e2e, fleet-smoke.sh demo script (OPER-05, RUNT-03, IDEN-01, IDEN-02, IDEN-03)
 
 ### Phase 4: Sonar MCP Server
 **Goal**: Claude Desktop can drive the Operator through Sonar's MCP tools.
@@ -112,9 +112,9 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Public Landing | 2/4 | In progress | - |
-| 2. Workspace Foundation | 2/3 | In progress | - |
-| 3. Operator + Runtime + Identity Core | 3/5 | In progress | - |
+| 1. Public Landing | 4/4 | Complete | 2026-04-27 |
+| 2. Workspace Foundation | 3/3 | Complete | 2026-04-27 |
+| 3. Operator + Runtime + Identity Core | 5/5 | Complete | 2026-04-28 |
 | 4. Sonar MCP Server | 0/0 | Not started | - |
 | 5. On-Chain + KeeperHub Workflow | 0/0 | Not started | - |
 | 6. Demo UI + AXL Transport | 0/0 | Not started | - |
