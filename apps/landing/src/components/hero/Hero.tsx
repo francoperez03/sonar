@@ -20,7 +20,7 @@ export function Hero() {
           Rotate keys without trusting the agent.
         </h1>
         <p className={styles.body}>
-          An LLM orchestrates credential rotation across your runtime fleet —
+          An LLM orchestrates credential rotation across your runtime fleet,
           and never sees a private key. Each runtime proves identity with
           Ed25519 before delivery. A cloned binary can't catch the echo.
         </p>
