@@ -9,19 +9,19 @@
  */
 
 export const color = {
-  bg: "#07090C",
-  bgElevated: "#0D1117",
-  surface: "#121826",
-  border: "rgba(120, 200, 255, 0.12)",
-  grid: "rgba(80, 200, 255, 0.06)",
+  bg: "#0A0A0B",
+  bgElevated: "#101012",
+  surface: "#1A1A1D",
+  border: "rgba(255, 255, 255, 0.08)",
+  grid: "rgba(255, 255, 255, 0.035)",
   grain: "rgba(255, 255, 255, 0.015)",
-  text: "#F2F4F7",
-  textMuted: "#8B95A7",
-  accentCyan: "#22D3EE",
-  accentBlue: "#3B82F6",
-  accentEcho: "#F2F4F7",
-  accentCyanGlow: "rgba(34, 211, 238, 0.35)",
-  destructive: "#F87171",
+  text: "#FAFAFA",
+  textMuted: "#A1A1AA",
+  accentCyan: "#3FB8C9",
+  accentBlue: "#4A88C5",
+  accentEcho: "#FAFAFA",
+  accentCyanGlow: "rgba(63, 184, 201, 0.18)",
+  destructive: "#E07A7A",
 } as const;
 
 export const duration = {
@@ -44,6 +44,9 @@ export const space = {
   "2xl": 48,
   "3xl": 64,
   "4xl": 96,
+  "5xl": 128,
+  section: "clamp(96px, 12vw, 160px)",
+  sectionSm: "clamp(64px, 8vw, 112px)",
 } as const;
 
 export const radius = {
