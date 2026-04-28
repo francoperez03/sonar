@@ -40,3 +40,21 @@
   border-color: var(--color-accent-cyan);
   color: var(--color-accent-cyan);
 }
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.badge {
+  margin-left: var(--space-xs, 6px);
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  vertical-align: middle;
+}

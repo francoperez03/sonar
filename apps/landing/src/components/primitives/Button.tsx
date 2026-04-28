@@ -6,15 +6,23 @@ type ButtonProps = {
   href?: string;
   children: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
+  badge?: string;
 };
 
 function isExternal(href: string): boolean {
   return /^https?:\/\//i.test(href);
 }
 
-export function Button({ variant, href, children, onClick }: ButtonProps) {
-  const cn = `${styles.btn} ${styles[variant]}`;
-  if (href) {
+export function Button({ variant, href, children, onClick, disabled, badge }: ButtonProps) {
+  const cn = `${styles.btn} ${styles[variant]}${disabled ? ` ${styles.disabled}` : ""}`;
+  const content = (
+    <>
+      {children}
+      {badge && <span className={styles.badge}>{badge}</span>}
+    </>
+  );
+  if (href && !disabled) {
     const external = isExternal(href);
     return (
       <a
@@ -24,13 +32,13 @@ export function Button({ variant, href, children, onClick }: ButtonProps) {
           ? { rel: "noopener noreferrer", target: "_blank" }
           : {})}
       >
-        {children}
+        {content}
       </a>
     );
   }
   return (
-    <button className={cn} type="button" onClick={onClick}>
-      {children}
+    <button className={cn} type="button" onClick={onClick} disabled={disabled}>
+      {content}
     </button>
   );
 }

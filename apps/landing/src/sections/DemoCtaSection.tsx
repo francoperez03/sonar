@@ -16,13 +16,10 @@ export function DemoCtaSection() {
           Source on GitHub if you want to read the wire.
         </p>
         <div className={styles.ctaRow}>
-          <Button variant="primary" href={videoHref}>
+          <Button variant="primary" disabled badge="Soon">
             Watch the 90s demo
           </Button>
-          <Button
-            variant="secondary"
-            href="https://github.com/francoperez03/sonar"
-          >
+          <Button variant="secondary" disabled badge="Soon">
             Read the source
           </Button>
         </div>

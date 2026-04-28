@@ -9,10 +9,11 @@ export function ApproachSection() {
         Ping the fleet. Only the real one echoes back.
       </h2>
       <p className={styles.body}>
-        Sonar drives a KeeperHub workflow: generate wallets, fund them,
-        distribute, deprecate. At distribute, each runtime signs an Ed25519
-        challenge before the encrypted key is shipped. The LLM coordinates —
-        never custodies.
+        When Sonar rotates credentials, every runtime gets pinged with an
+        Ed25519 challenge. Only the runtime holding the matching identity can
+        sign the echo and decrypt the new key. The LLM orchestrates the
+        rotation but never holds a credential — clones and impostors get
+        nothing back.
       </p>
       <div className={styles.diagramSlot}>
         <span className={styles.diagramEyebrow}>02 / FLOW</span>
