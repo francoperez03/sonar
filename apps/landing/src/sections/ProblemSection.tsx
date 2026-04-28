@@ -1,9 +1,10 @@
+import { ProblemDiagram } from "../components/diagram/ProblemDiagram";
 import { Section } from "../components/primitives/Section";
 import styles from "./sections.module.css";
 
 export function ProblemSection() {
   return (
-    <Section id="problem" eyebrow="01 / PROBLEM" narrow>
+    <Section id="problem" eyebrow="01 / PROBLEM">
       <h2 className={styles.heading}>
         Your agent is a liability with the keys.
       </h2>
@@ -13,6 +14,7 @@ export function ProblemSection() {
         it; production deployments still ship it. Sonar removes the LLM from
         custody by construction.
       </p>
+      <ProblemDiagram />
     </Section>
   );
 }

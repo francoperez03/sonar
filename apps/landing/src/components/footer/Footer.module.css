@@ -1,6 +1,6 @@
 .footer {
   background: var(--color-surface);
-  padding-block: var(--space-2xl);
+  padding-block: var(--space-section-sm);
   border-block-start: 1px solid var(--color-border);
   margin-block-start: var(--space-3xl);
 }
@@ -8,15 +8,30 @@
 .meta {
   color: var(--color-text-muted);
   font-size: var(--text-body);
-  margin-block-end: var(--space-md);
+  margin: 0;
+  text-align: center;
+  flex: 1;
 }
 
 .row {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: var(--space-md);
-  flex-wrap: wrap;
+}
+
+.repo {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+}
+
+.repoIcon {
+  display: block;
 }
 
 .repo {

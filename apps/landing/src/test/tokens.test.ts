@@ -58,8 +58,8 @@ describe("tokens.css <-> tokens.ts parity", () => {
 });
 
 describe("tokens.ts sanity", () => {
-  it("locks accent cyan to #22D3EE", () => {
-    expect(tokens.color.accentCyan).toBe("#22D3EE");
+  it("locks accent cyan to calibrated #3FB8C9", () => {
+    expect(tokens.color.accentCyan).toBe("#3FB8C9");
   });
   it("locks space.md to 16", () => {
     expect(tokens.space.md).toBe(16);
