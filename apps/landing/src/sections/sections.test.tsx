@@ -25,10 +25,10 @@ describe("Sections — locked copy", () => {
     render(<ApproachSection />);
     for (const label of [
       "Prompt",
-      "Agent (Claude)",
+      "Agent",
       "Sonar MCP",
       "KeeperHub",
-      "Operator",
+      "Sonar",
       "Runtime",
     ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);

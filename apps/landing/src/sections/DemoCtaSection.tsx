@@ -11,7 +11,7 @@ export function DemoCtaSection() {
           Watch a key rotate end-to-end in 90 seconds.
         </h2>
         <p className={styles.body}>
-          A live run from a Claude Desktop prompt, four KeeperHub nodes on Base
+          A live run from an agent prompt, four KeeperHub nodes on Base
           Sepolia, three runtimes in the fleet, one clone rejected at the door.
           Source on GitHub if you want to read the wire.
         </p>

@@ -3,10 +3,10 @@ import styles from "./FlowDiagram.module.css";
 
 const NODES = [
   "Prompt",
-  "Agent (Claude)",
+  "Agent",
   "Sonar MCP",
   "KeeperHub",
-  "Operator",
+  "Sonar",
   "Runtime",
 ] as const;
 
@@ -34,7 +34,7 @@ export function FlowDiagram() {
         viewBox="0 0 1080 160"
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label="Prompt to Agent to Sonar MCP to KeeperHub to Operator to Runtime"
+        aria-label="Prompt to Agent to Sonar MCP to KeeperHub to Sonar to Runtime"
       >
         {/* connectors */}
         {NODES.slice(0, -1).map((_, i) => {

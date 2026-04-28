@@ -9,11 +9,11 @@ export function ApproachSection() {
         Ping the fleet. Only the real one echoes back.
       </h2>
       <p className={styles.body}>
-        When Sonar rotates credentials, every runtime gets pinged with an
-        Ed25519 challenge. Only the runtime holding the matching identity can
-        sign the echo and decrypt the new key. The LLM orchestrates the
-        rotation but never holds a credential — clones and impostors get
-        nothing back.
+        The LLM runs the whole flow through KeeperHub — generate wallets, fund
+        them on Base Sepolia, distribute, deprecate the old ones on-chain.
+        Before any key is delivered, each runtime signs an Ed25519 challenge.
+        The private key never leaves memory, so a clone can't sign. It just
+        gets blocked.
       </p>
       <div className={styles.diagramSlot}>
         <span className={styles.diagramEyebrow}>02 / FLOW</span>
