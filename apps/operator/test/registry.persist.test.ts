@@ -56,9 +56,12 @@ describe('registry.persist', () => {
     const reg = await Registry.load(path);
     await reg.upsert({ runtimeId: 'alpha', pubkey: pubkeyB64, status: 'registered', registeredAt: 1000 });
 
+    // Only check for tmp files matching THIS specific registry path's base name.
+    // Scanning the entire temp dir picks up concurrent test runs' temp files (flaky).
     const dir = path.substring(0, path.lastIndexOf('/'));
+    const baseName = path.substring(path.lastIndexOf('/') + 1);
     const files = await fs.readdir(dir);
-    const tmpFiles = files.filter(f => f.includes('.tmp.'));
+    const tmpFiles = files.filter(f => f.startsWith(baseName) && f.includes('.tmp.'));
     expect(tmpFiles).toHaveLength(0);
   });
 });

@@ -230,7 +230,11 @@ export class HandshakeCoordinator {
    * Used by Plan 03's /revoke route.
    */
   forceRevoke(runtimeId: string, reason: string): void {
-    void this.registry.setStatus(runtimeId, 'revoked');
+    // Only update registry if the runtime was previously registered.
+    // setStatus throws on missing record; idempotent revoke of unknown ids is a no-op (T-03-33).
+    if (this.registry.get(runtimeId)) {
+      void this.registry.setStatus(runtimeId, 'revoked');
+    }
     this.sessions.forceClose(runtimeId, 4401, 'revoked');
     this.logBus.logEntry(runtimeId, 'warn', `revoked: ${reason}`);
     this.logBus.statusChange(runtimeId, 'revoked');
