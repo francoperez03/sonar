@@ -7,7 +7,7 @@ import {
 import { useEffect, type CSSProperties, type ReactNode } from "react";
 import styles from "./ProblemDiagram.module.css";
 
-const LOOP_MS = 8000;
+const LOOP_MS = 14000;
 
 type Variant = "persistent" | "neutral" | "inject" | "leak";
 
