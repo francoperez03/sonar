@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lint": "eslint src --max-warnings 0",
-    "lhci": "lhci autorun"
+    "lhci": "lhci autorun",
+    "lhci:vercel": "LHCI_VERCEL_URL=$(cat .vercel-preview-url | tr -d '\\n') lhci autorun --config=./.lighthouserc.vercel.cjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.5",

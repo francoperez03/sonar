@@ -23,7 +23,6 @@ export function DemoCtaSection() {
             Read the source
           </Button>
         </div>
-        <span className={styles.testnetNote}>Base Sepolia testnet only</span>
       </div>
     </Section>
   );

@@ -8,6 +8,7 @@ export function Hero() {
   const demoHref = import.meta.env.VITE_DEMO_VIDEO_URL ?? "#demo";
 
   return (
+    <div className={styles.heroOuter}>
     <section
       className={styles.hero}
       aria-label="Sonar hero"
@@ -47,5 +48,6 @@ export function Hero() {
         </Suspense>
       </div>
     </section>
+    </div>
   );
 }
