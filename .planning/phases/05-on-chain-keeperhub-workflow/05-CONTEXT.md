@@ -58,6 +58,9 @@ Out of scope (belongs to other phases):
 - **D-15:** **`BASE_SEPOLIA_RPC_URL` defaults to `https://sepolia.base.org`** (public endpoint) but is overridable via env. Demo can swap to Alchemy/QuickNode if stability matters during recording.
 - **D-16:** **Tx-hash observability:** every on-chain action (deploy, fund tx, deprecate tx) emits a `log_entry` to the Operator LogBus via an HTTP ingestion path, with shape `{ event: 'tx_sent', txHash, explorerUrl: 'https://sepolia.basescan.org/tx/<hash>', node: 'fund_wallets' | 'deprecate' }`. Tx hashes also remain in the native KeeperHub workflow log. Phase 6 Demo UI will render the LogBus stream with clickable Basescan links.
 
+### Research Mandate
+- **D-17:** **KeeperHub deep-dive is a precondition to planning.** Before `gsd-planner` writes any task specs, `gsd-phase-researcher` must produce a complete map of KeeperHub's native node contract, workflow schema, run/trigger API, official SDK surface, logging hooks, secret model, MCP integration story, on-chain helpers, and version pinning. The exact deliverables list lives in `<canonical_refs>` under "MANDATORY KeeperHub research". The plan must cite specific SDK function names and endpoints, not generic references. Rationale: KeeperHub is the ETHGlobal track target; flying blind on its API is the single biggest risk to Phase 5.
+
 ### Folded Todos
 None — no backlog todos applicable to this phase.
 
@@ -100,11 +103,30 @@ None — no backlog todos applicable to this phase.
 - Foundry Book — `forge`, `cast`, `forge-std`, scripting deploys to Base Sepolia
 - Base Sepolia docs — chain ID 84532, public RPC, Coinbase faucet
 - `viem` (recommended) — wallet, public client, contract write/read against Base Sepolia
-- KeeperHub MCP docs — native node interface, workflow.json schema, run/log API
 
-### To be added during planning
-- KeeperHub MCP API specifics (run trigger endpoint, log retrieval) — researcher should pin exact endpoints and version
+### MANDATORY KeeperHub research (researcher must produce this before planning)
+
+KeeperHub is the ETHGlobal track target — Phase 5 plan cannot start until the researcher has produced a complete map of KeeperHub's surface. Treat this as a first-class deliverable of `RESEARCH.md`, not a footnote.
+
+The research output must cover:
+1. **Native node authoring contract** — exact module/export shape KeeperHub expects, lifecycle hooks (init/run/cleanup), how inputs/outputs are typed, error propagation, timeout semantics, retry hooks
+2. **Workflow definition format** — `workflow.json` (or equivalent) schema: node ordering, branching, conditional edges, context-passing rules, what fields KeeperHub reserves
+3. **Run/trigger API** — every endpoint to start a run, get status, fetch logs, cancel; auth model; rate limits; idempotency keys
+4. **SDK surface** — official SDK(s) for native node authoring (TS/JS first), version pinning, install path, breaking-change history if relevant
+5. **Logging + observability hooks** — how a node emits logs that show up in KeeperHub's UI, structured-log support, ability to attach metadata (e.g., txHash) to log lines
+6. **Secret/credential model** — how KeeperHub expects nodes to access secrets at runtime (env, vault integration, per-run inputs); confirms our D-13 `.env` plan is compatible
+7. **MCP integration story** — how KeeperHub exposes itself as MCP, what MCP tools it ships, how Sonar MCP's `run_rotation` should call into KeeperHub (direct API vs MCP-to-MCP vs in-process SDK)
+8. **On-chain helpers** — does KeeperHub ship native primitives for EVM tx submission/wait-for-receipt? If so, prefer them over hand-rolled `viem` calls
+9. **Pitfalls / non-obvious limits** — concurrency caps, payload size, log retention, cold-start latency
+10. **Versions to pin** — exact SDK + workflow-schema versions used at submission
+
+The researcher should consult `mcp__context7__*` for KeeperHub docs/SDK, plus official KeeperHub docs and any ETHGlobal track-specific guidance. Output should be concrete enough that the planner can write task specs without re-researching (e.g., name the exact SDK function, not "KeeperHub's run API").
+
+### To be added during research (output goes into RESEARCH.md)
+- KeeperHub MCP API specifics (run trigger endpoint, log retrieval) — researcher pins exact endpoints + versions
+- Confirmation that our 4-node native-TS plan (D-05) is the idiomatic KeeperHub pattern, not a workaround
 - Base Sepolia explorer URL pattern confirmation (`https://sepolia.basescan.org/tx/<hash>`)
+- Whether KeeperHub's logging hooks can carry the `{txHash, explorerUrl}` metadata D-16 wants, or whether we route via the Operator LogBus only
 
 </canonical_refs>
 
