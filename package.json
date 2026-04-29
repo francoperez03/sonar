@@ -9,8 +9,11 @@
     "typecheck": "pnpm -r typecheck",
     "dev": "pnpm -F @sonar/landing dev",
     "preview": "pnpm -F @sonar/landing preview",
-    "test": "pnpm -F @sonar/landing test",
+    "test": "pnpm -r --parallel test:run",
+    "test:landing": "pnpm -F @sonar/landing test",
+    "test:run": "pnpm -r --parallel test:run",
     "test:e2e": "pnpm -F @sonar/landing test:e2e",
+    "dev:fleet": "concurrently -n alpha,beta,gamma -c blue,green,magenta \"RUNTIME_ID=alpha pnpm -F @sonar/runtime dev\" \"RUNTIME_ID=beta pnpm -F @sonar/runtime dev\" \"RUNTIME_ID=gamma pnpm -F @sonar/runtime dev\"",
     "lhci": "pnpm -F @sonar/landing lhci",
     "lint": "pnpm -F @sonar/landing lint",
     "dev:operator": "pnpm --filter @sonar/operator dev",
@@ -18,10 +21,12 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "typescript": "^5.6.0",
-    "tsx": "^4.21.0",
+    "@types/node": "^20.11.0",
+    "concurrently": "9.2.1",
     "prettier": "^3.8.0",
-    "@types/node": "^20.11.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.0",
+    "vitest": "4.1.5"
   },
   "engines": {
     "node": ">=20"

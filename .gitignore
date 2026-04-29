@@ -28,3 +28,7 @@ CLAUDE.md
 playwright-report/
 test-results/
 
+# phase 3 — operator runtime registry
+apps/operator/data/registry.json
+apps/operator/data/registry.json.tmp.*
+
