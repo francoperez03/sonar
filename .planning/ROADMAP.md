@@ -70,7 +70,11 @@
   1. The MCP server exposes `list_runtimes`, `revoke`, and `get_workflow_log` tools and registers cleanly with Claude Desktop
   2. Each tool round-trips successfully against a locally running Operator from a real Claude Desktop session
   3. README install instructions get a fresh developer connected from Claude Desktop in under 5 minutes
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 04-01-PLAN.md — Wave 0: install @modelcontextprotocol/sdk + ws, bump zod to ^3.25, scaffold vitest harness, stderr logger, and seam test stubs (MCP-01, MCP-02, MCP-03)
+  - [ ] 04-02-PLAN.md — Operator data plane: config, RingBuffer, operator/http (fetch wrappers), operator/logs (WS reconnect 1s→30s, close-only) (MCP-01, MCP-02)
+  - [ ] 04-03-PLAN.md — MCP layer: three tools (list_runtimes, revoke DESTRUCTIVE, get_workflow_log), buildMcpServer factory, stdio entry, e2e fake-Operator integration (MCP-01, MCP-02)
+  - [ ] 04-04-PLAN.md — apps/mcp/README.md (CONTEXT D-18 ordering) + readme.contract grep test (MCP-03)
 
 ### Phase 5: On-Chain + KeeperHub Workflow
 **Goal**: The 4-node KeeperHub workflow runs end-to-end on Base Sepolia, including on-chain deprecation.
