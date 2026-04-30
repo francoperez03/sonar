@@ -6,7 +6,14 @@ const broadcastPath = resolve(import.meta.dirname, `../broadcast/Deploy.s.sol/${
 const outPath = resolve(import.meta.dirname, '../../deployments/base-sepolia.json');
 
 interface ForgeBroadcast {
-  transactions: Array<{ contractName: string; contractAddress: string; hash: string; transactionType: string }>;
+  transactions: Array<{
+    contractName: string;
+    contractAddress: string;
+    hash: string;
+    transactionType: string;
+    transaction?: { from?: string };
+    from?: string;
+  }>;
   receipts: Array<{ transactionHash: string; blockNumber: string; contractAddress: string }>;
 }
 
@@ -17,8 +24,7 @@ if (!tx) throw new Error(`No FleetRegistry CREATE tx in ${broadcastPath}`);
 const receipt = log.receipts.find(r => r.transactionHash === tx.hash);
 if (!receipt) throw new Error(`No receipt for tx ${tx.hash}`);
 
-// Recover deployer address from the broadcast log's `from` (Foundry includes it on the tx record).
-const deployer = (log.transactions[0] as unknown as { from?: string }).from ?? '0x0';
+const deployer = tx.transaction?.from ?? tx.from ?? '0x0';
 
 const record = {
   FleetRegistry: {

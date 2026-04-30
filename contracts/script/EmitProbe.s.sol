@@ -11,7 +11,7 @@ interface IFleetRegistry {
 /// @notice Emits a single WalletsDeprecated event from the deployed FleetRegistry to satisfy CHAIN-02.
 contract EmitProbe is Script {
     function run() external {
-        string memory json = vm.readFile("deployments/base-sepolia.json");
+        string memory json = vm.readFile("../deployments/base-sepolia.json");
         address registry = vm.parseJsonAddress(json, ".FleetRegistry.address");
         uint256 pk = vm.envUint("DEPLOYER_PRIVKEY");
 

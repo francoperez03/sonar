@@ -1,0 +1,10 @@
+{
+  "FleetRegistry": {
+    "address": "0x7eddfc8953a529ce7ffb35de2030f73aad89b31f",
+    "deployer": "0xb60ddb2285500e4635a7e959eef26016d7547908",
+    "blockNumber": 40900787,
+    "txHash": "0x0a7e59d5aba178cf8b191a3bfd879d87e004ec3dbc9a8e0b827ae919e50e68e7",
+    "deployedAt": 1777569954461,
+    "chain02ProbeTxHash": "0xace577cfe698b11a44293205c3a6b658f4c26e5b7ea75b4b306ef5a81b711ceb"
+  }
+}
