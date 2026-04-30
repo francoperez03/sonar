@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-29T00:30:00.000Z"
+last_updated: "2026-04-30T14:52:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 16
+  total_plans: 21
   completed_plans: 16
-  percent: 100
+  percent: 76
 ---
 
 # State: Sonar
@@ -24,13 +24,13 @@ progress:
 
 ## Current Position
 
-Phase: 04 (sonar-mcp-server) — COMPLETE
-Plan: 4 of 4
+Phase: 05 (on-chain-keeperhub-workflow) — IN PROGRESS
+Plan: 4 of 5 complete (auto portion); M-06 human round-trip is the next manual gate
 
-- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (4/4 plans complete — DONE)
-- **Plan**: Phase 4 complete — three MCP tools registered, README contract enforced, 37/37 mcp tests green
-- **Status**: Plans 04-01..04 executed across 3 waves — apps/mcp scaffolded, config + RingBuffer + operator HTTP/WS clients, list_runtimes/revoke/get_workflow_log tools + buildMcpServer + stdio entry, README + readme.contract grep test. Total: operator 35/35, runtime 11/11, mcp 37/37 green.
-- **Progress**: 4/7 phases complete
+- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE) || 05-on-chain-keeperhub-workflow (05-01..05-04 auto portion done; 05-04 M-06 human gate pending; 05-05 next)
+- **Plan**: 05-04 auto tasks landed — @sonar/keeperhub buildable + 27/27 tests green; workflow.json (M-05) committed; M-06 publish round-trip is the next manual step (the human will run `pnpm --filter @sonar/keeperhub publish:workflow` to capture KEEPERHUB_WORKFLOW_ID).
+- **Status**: 05-04 produced apps/keeperhub package: publish-workflow.ts (POST/PUT to /api/workflows with bearer; injects deprecate ABI + gasLimitMultiplier; validates contractAddress against deployments/base-sepolia.json), poll-execution.ts (long-lived poller forwarding tx_hash → /rotation/log-ingest with per-runId backoff + dedup; fires /rotation/complete on completion), runRegistry, README with all 11 MANUAL-OPS IDs.
+- **Progress**: 4/7 phases complete; Phase 5 ~80% (4/5 plans, M-06 pending)
 
 ```
 [████░░░] 4/7
@@ -46,6 +46,7 @@ Plan: 4 of 4
 | Plans complete | 8 |
 | Days to deadline | 5 (as of 2026-04-28) |
 | Phase 03 P05 | 8 min | - tasks | - files |
+| Phase 05 P04 | ~12 min | 3 tasks | 19 files (15 new src/test + 4 config) |
 
 ## Accumulated Context
 
@@ -56,6 +57,16 @@ Plan: 4 of 4
 - pnpm workspace monorepo with `packages/shared`
 - Track *Best Use of KeeperHub* as primary submission
 - `ITransport` abstraction so AXL/WebSocket are swap-able
+
+### Plan-Level Decisions (Phase 5)
+
+- 05-04: WorkflowEnvelopeSchema models the REAL M-05 dump shape (`{version, exportedAt, workflow:{name,description}, nodes[type=trigger|action], edges[type=animated], integrationBindings[]}`) — the speculative flat shape sketched in 05-PATTERNS.md does NOT match what KeeperHub actually emits.
+- 05-04: Action subtype lives on `data.config.actionType` (`HTTP Request` | `web3/transfer-funds` | `web3/write-contract`); top-level node `type` is only `trigger` | `action`.
+- 05-04: publish-workflow rewrites placeholder template refs (`node1.wallets`, `node2.txHashes`, `node4.txHash`) to real upstream node ids at publish time so the dump is runnable on first publish without UI re-edits.
+- 05-04: FleetRegistry contractAddress validation is case-insensitive; output normalized to the deployments-file (lowercase) form. ABI and gasLimitMultiplier are injected at publish time, replacing UI placeholders.
+- 05-04: publish-workflow.ts factored as `publishWorkflow()` named export + auto-run guard (not child_process spawn) — tests import the function directly for ~10x faster runs and deterministic dependency injection.
+- 05-04: /rotation/complete is fired by the poller (CONTEXT D-19/D-21 discretion), not by an explicit on-success webhook in workflow.json.
+- 05-04: M-06 (live publish round-trip + capture KEEPERHUB_WORKFLOW_ID) deliberately deferred to human; auto run stopped before live network call.
 
 ### Plan-Level Decisions (Phase 4)
 

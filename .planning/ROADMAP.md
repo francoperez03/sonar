@@ -10,7 +10,7 @@
 
 - [x] **Phase 1: Public Landing** - Ship the dark-theme R3F sonar landing site (4/4 plans complete; live at https://sonar-henna.vercel.app/)
 - [x] **Phase 2: Workspace Foundation** - pnpm monorepo with shared `ITransport` + message types (3/3 plans complete)
-- [ ] **Phase 3: Operator + Runtime + Identity Core** - Operator backend, runtime script, Ed25519 challenge/response, WebSocket transport baseline
+- [x] **Phase 3: Operator + Runtime + Identity Core** - Operator backend, runtime script, Ed25519 challenge/response, WebSocket transport baseline
 - [x] **Phase 4: Sonar MCP Server** - MCP server exposing `list_runtimes`/`revoke`/`get_workflow_log` to Claude Desktop (4/4 plans complete)
 - [ ] **Phase 5: On-Chain + KeeperHub Workflow** - FleetRegistry on Base Sepolia and 4-node KeeperHub workflow wired to Operator
 - [ ] **Phase 6: Demo UI + AXL Transport** - React demo UI mirroring chat/log/runtime panels; AXL transport (or recorded fallback)
@@ -86,7 +86,12 @@
   3. The KeeperHub workflow definition runs `generate_wallets` → `fund_wallets` → `distribute` → `deprecate` with real on-chain txs visible on-chain
   4. The `distribute` node integrates with the Operator (HTTP callback or native node) and waits for handshake completion before advancing
   5. The full workflow can be triggered from Claude Desktop through the Sonar MCP server
-**Plans**: TBD
+**Plans**: 5 plans
+  - [ ] 05-01-PLAN.md — FleetRegistry Foundry workspace + greenfield Sol contract + deploy script (CHAIN-01)
+  - [ ] 05-02-PLAN.md — Deploy to Base Sepolia + record deployments/base-sepolia.json + EmitProbe (CHAIN-01, CHAIN-02, CHAIN-03)
+  - [ ] 05-03-PLAN.md — Operator /rotation/* aggregator routes + PrivkeyVault + bearer-auth + OPER-05 invariant extension (KEEP-03, OPER-05)
+  - [x] 05-04-PLAN.md — apps/keeperhub glue: workflow.json + publish-workflow + poll-execution → LogBus (KEEP-01, KEEP-02, KEEP-04, CHAIN-02) — auto portion DONE; M-06 publish round-trip pending human
+  - [ ] 05-05-PLAN.md — apps/mcp run_rotation tool + cross-process poller-server + Claude Desktop M-08 smoke (KEEP-04)
 
 ### Phase 6: Demo UI + AXL Transport
 **Goal**: A React demo UI shows the rotation live, and AXL transport is integrated (or explicitly recorded as deferred under the `ITransport` swap-able interface).
@@ -97,7 +102,13 @@
   2. The Operator WebSocket log stream is rendered live in the UI
   3. Per-runtime panels (alpha/beta/gamma) reflect the runtime status transitions: registered → awaiting → received → deprecated, with revoked also visible
   4. AXL transport is implemented under `ITransport` and validated end-to-end OR the deferred-decision policy is invoked and the WebSocket fallback is recorded as the demo transport in `docs/`
-**Plans**: TBD
+**Plans**: 6 plans
+  - [ ] 06-01-PLAN.md — Wave 0 scaffold (apps/demo-ui Vite/React/Vitest harness, tokens import, ChatMsg shared schema) (DEMO-01, DEMO-02, DEMO-03)
+  - [ ] 06-02-PLAN.md — Operator POST /log/publish + MCP chatPublish hook (chat events on existing /logs WS) (DEMO-01)
+  - [ ] 06-03-PLAN.md — Browser ITransport adapter + module-level store + reducer with allowed transitions + useSyncExternalStore hooks (DEMO-02, DEMO-03)
+  - [ ] 06-04-PLAN.md — Shell port: AmbientBackground + Sidebar + Footer + ChatMirror + EventLog (Virtuoso) + TxHashChip (DEMO-01, DEMO-02)
+  - [ ] 06-05-PLAN.md — Canvas: 4 RuntimeNodes (alpha/beta/gamma/gamma-clone) + 3 ServiceNodes + EdgePulse + StatusPill + IdentityStrip (DEMO-03)
+  - [ ] 06-06-PLAN.md — AXL spike (90-min hard box) + branch decision + demo-ui README + end-to-end smoke checkpoint (TRAN-03)
 **UI hint**: yes
 
 ### Phase 7: Rehearsal + Submission
@@ -120,8 +131,8 @@
 | 2. Workspace Foundation | 3/3 | Complete | 2026-04-27 |
 | 3. Operator + Runtime + Identity Core | 5/5 | Complete | 2026-04-28 |
 | 4. Sonar MCP Server | 0/0 | Not started | - |
-| 5. On-Chain + KeeperHub Workflow | 0/0 | Not started | - |
-| 6. Demo UI + AXL Transport | 0/0 | Not started | - |
+| 5. On-Chain + KeeperHub Workflow | 4/5 | In progress | - |
+| 6. Demo UI + AXL Transport | 0/6 | Planned | - |
 | 7. Rehearsal + Submission | 0/0 | Not started | - |
 
 ## Coverage Notes
