@@ -5,6 +5,7 @@ import { LogBus } from './log/LogBus.js';
 import { HandshakeCoordinator } from './handshake/HandshakeCoordinator.js';
 import * as nonces from './handshake/nonces.js';
 import { createOperatorServer } from './http/server.js';
+import { PrivkeyVault } from './rotation/PrivkeyVault.js';
 import { log } from './util/log.js';
 
 // Top-level await: ESM + Node 20+ (D-14)
@@ -13,7 +14,15 @@ const registry = await Registry.load(cfg.registryPath);
 const sessions = new ActiveSessions();
 const logBus = new LogBus();
 const coordinator = new HandshakeCoordinator({ registry, sessions, logBus, nonceStore: nonces });
-const { httpServer } = createOperatorServer({ registry, sessions, logBus, coordinator });
+const vault = new PrivkeyVault(); // Phase 5 D-19/D-21: in-memory ephemeral wallets
+const { httpServer } = createOperatorServer({
+  registry,
+  sessions,
+  logBus,
+  coordinator,
+  vault,
+  webhookSecret: cfg.keeperhubWebhookSecret,
+});
 
 httpServer.listen(cfg.httpPort, () => {
   // T-03-22: log only port + registry path (not registry contents)

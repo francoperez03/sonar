@@ -20,6 +20,7 @@ import { ActiveSessions } from '../src/sessions/ActiveSessions.js';
 import { LogBus } from '../src/log/LogBus.js';
 import { HandshakeCoordinator } from '../src/handshake/HandshakeCoordinator.js';
 import { createOperatorServer } from '../src/http/server.js';
+import { PrivkeyVault } from '../src/rotation/PrivkeyVault.js';
 import type { LogEntryMsg } from '@sonar/shared';
 
 // ── Build a scoped nonce store with custom TTL (test seam, T-03-36) ───────────
@@ -78,7 +79,7 @@ async function spinUp(nonceStore?: ReturnType<typeof makeScopedNonces>) {
   const logBus = new LogBus();
   const nonces = nonceStore ?? (await import('../src/handshake/nonces.js'));
   const coordinator = new HandshakeCoordinator({ registry, sessions, logBus, nonceStore: nonces });
-  const { httpServer: srv } = createOperatorServer({ registry, sessions, logBus, coordinator });
+  const { httpServer: srv } = createOperatorServer({ registry, sessions, logBus, coordinator, vault: new PrivkeyVault(), webhookSecret: 'test-secret' });
   await new Promise<void>((r) => srv.listen(port, '127.0.0.1', () => r()));
   httpServer = srv;
   return { port, registry, sessions, logBus, coordinator };

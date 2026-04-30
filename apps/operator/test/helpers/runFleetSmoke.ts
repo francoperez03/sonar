@@ -17,6 +17,7 @@ import { LogBus } from '../../src/log/LogBus.js';
 import { HandshakeCoordinator } from '../../src/handshake/HandshakeCoordinator.js';
 import * as defaultNonces from '../../src/handshake/nonces.js';
 import { createOperatorServer } from '../../src/http/server.js';
+import { PrivkeyVault } from '../../src/rotation/PrivkeyVault.js';
 import { RuntimeAgent } from '../../../runtime/src/handshake/RuntimeAgent.js';
 import { createClientTransport } from '../../../runtime/src/transport/createClientTransport.js';
 import { allocPort, tempRegistryPath } from '../setup.js';
@@ -81,7 +82,8 @@ export async function runFleetSmoke(opts: FleetOpts): Promise<FleetHarness> {
   const sessions = new ActiveSessions();
   const logBus = new LogBus();
   const coordinator = new HandshakeCoordinator({ registry, sessions, logBus, nonceStore: nonces });
-  const { httpServer } = createOperatorServer({ registry, sessions, logBus, coordinator });
+  const vault = new PrivkeyVault();
+  const { httpServer } = createOperatorServer({ registry, sessions, logBus, coordinator, vault, webhookSecret: 'test-secret' });
 
   await new Promise<void>((resolve) => httpServer.listen(port, '127.0.0.1', () => resolve()));
 

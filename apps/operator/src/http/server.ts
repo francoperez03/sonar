@@ -2,21 +2,29 @@ import { createServer, type Server } from 'node:http';
 import express, { type Express } from 'express';
 import { WebSocketServer } from 'ws';
 import { jsonBody } from './middleware/json.js';
+import { bearerAuth } from './middleware/bearerAuth.js';
 import { distributeRoute } from './routes/distribute.js';
 import { revokeRoute } from './routes/revoke.js';
 import { runtimesRoute } from './routes/runtimes.js';
+import { rotationGenerateRoute } from './routes/rotation/generate.js';
+import { rotationDistributeRoute } from './routes/rotation/distribute.js';
+import { rotationCompleteRoute } from './routes/rotation/complete.js';
+import { rotationLogIngestRoute } from './routes/rotation/log-ingest.js';
 import { mountRuntimeSocket } from '../transport/createServerTransport.js';
 import { mountLogSocket } from '../log/logSubscribers.js';
 import type { Registry } from '../registry/Registry.js';
 import type { ActiveSessions } from '../sessions/ActiveSessions.js';
 import type { LogBus } from '../log/LogBus.js';
 import type { HandshakeCoordinator } from '../handshake/HandshakeCoordinator.js';
+import type { PrivkeyVault } from '../rotation/PrivkeyVault.js';
 
 export interface OperatorDeps {
   registry: Registry;
   sessions: ActiveSessions;
   logBus: LogBus;
   coordinator: HandshakeCoordinator;
+  vault: PrivkeyVault;
+  webhookSecret: string;
 }
 
 /**
@@ -25,6 +33,10 @@ export interface OperatorDeps {
  * - POST /distribute  (OPER-03)
  * - POST /revoke      (OPER-04)
  * - GET  /runtimes    (OPER-02)
+ * - POST /rotation/generate     (Phase 5 D-07/D-18, bearer-auth)
+ * - POST /rotation/distribute   (Phase 5 D-10/D-11/D-12, bearer-auth)
+ * - POST /rotation/complete     (Phase 5 D-19, bearer-auth)
+ * - POST /rotation/log-ingest   (Phase 5 D-16, bearer-auth)
  * - WS   /runtime     (TRAN-02)
  * - WS   /logs        (OPER-03 broadcast)
  */
@@ -35,6 +47,17 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
   app.post('/distribute', distributeRoute({ sessions: deps.sessions, coordinator: deps.coordinator }));
   app.post('/revoke', revokeRoute({ coordinator: deps.coordinator }));
   app.get('/runtimes', runtimesRoute({ registry: deps.registry }));
+
+  // Phase 5 D-18: workflow-facing /rotation/* surface, bearer-auth at every entry.
+  const auth = bearerAuth(deps.webhookSecret);
+  app.post('/rotation/generate', auth, rotationGenerateRoute({ vault: deps.vault, logBus: deps.logBus }));
+  app.post(
+    '/rotation/distribute',
+    auth,
+    rotationDistributeRoute({ vault: deps.vault, coordinator: deps.coordinator, logBus: deps.logBus, sessions: deps.sessions }),
+  );
+  app.post('/rotation/complete', auth, rotationCompleteRoute({ vault: deps.vault, logBus: deps.logBus }));
+  app.post('/rotation/log-ingest', auth, rotationLogIngestRoute({ logBus: deps.logBus }));
 
   const httpServer = createServer(app);
 

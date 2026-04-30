@@ -19,6 +19,7 @@ import { LogBus } from '../src/log/LogBus.js';
 import { HandshakeCoordinator } from '../src/handshake/HandshakeCoordinator.js';
 import * as nonces from '../src/handshake/nonces.js';
 import { createOperatorServer } from '../src/http/server.js';
+import { PrivkeyVault } from '../src/rotation/PrivkeyVault.js';
 import type { LogEntryMsg, StatusChangeMsg } from '@sonar/shared';
 
 // ── Per-test cleanup ──────────────────────────────────────────────────────────
@@ -42,7 +43,7 @@ async function spinUp() {
   const sessions = new ActiveSessions();
   const logBus = new LogBus();
   const coordinator = new HandshakeCoordinator({ registry, sessions, logBus, nonceStore: nonces });
-  const { httpServer: srv } = createOperatorServer({ registry, sessions, logBus, coordinator });
+  const { httpServer: srv } = createOperatorServer({ registry, sessions, logBus, coordinator, vault: new PrivkeyVault(), webhookSecret: 'test-secret' });
   await new Promise<void>((r) => srv.listen(port, '127.0.0.1', () => r()));
   httpServer = srv;
   return { port, registry, sessions, logBus, coordinator };
