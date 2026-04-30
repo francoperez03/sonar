@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-28T03:01:13.604Z"
+last_updated: "2026-04-29T00:30:00.000Z"
 progress:
   total_phases: 7
-  completed_phases: 3
-  total_plans: 12
-  completed_plans: 12
+  completed_phases: 4
+  total_plans: 16
+  completed_plans: 16
   percent: 100
 ---
 
@@ -24,16 +24,16 @@ progress:
 
 ## Current Position
 
-Phase: 03 (operator-runtime-identity-core) — COMPLETE
-Plan: 5 of 5
+Phase: 04 (sonar-mcp-server) — COMPLETE
+Plan: 4 of 4
 
-- **Phase**: 01-public-landing (4/4 plans complete — DONE) || 02-workspace-foundation (complete) || 03-operator-runtime-identity-core (5/5 plans complete — DONE)
-- **Plan**: Phase 3 complete — 03-05 identity capstone tests green; all 6 ROADMAP success criteria met
-- **Status**: Plan 03-05 executed — 15 new tests (OPER-05 + IDEN-01 + IDEN-02 + IDEN-03 + distribute.happy); runFleetSmoke.ts helper; fleet-smoke.sh demo script; 46/46 tests green; Phase 3 DONE.
-- **Progress**: 3/7 phases complete
+- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (4/4 plans complete — DONE)
+- **Plan**: Phase 4 complete — three MCP tools registered, README contract enforced, 37/37 mcp tests green
+- **Status**: Plans 04-01..04 executed across 3 waves — apps/mcp scaffolded, config + RingBuffer + operator HTTP/WS clients, list_runtimes/revoke/get_workflow_log tools + buildMcpServer + stdio entry, README + readme.contract grep test. Total: operator 35/35, runtime 11/11, mcp 37/37 green.
+- **Progress**: 4/7 phases complete
 
 ```
-[███░░░░] 3/7
+[████░░░] 4/7
 ```
 
 ## Performance Metrics
@@ -56,6 +56,16 @@ Plan: 5 of 5
 - pnpm workspace monorepo with `packages/shared`
 - Track *Best Use of KeeperHub* as primary submission
 - `ITransport` abstraction so AXL/WebSocket are swap-able
+
+### Plan-Level Decisions (Phase 4)
+
+- 04-01: zod bumped to ^3.25 workspace-wide (MCP SDK peer); pnpm-lock.yaml committed per Phase 2 D-01 lockfile convention
+- 04-01: stderr-only logger in apps/mcp/src/util/log.ts; no-stdout grep test excludes util/log.ts itself
+- 04-02: WS reconnect backoff verified via real-clock timing (vitest fake timers blocked `ws` 'message' delivery); 30s cap asserted via direct Math.min formula instead of timing walk
+- 04-02: ws-server tests must iterate `wss.clients` and `terminate()` each in `afterEach` before `wss.close()` — `WebSocketServer.close(cb)` does not terminate active clients
+- 04-03: MCP tool test seam = `(server as any)._registeredTools[name].handler` (NOT `.callback` as RESEARCH suggested) — confirmed at dist/esm/server/mcp.d.ts:274
+- 04-03: revoke pre-checks GET /runtimes to surface `runtime_not_found` / `already_revoked` because Operator's `forceRevoke` is idempotent (200 even for missing/already-revoked ids)
+- 04-04: README absolute-path snippet uses `<ABSOLUTE-PATH-TO-SONAR>/apps/mcp/dist/index.js` placeholder per Pitfall 4; readme.contract grep test enforces 7 invariants
 
 ### Plan-Level Decisions (Phase 3)
 
@@ -116,8 +126,8 @@ Plan: 5 of 5
 
 ## Session Continuity
 
-- **Last action**: Executed Plan 03-05 (identity capstone tests) on 2026-04-28 — 3 commits (c00d0c5, 04fac91, 7f798b8). 7 files created, 2 modified; 15 new tests across 5 suites; 46/46 tests green; typecheck + build green. Phase 3 COMPLETE.
-- **Next action**: Phase 4 (MCP server tools) — Phase 3 complete unblocks Phase 4/5/6.
+- **Last action**: Executed Phase 4 (sonar-mcp-server) on 2026-04-29 — 4 plans across 3 waves; 11 commits (418f18a, 057e6b5, 82a8aab, 23e51b2, 1bbb955, 8c23053, 33c806a, a9e5084, b232e71, 9cec80c, 117283d, 3b7342b). apps/mcp scaffolded with config + RingBuffer + operator HTTP/WS clients, three MCP tools (list_runtimes / revoke / get_workflow_log), buildMcpServer factory, stdio entry, README + contract test. operator 35/35 + runtime 11/11 + mcp 37/37 green.
+- **Next action**: Phase 5 (On-Chain + KeeperHub workflow) — needs research per the KeeperHub deep-dive directive.
 - **Notes**: Phase 1 design-token contract locked (12+8+5+3+6 tokens with parity test). D-13 enforced via ESLint flat config no-restricted-syntax. LAND-04 LCP <= 2000ms gate is now CI-enforceable via .lighthouserc.cjs. Hero shell exposes data-testid hooks (hero, hero-canvas-slot) for stable Playwright selectors across plans 02-04.
 
 ### Plan 01-01 Performance Metrics

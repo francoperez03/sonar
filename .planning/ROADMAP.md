@@ -11,7 +11,7 @@
 - [x] **Phase 1: Public Landing** - Ship the dark-theme R3F sonar landing site (4/4 plans complete; live at https://sonar-henna.vercel.app/)
 - [x] **Phase 2: Workspace Foundation** - pnpm monorepo with shared `ITransport` + message types (3/3 plans complete)
 - [ ] **Phase 3: Operator + Runtime + Identity Core** - Operator backend, runtime script, Ed25519 challenge/response, WebSocket transport baseline
-- [ ] **Phase 4: Sonar MCP Server** - MCP server exposing `list_runtimes`/`revoke`/`get_workflow_log` to Claude Desktop
+- [x] **Phase 4: Sonar MCP Server** - MCP server exposing `list_runtimes`/`revoke`/`get_workflow_log` to Claude Desktop (4/4 plans complete)
 - [ ] **Phase 5: On-Chain + KeeperHub Workflow** - FleetRegistry on Base Sepolia and 4-node KeeperHub workflow wired to Operator
 - [ ] **Phase 6: Demo UI + AXL Transport** - React demo UI mirroring chat/log/runtime panels; AXL transport (or recorded fallback)
 - [ ] **Phase 7: Rehearsal + Submission** - End-to-end rehearsal, video, docs, and ETHGlobal submission
@@ -71,10 +71,10 @@
   2. Each tool round-trips successfully against a locally running Operator from a real Claude Desktop session
   3. README install instructions get a fresh developer connected from Claude Desktop in under 5 minutes
 **Plans**: 4 plans
-  - [ ] 04-01-PLAN.md — Wave 0: install @modelcontextprotocol/sdk + ws, bump zod to ^3.25, scaffold vitest harness, stderr logger, and seam test stubs (MCP-01, MCP-02, MCP-03)
-  - [ ] 04-02-PLAN.md — Operator data plane: config, RingBuffer, operator/http (fetch wrappers), operator/logs (WS reconnect 1s→30s, close-only) (MCP-01, MCP-02)
-  - [ ] 04-03-PLAN.md — MCP layer: three tools (list_runtimes, revoke DESTRUCTIVE, get_workflow_log), buildMcpServer factory, stdio entry, e2e fake-Operator integration (MCP-01, MCP-02)
-  - [ ] 04-04-PLAN.md — apps/mcp/README.md (CONTEXT D-18 ordering) + readme.contract grep test (MCP-03)
+  - [x] 04-01-PLAN.md — Wave 0: install @modelcontextprotocol/sdk + ws, bump zod to ^3.25, scaffold vitest harness, stderr logger, and seam test stubs (MCP-01, MCP-02, MCP-03)
+  - [x] 04-02-PLAN.md — Operator data plane: config, RingBuffer, operator/http (fetch wrappers), operator/logs (WS reconnect 1s→30s, close-only) (MCP-01, MCP-02)
+  - [x] 04-03-PLAN.md — MCP layer: three tools (list_runtimes, revoke DESTRUCTIVE, get_workflow_log), buildMcpServer factory, stdio entry, e2e fake-Operator integration (MCP-01, MCP-02)
+  - [x] 04-04-PLAN.md — apps/mcp/README.md (CONTEXT D-18 ordering) + readme.contract grep test (MCP-03)
 
 ### Phase 5: On-Chain + KeeperHub Workflow
 **Goal**: The 4-node KeeperHub workflow runs end-to-end on Base Sepolia, including on-chain deprecation.
