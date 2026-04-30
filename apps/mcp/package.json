@@ -8,14 +8,21 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:run": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@sonar/shared": "workspace:*"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@sonar/shared": "workspace:*",
+    "ws": "8.20.0",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0",
+    "@types/ws": "8.18.1",
     "tsx": "^4.21.0",
-    "@types/node": "^20.11.0"
+    "typescript": "^5.4.0",
+    "vitest": "4.1.5"
   }
 }
