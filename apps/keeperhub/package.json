@@ -1,0 +1,26 @@
+{
+  "name": "@sonar/keeperhub",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/poll-execution.js",
+  "scripts": {
+    "dev": "tsx watch src/poll-execution.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/poll-execution.js",
+    "publish:workflow": "tsx src/publish-workflow.ts",
+    "test": "vitest",
+    "test:run": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@sonar/shared": "workspace:*",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0",
+    "vitest": "4.1.5"
+  }
+}
