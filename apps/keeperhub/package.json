@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@sonar/shared": "workspace:*",
+    "dotenv": "^16.4.5",
     "zod": "^3.25.0"
   },
   "devDependencies": {

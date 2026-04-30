@@ -144,25 +144,25 @@ describe('publishWorkflow', () => {
     await stop(stub);
   });
 
-  it('POSTs to /api/workflows when KEEPERHUB_WORKFLOW_ID is unset', async () => {
+  it('POSTs to /api/workflows/create when KEEPERHUB_WORKFLOW_ID is unset', async () => {
     const result = await publishWorkflow({
       cfg: baseCfg(stub.port),
       workflowPath: fx.workflowPath,
       deploymentsPath: fx.deploymentsPath,
     });
     expect(stub.received.method).toBe('POST');
-    expect(stub.received.url).toBe('/api/workflows');
+    expect(stub.received.url).toBe('/api/workflows/create');
     expect(result.method).toBe('POST');
     expect(result.workflowId).toBe('wf_test_123');
   });
 
-  it('PUTs to /api/workflows/{id} when KEEPERHUB_WORKFLOW_ID is set', async () => {
+  it('PATCHes /api/workflows/{id} when KEEPERHUB_WORKFLOW_ID is set', async () => {
     await publishWorkflow({
       cfg: baseCfg(stub.port, 'wf_existing_42'),
       workflowPath: fx.workflowPath,
       deploymentsPath: fx.deploymentsPath,
     });
-    expect(stub.received.method).toBe('PUT');
+    expect(stub.received.method).toBe('PATCH');
     expect(stub.received.url).toBe('/api/workflows/wf_existing_42');
   });
 
@@ -183,7 +183,7 @@ describe('publishWorkflow', () => {
       deploymentsPath: fx.deploymentsPath,
     });
     const body = JSON.parse(stub.received.body!);
-    expect(body.workflow.name).toBe('Sonar rotation');
+    expect(body.name).toBe('Sonar rotation');
     const writeNode = body.nodes.find((n: { id: string }) => n.id === 'WRITE');
     // ABI was injected, contractAddress normalized.
     expect(writeNode.data.config.contractAddress).toBe(DEPLOYED);

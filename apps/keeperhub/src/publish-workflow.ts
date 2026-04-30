@@ -18,6 +18,7 @@
  * Importable surface: the script auto-runs ONLY when invoked as the entry point. Tests
  * import `publishWorkflow()` directly so the suite does not need to spawn `tsx`.
  */
+import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ export interface PublishOptions {
 
 export interface PublishResult {
   workflowId: string;
-  method: 'POST' | 'PUT';
+  method: 'POST' | 'PATCH';
   url: string;
   rewrites: string[];
 }
@@ -59,8 +60,15 @@ export async function publishWorkflow(opts: PublishOptions = {}): Promise<Publis
   const isUpdate = Boolean(cfg.workflowId);
   const url = isUpdate
     ? `${cfg.apiBaseUrl}/api/workflows/${cfg.workflowId}`
-    : `${cfg.apiBaseUrl}/api/workflows`;
-  const method: 'POST' | 'PUT' = isUpdate ? 'PUT' : 'POST';
+    : `${cfg.apiBaseUrl}/api/workflows/create`;
+  const method: 'POST' | 'PATCH' = isUpdate ? 'PATCH' : 'POST';
+
+  const body = {
+    name: envelope.workflow.name,
+    description: envelope.workflow.description ?? '',
+    nodes: envelope.nodes,
+    edges: envelope.edges,
+  };
 
   const res = await fetch(url, {
     method,
@@ -68,7 +76,7 @@ export async function publishWorkflow(opts: PublishOptions = {}): Promise<Publis
       'authorization': `Bearer ${cfg.apiToken}`,
       'content-type': 'application/json',
     },
-    body: JSON.stringify(envelope),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {

@@ -24,6 +24,7 @@
  * function is structured so the call can be inserted before the long-poll loop without
  * restructuring).
  */
+import 'dotenv/config';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getConfig } from './config.js';
