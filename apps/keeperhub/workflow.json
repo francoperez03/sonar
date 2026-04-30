@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "exportedAt": "2026-04-30T17:42:29.989Z",
+  "workflow": {
+    "name": "Untitled 7",
+    "description": ""
+  },
+  "nodes": [
+    {
+      "id": "WDXfvdHRMHnDFkRjFPMHz",
+      "data": {
+        "type": "trigger",
+        "label": "Manual Trigger",
+        "config": {
+          "inputSchema": {
+            "runId": "string",
+            "runtimeIds": "string[]"
+          },
+          "triggerType": "Manual"
+        },
+        "status": "idle",
+        "description": ""
+      },
+      "type": "trigger",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "py93u03noJDAnLHTF7dNU",
+      "data": {
+        "type": "action",
+        "label": "Webhook",
+        "config": {
+          "endpoint": "{{ env.OPERATOR_BASE_URL }}/rotation/generate",
+          "httpBody": "{\"runId\": \"{{ trigger.runId }}\", \"runtimeIds\": {{ trigger.runtimeIds }} }",
+          "actionType": "HTTP Request",
+          "httpMethod": "POST",
+          "httpHeaders": "{\"Authorization\": \"Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}\", \"Content-Type\": \"application/json\"}"
+        },
+        "status": "idle",
+        "description": ""
+      },
+      "type": "action",
+      "position": {
+        "x": 272,
+        "y": 0
+      }
+    },
+    {
+      "id": "node2",
+      "data": {
+        "type": "action",
+        "label": "Transfer Native Token",
+        "config": {
+          "amount": "0.001",
+          "forEach": {
+            "input": "{{ node1.wallets }}",
+            "per-iter": {}
+          },
+          "network": "Base Sepolia",
+          "actionType": "web3/transfer-funds",
+          "recipientAddress": "{{ item.address }}",
+          "gasLimitMultiplier": "Your gas limit"
+        },
+        "status": "idle"
+      },
+      "type": "action",
+      "position": {
+        "x": 522,
+        "y": 0
+      }
+    },
+    {
+      "id": "node3",
+      "data": {
+        "type": "action",
+        "label": "Webhook - Distribute",
+        "config": {
+          "endpoint": "{{ env.OPERATOR_BASE_URL }}/rotation/distribute",
+          "httpBody": "{\"runId\": \"{{ trigger.runId }}\"}",
+          "actionType": "HTTP Request",
+          "httpMethod": "POST",
+          "httpHeaders": "{\"Authorization\": \"Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}\", \"Content-Type\": \"application/json\"}"
+        },
+        "status": "idle"
+      },
+      "type": "action",
+      "position": {
+        "x": 772,
+        "y": 0
+      }
+    },
+    {
+      "id": "node4",
+      "data": {
+        "type": "action",
+        "label": "Write Contract",
+        "config": {
+          "abi": "Your contract abi",
+          "network": "Base Sepolia",
+          "actionType": "web3/write-contract",
+          "abiFunction": "deprecate",
+          "functionArgs": "{\"wallets\": \"{{ node1.wallets[*].address }}\"}",
+          "contractAddress": "0x7eddfC8953A529Ce7ffb35de2030f73Aad89b31F"
+        },
+        "status": "idle"
+      },
+      "type": "action",
+      "position": {
+        "x": 1022,
+        "y": 0
+      }
+    },
+    {
+      "id": "node5",
+      "data": {
+        "type": "action",
+        "label": "Webhook - Log Ingest",
+        "config": {
+          "endpoint": "{{ env.OPERATOR_BASE_URL }}/rotation/log-ingest",
+          "httpBody": "{\"runId\": \"{{ trigger.runId }}\", \"events\": [{\"kind\": \"fund_tx\", \"txHashes\": \"{{ node2.txHashes }}\"}, {\"kind\": \"deprecate_tx\", \"txHash\": \"{{ node4.txHash }}\"}]}",
+          "actionType": "HTTP Request",
+          "httpMethod": "POST",
+          "httpHeaders": "{\"Authorization\": \"Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}\"}"
+        },
+        "status": "idle"
+      },
+      "type": "action",
+      "position": {
+        "x": 1272,
+        "y": 0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "4DMNlES4hc1uDG7ZK8Smp",
+      "type": "animated",
+      "source": "WDXfvdHRMHnDFkRjFPMHz",
+      "target": "py93u03noJDAnLHTF7dNU"
+    },
+    {
+      "id": "e-node1-node2",
+      "type": "animated",
+      "source": "py93u03noJDAnLHTF7dNU",
+      "target": "node2"
+    },
+    {
+      "id": "e-node2-node3",
+      "type": "animated",
+      "source": "node2",
+      "target": "node3"
+    },
+    {
+      "id": "e-node3-node4",
+      "type": "animated",
+      "source": "node3",
+      "target": "node4"
+    },
+    {
+      "id": "e-node4-node5",
+      "type": "animated",
+      "source": "node4",
+      "target": "node5"
+    }
+  ],
+  "integrationBindings": []
+}
