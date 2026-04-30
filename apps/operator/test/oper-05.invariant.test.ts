@@ -108,6 +108,25 @@ describe('OPER-05: Operator never persists private keys', () => {
     expect(violations).toHaveLength(0);
   });
 
+  it('static: /rotation/generate response body never includes privkey field', () => {
+    const generatePath = path.resolve(OPERATOR_SRC, 'http/routes/rotation/generate.ts');
+    expect(fs.existsSync(generatePath)).toBe(true);
+    const content = fs.readFileSync(generatePath, 'utf-8');
+    // Forbid privkey appearing inside res.json(...) or res.status(...).json(...)
+    expect(content).not.toMatch(/res\.(?:status\(\d+\)\.)?json\([^)]*privkey/i);
+    // Forbid privkey appearing inside any logBus.* call
+    expect(content).not.toMatch(/logBus\.[a-zA-Z]+\([^)]*privkey/i);
+    expect(content).not.toMatch(/logBus\.[a-zA-Z]+\([^)]*\.privkey/);
+  });
+
+  it('static: PrivkeyVault has toJSON guard preventing accidental serialization', () => {
+    const vaultPath = path.resolve(OPERATOR_SRC, 'rotation/PrivkeyVault.ts');
+    expect(fs.existsSync(vaultPath)).toBe(true);
+    const content = fs.readFileSync(vaultPath, 'utf-8');
+    expect(content).toMatch(/toJSON\(\):\s*never/);
+    expect(content).toContain("throw new Error('PrivkeyVault is not serializable')");
+  });
+
   it('behavioral: post-distribute serialized operator state does not contain ephemeral secret bytes', async () => {
     // NOTE: JS does not support full heap introspection. This assertion confirms
     // operator-emitted state (registry JSON, log events, sessions snapshot), not the V8 heap.
