@@ -1,0 +1,12 @@
+{
+  "name": "@sonar/contracts-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "record": "tsx script/RecordDeployment.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0"
+  }
+}
