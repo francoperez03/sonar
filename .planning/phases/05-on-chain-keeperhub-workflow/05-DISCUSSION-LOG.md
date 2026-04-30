@@ -177,3 +177,135 @@
 - Per-wallet deprecate transactions (vs single batched call)
 - Persisted run history beyond logs
 - Foundry keystore / hardware-wallet signing for deploys
+
+---
+
+# Reconciliation Pass — 2026-04-30
+
+> **Trigger:** RESEARCH.md established that KeeperHub is a hosted SaaS with a fixed built-in node catalog (manual, webhook, web3, condition, math, schedule). It does NOT load user-authored TypeScript modules. The `KeeperHub/keeperhub` repo is the Workflow DevKit template, not the production runtime. The original D-05/D-06/D-07 ("native TS in-repo nodes loaded by KeeperHub") were anchored on a wrong premise.
+
+**Areas discussed:** Workflow graph shape, Wallet generation locus, apps/keeperhub package shape, Tx-hash + signing flow
+
+---
+
+## Workflow graph shape
+
+### Q1: Canonical 5-node graph
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Manual + 2 webhooks + 2 web3 | manual → webhook(generate) → web3.execute_transfer(fund) → webhook(distribute) → web3.execute_contract_call(deprecate) | ✓ |
+| Schedule + 2 webhooks + 2 web3 | Same but schedule-triggered (autonomous demo runs) | |
+| Manual + 1 webhook + 2 web3 + condition | Collapse generate+distribute, gate deprecate via condition node | |
+
+### Q2: Trigger path for `run_rotation` MCP tool
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| MCP → KeeperHub run API directly | MCP authenticates with KEEPERHUB_API_TOKEN, hits run-trigger endpoint | ✓ |
+| MCP → Operator → KeeperHub | Operator owns the auth token, MCP forwards | |
+| MCP → manual node webhook URL | POST directly to manual trigger's incoming webhook | |
+
+### Q3: Deprecate-after-all-acks enforcement
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Operator gates (200/4xx response) | `/rotation/distribute` returns 200 only on full success; KeeperHub edge fires only on 200 | ✓ |
+| Condition node in KeeperHub | Webhook returns ack list; condition node checks all=success | |
+| Per-runtime fanout in graph | Parallel edges per runtimeId, aggregator before deprecate | |
+
+---
+
+## Wallet generation locus
+
+### Q1: Where are EOA privkeys generated + held?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Operator in-memory by runId | Generate in `/rotation/generate`, hold in Map, return only addresses to KeeperHub | ✓ |
+| Separate vault microservice | New `apps/vault/` for cleaner OPER-05 reading | |
+| `apps/keeperhub` poller process | Generation in glue package; never touches Operator | |
+
+### Q2: Privkey TTL — when is the Map cleared?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| After deprecate confirms | `/rotation/complete` webhook fires post-deprecate, triggers eviction | ✓ |
+| After all distribute acks | Clear immediately after `/rotation/distribute` returns 200 | |
+| TTL-based (10min) | Time-based eviction independent of workflow signals | |
+
+---
+
+## apps/keeperhub package shape
+
+### Q1: Package contents
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| workflow.json + publish + poller | Glue: graph definition, publish-workflow.ts, poll-execution.ts | ✓ |
+| Just workflow.json + publish | Drop poller; rely on KeeperHub UI for tx visibility | |
+| Above + webhook receiver | Add HTTP server for KeeperHub callbacks | |
+
+### Q2: `.env` contents
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| KEEPERHUB_API_TOKEN + OPERATOR_BASE_URL | Just the SaaS token + Operator URL | ✓ |
+| Above + DEPLOYER_PRIVKEY | Keep deploy key here; funding stays on Turnkey | |
+| Above + DEPLOYER + FUNDING | Fall back to our own funding wallet if Turnkey friction | |
+
+---
+
+## Tx-hash + signing flow
+
+### Q1: FleetRegistry deploy signer
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| `contracts/.env` with DEPLOYER_PRIVKEY | Foundry-driven deploy; contracts/.env separate from apps/keeperhub | ✓ |
+| Manual deploy + commit address | One-shot forge run with env prompt; result in deployments/base-sepolia.json | |
+| KeeperHub web3 node deploys | One-time deploy workflow using Turnkey | |
+
+### Q2: Fund + deprecate signer
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| KeeperHub Turnkey wallet | Built-in signing, pre-funded via dashboard | ✓ |
+| BYO wallet via Turnkey policy | External Turnkey policy we control | |
+| Webhook back to Operator with FUNDING_PRIVKEY | Operator signs; reintroduces chain key on Operator | |
+
+### Q3: Tx-hash → LogBus path
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Poller polls run + forwards | poll-execution.ts polls KeeperHub, POSTs LogEntryMsg to Operator | ✓ |
+| Web3 node → webhook → Operator | Add webhook node after each web3 node to push tx hash | |
+| KeeperHub UI only, no LogBus mirror | Drop unified LogBus story; link Phase 6 UI to KeeperHub run page | |
+
+---
+
+## Decisions Updated/Added (see CONTEXT.md for canonical wording)
+
+- D-05: REPLACED — workflow is hosted graph in KeeperHub using built-in nodes
+- D-06: REVISED — apps/keeperhub is glue package (workflow.json + publish + poller)
+- D-07: REPLACED — privkeys live in Operator memory, KeeperHub never sees them
+- D-08: REVISED — run_rotation calls KeeperHub run API directly with KEEPERHUB_API_TOKEN
+- D-10: REVISED — distribute is a webhook to `/rotation/distribute`; Operator does fanout
+- D-11: REVISED — 409 retry lives in `/rotation/distribute`, not in workflow node
+- D-12: KEPT (intent) — gating now via Operator 200/4xx response code
+- D-13: REPLACED — `apps/keeperhub/.env` holds only KEEPERHUB_API_TOKEN + OPERATOR_BASE_URL
+- D-14: REPLACED — KeeperHub Turnkey signs fund_wallets (pre-funded via dashboard)
+- D-15: REVISED — RPC URL is in `contracts/.env` and KeeperHub web3 node config, not apps/keeperhub
+- D-16: REVISED — poll-execution.ts forwards tx hashes from KeeperHub run state to Operator LogBus
+- D-17: KEPT, marked SATISFIED — research mandate met by RESEARCH.md
+- D-18: NEW — three new Operator routes: `/rotation/generate`, `/rotation/distribute`, `/rotation/complete`
+- D-19: NEW — privkey TTL: cleared on `/rotation/complete`, 10min sweeper as safety net
+- D-20: NEW — poller registration handoff from `run_rotation` to `poll-execution.ts`
+
+Carried forward unchanged: D-01..D-04 (FleetRegistry contract surface, Foundry tooling, contract dir, deployments JSON), D-09 (1:1 wallet→runtime mapping by index).
+
+## Deferred Ideas (added this pass)
+
+- Self-hosted KeeperHub / Workflow DevKit deployment
+- BYO Turnkey policy / external signer integration
+- MCP-to-MCP integration with KeeperHub (currently HTTP)
