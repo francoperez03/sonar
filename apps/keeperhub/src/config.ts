@@ -18,6 +18,8 @@ export interface KeeperhubConfig {
   operatorBaseUrl: string;
   webhookSecret: string;
   pollIntervalMs: number;
+  /** Local cross-process register endpoint port (Plan 05 D-20). Default 8788. */
+  pollerHttpPort: number;
 }
 
 export function getConfig(): KeeperhubConfig {
@@ -34,5 +36,6 @@ export function getConfig(): KeeperhubConfig {
     operatorBaseUrl: process.env['OPERATOR_BASE_URL'] ?? 'http://localhost:8787',
     webhookSecret,
     pollIntervalMs: Number(process.env['POLL_INTERVAL_MS'] ?? 3000),
+    pollerHttpPort: Number(process.env['POLLER_HTTP_PORT'] ?? 8788),
   };
 }

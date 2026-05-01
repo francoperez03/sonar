@@ -31,6 +31,7 @@ import { getConfig } from './config.js';
 import { log } from './util/log.js';
 import { runRegistry } from './runRegistry.js';
 import { postLogEntry, postRotationComplete } from './logIngest.js';
+import { startPollerServer } from './poller-server.js';
 
 interface KeeperhubNode {
   id: string;
@@ -249,6 +250,8 @@ if (invokedDirectly) {
     operatorBaseUrl: cfg.operatorBaseUrl,
     webhookSecret: cfg.webhookSecret,
   };
+  // Plan 05-05 D-20: cross-process register endpoint for apps/mcp's run_rotation tool.
+  startPollerServer({ port: cfg.pollerHttpPort, webhookSecret: cfg.webhookSecret });
   log({ msg: 'poller_start', operatorBaseUrl: cfg.operatorBaseUrl, pollIntervalMs: cfg.pollIntervalMs });
   mainLoop(deps, createPollState(), { pollIntervalMs: cfg.pollIntervalMs }).catch((e) => {
     log({ msg: 'poller_fatal', err: String(e) });
