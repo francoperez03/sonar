@@ -24,7 +24,16 @@ const buffer = new RingBuffer(cfg.logBufferSize);
 // Fire-and-forget — connectLogs retries forever internally (CONTEXT D-03).
 connectLogs({ url: cfg.operatorLogsWs, buffer });
 
-const server = buildMcpServer({ buffer, operatorHttpUrl: cfg.operatorHttpUrl });
+const server = buildMcpServer({
+  buffer,
+  operatorHttpUrl: cfg.operatorHttpUrl,
+  // Phase 5 — run_rotation tool deps.
+  keeperhubBaseUrl: cfg.keeperhubBaseUrl,
+  keeperhubApiToken: cfg.keeperhubApiToken,
+  keeperhubWorkflowId: cfg.keeperhubWorkflowId,
+  pollerBaseUrl: cfg.pollerBaseUrl,
+  keeperhubWebhookSecret: cfg.keeperhubWebhookSecret,
+});
 const transport = new StdioServerTransport();
 
 log({
