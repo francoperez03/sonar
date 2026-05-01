@@ -11,6 +11,12 @@
  * IMPORTANT (Pitfall 1): stdout is the JSON-RPC wire. All diagnostics go to
  * stderr via util/log.ts. Never write to stdout from anywhere in this process.
  */
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { config as loadEnv } from 'dotenv';
+
+loadEnv({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../.env') });
+
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { getConfig } from './config.js';
 import { RingBuffer } from './buffer/RingBuffer.js';
