@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { getConfig } from './config.js';
 import { Registry } from './registry/Registry.js';
 import { ActiveSessions } from './sessions/ActiveSessions.js';

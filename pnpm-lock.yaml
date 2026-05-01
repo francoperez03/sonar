@@ -230,6 +230,9 @@ importers:
       '@sonar/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
       ed2curve:
         specifier: 0.3.0
         version: 0.3.0

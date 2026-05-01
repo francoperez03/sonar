@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@sonar/shared": "workspace:*",
+    "dotenv": "^16.4.5",
     "ed2curve": "0.3.0",
     "express": "5.2.1",
     "tweetnacl": "1.0.3",
