@@ -229,3 +229,186 @@ body {
   color: var(--color-text);
   line-height: var(--lh-snug);
 }
+
+/* ----- Status pill (UI-SPEC §Status Pill State Map) ----- */
+.status-pill {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+}
+.status-pill--registered {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.status-pill--awaiting {
+  background: transparent;
+  color: var(--color-accent-cyan);
+  border: 1px dashed var(--color-accent-cyan);
+}
+.status-pill--received {
+  background: var(--color-accent-cyan);
+  color: var(--color-bg);
+}
+.status-pill--deprecated {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-text-muted);
+}
+.status-pill--revoked {
+  background: var(--color-destructive);
+  color: var(--color-bg);
+}
+.status-pill--clone-rejected {
+  background: var(--color-destructive);
+  color: var(--color-bg);
+  animation: clone-flash 0.6s ease-in-out 3;
+}
+@keyframes clone-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ----- Identity strip (4..4 pubkey + timestamp) ----- */
+.identity-strip {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 0.85vw, 13px);
+}
+.identity-strip-key {
+  color: var(--color-text-muted);
+}
+.identity-strip-ts {
+  color: var(--color-text-muted);
+}
+
+/* ----- Runtime node card ----- */
+.runtime-node {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-width: 160px;
+}
+.runtime-node--awaiting {
+  border-color: var(--color-accent-cyan);
+  border-style: dashed;
+}
+.runtime-node--received {
+  border-color: var(--color-accent-cyan);
+  box-shadow: 0 0 24px var(--color-accent-cyan-glow);
+}
+.runtime-node--deprecated {
+  border-color: var(--color-text-muted);
+  border-style: dashed;
+  opacity: 0.7;
+}
+.runtime-node--revoked {
+  border-color: var(--color-destructive);
+}
+.runtime-node--clone-rejected {
+  border-color: var(--color-destructive);
+  animation: clone-flash 0.6s ease-in-out 3;
+}
+.runtime-node--ghost {
+  opacity: 0.5;
+  filter: saturate(0.4);
+}
+.runtime-node--ghost.runtime-node--clone-rejected {
+  opacity: 1;
+  filter: none;
+}
+.runtime-node-name {
+  font-weight: 600;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .runtime-node--clone-rejected,
+  .status-pill--clone-rejected {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ----- Canvas (Task 2) ----- */
+.demo-canvas {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  min-height: 480px;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+}
+.demo-canvas-services {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  position: relative;
+  z-index: 1;
+}
+.service-node {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+}
+.service-node-label {
+  font-size: var(--text-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: var(--lh-snug);
+}
+.demo-canvas-runtimes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  align-items: end;
+  position: relative;
+  z-index: 1;
+}
+.demo-canvas-runtimes .runtime-node--gamma-clone {
+  transform: translateX(12px);
+}
+.demo-canvas-edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.demo-canvas-idle {
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+  text-align: center;
+  padding-block: var(--space-md);
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-canvas-edges {
+    /* edge pulses are decorative; framer-motion paths self-disable via the
+     * useReducedMotion hook is N/A here (we use plain motion.path). The CSS
+     * fallback below collapses the SVG layer to a static stroke. */
+    opacity: 0.4;
+  }
+}
