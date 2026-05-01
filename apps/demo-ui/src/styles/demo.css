@@ -1,0 +1,7 @@
+/* Phase 6 — populated by plans 04 (shell) + 05 (canvas) */
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  font-family: var(--font-sans);
+}
