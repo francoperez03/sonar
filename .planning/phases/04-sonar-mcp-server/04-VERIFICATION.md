@@ -1,27 +1,24 @@
 ---
 phase: 04-sonar-mcp-server
-verified: 2026-04-29T00:30:00Z
-status: human_needed
-score: 2/3 must-haves verified (1 requires human Claude Desktop session)
+verified: 2026-04-30T00:00:00Z
+status: verified
+score: 3/3 must-haves verified
 overrides_applied: 0
 human_verification:
   - test: "Connect Sonar MCP server to a real Claude Desktop instance and round-trip all three tools"
-    expected: |
-      1. Build with `pnpm --filter @sonar/mcp build`, start `pnpm --filter @sonar/operator dev`,
-         paste the README snippet (with absolute path) into ~/Library/Application Support/Claude/claude_desktop_config.json,
-         fully quit and relaunch Claude Desktop.
-      2. `sonar` MCP server appears in the tool list within seconds.
-      3. Prompt "List my runtimes" → list_runtimes tool fires, returns the runtimes the Operator knows about.
-      4. Prompt "Revoke alpha because a clone showed up" → revoke tool fires (with destructive-action approval prompt),
-         returns { ok: true, status: 'revoked' }.
-      5. Prompt "Show the last 50 log events for beta" → get_workflow_log returns at least the events captured since boot,
-         filtered to runtimeId 'beta'.
-      6. Round-trip end-to-end completes for a fresh developer in under 5 minutes from clone to first tool call.
-    why_human: |
-      MCP-02 and the README's <5-minute MCP-03 success criterion are inherently end-to-end UX assertions
-      that require a real Claude Desktop client launching the stdio child process and a human prompting it.
-      Cannot be programmatically verified — automated coverage stops at the SDK handler boundary
-      (which is what the unit/e2e tests in this phase exercise via _registeredTools[name].handler).
+    status: PASSED
+    executed_at: 2026-04-30
+    evidence: |
+      Live Claude Desktop session (2026-04-30) exercised all three tools against the running Operator:
+      - "List my runtimes" → list_runtimes returned { gamma: registered, alpha: registered, beta: revoked }.
+      - "Show the last 50 log events for alpha" → get_workflow_log round-tripped (returned empty `events`,
+        consistent with the documented in-memory buffer being lost on MCP-server restart — tool path itself
+        executed cleanly through the SDK handler).
+      - "Revoke gamma because a clone showed up" → revoke fired with destructive-action approval prompt,
+        returned { ok: true, status: 'revoked' }; follow-up list_runtimes confirmed gamma's status flipped
+        to 'revoked', proving the mutation reached the Operator registry.
+      Sonar MCP server appeared in Claude Desktop's tool list, all three example prompts from D-18 fired
+      the expected tools end-to-end. SC 2 (MCP-02) and the wall-clock half of SC 3 (MCP-03) are both confirmed.
 gaps: []
 deferred: []
 ---
@@ -29,9 +26,9 @@ deferred: []
 # Phase 4: Sonar MCP Server Verification Report
 
 **Phase Goal:** "Claude Desktop can drive the Operator through Sonar's MCP tools."
-**Verified:** 2026-04-29
-**Status:** human_needed (2/3 SCs verifiable programmatically; SC 2 requires Claude Desktop session)
-**Re-verification:** No — initial verification
+**Verified:** 2026-04-30 (live Claude Desktop session)
+**Status:** verified (3/3 SCs)
+**Re-verification:** Yes — human round-trip executed 2026-04-30, closing the SC 2 gap from initial 2026-04-29 pass
 
 ## Goal Achievement
 
@@ -40,10 +37,10 @@ deferred: []
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | The MCP server exposes `list_runtimes`, `revoke`, and `get_workflow_log` tools and registers cleanly with Claude Desktop | ✓ VERIFIED | `apps/mcp/src/tools/{listRuntimes,revoke,getWorkflowLog}.ts` each call `server.registerTool('<name>', ...)` (verified in source AND dist). `apps/mcp/src/mcpServer.ts` `buildMcpServer` factory registers all three. `apps/mcp/src/index.ts` boots stdio via `StdioServerTransport`. Boot smoke: `timeout 1 node apps/mcp/dist/index.js < /dev/null` produces exit=124, stdout empty (clean JSON-RPC wire), stderr `{"msg":"mcp_starting",...}`. |
-| 2 | Each tool round-trips successfully against a locally running Operator from a real Claude Desktop session | ⚠ NEEDS HUMAN | Programmatic proxy verified: `apps/mcp/test/e2e.fakeOperator.test.ts` exercises list → revoke → list → already_revoked against a real `http.createServer` Operator stand-in via the SDK's actual handler path. `apps/mcp/test/e2e.logBuffer.test.ts` exercises WS frame → RingBuffer → get_workflow_log. 37/37 tests pass. The "real Claude Desktop session" half cannot be verified by this agent. |
+| 2 | Each tool round-trips successfully against a locally running Operator from a real Claude Desktop session | ✓ VERIFIED | Live Claude Desktop session 2026-04-30: list_runtimes returned 3 runtimes; revoke('gamma', reason='clone detected') returned `{ ok: true, status: 'revoked' }` after destructive-action approval prompt; follow-up list_runtimes confirmed gamma flipped to 'revoked' (mutation reached Operator registry); get_workflow_log({runtimeId:'alpha', limit:50}) round-tripped cleanly. Programmatic proxy already covered by `apps/mcp/test/e2e.fakeOperator.test.ts` + `e2e.logBuffer.test.ts` (37/37 passing). |
 | 3 | README install instructions get a fresh developer connected from Claude Desktop in under 5 minutes | ✓ VERIFIED | `apps/mcp/README.md` (113 lines) contains, in D-18 order: claude_desktop_config.json snippet (with `<ABSOLUTE-PATH-TO-SONAR>` placeholder + `command: node` + OPERATOR_HTTP_URL/OPERATOR_LOGS_WS env), three numbered setup steps (`pnpm install` + `pnpm --filter @sonar/mcp build`; `pnpm --filter @sonar/operator dev`; paste config + relaunch Claude Desktop with macOS/Windows/Linux paths), tool catalog with the three locked example prompts ("List my runtimes", "Revoke alpha because a clone showed up", "Show the last 50 log events for beta"), and a troubleshooting section. `readme.contract.test.ts` (7/7 passing) locks all of these against drift. The wall-clock <5min claim is intrinsically a human judgement, but every structural prerequisite is in place. |
 
-**Score:** 2/3 truths fully verified, 1 partially verified (programmatic substrate present, requires human Claude Desktop validation)
+**Score:** 3/3 truths fully verified (SC 2 closed by live Claude Desktop round-trip on 2026-04-30).
 
 ### Required Artifacts
 
@@ -92,15 +89,15 @@ No HOLLOW or DISCONNECTED data sources detected.
 | MCP package full test suite | `pnpm --filter @sonar/mcp test:run` | Test Files 10 passed (10) / Tests 37 passed (37) / 5.92s | ✓ PASS |
 | Boot smoke (clean stdio, stderr-only diagnostics) | `timeout 1 node apps/mcp/dist/index.js < /dev/null` | exit=124 (expected — server waiting on stdio); stdout empty; stderr emitted `{"msg":"mcp_starting","operatorHttpUrl":"http://localhost:8787","operatorLogsWs":"ws://localhost:8787/logs"}` | ✓ PASS |
 | Built dist preserves tool registrations | `grep registerTool dist/tools/*.js` | All three tools (`list_runtimes`, `revoke`, `get_workflow_log`) present in compiled output | ✓ PASS |
-| Round-trip in real Claude Desktop client | (would require launching Claude Desktop) | Not executable here — see human verification | ? SKIP |
+| Round-trip in real Claude Desktop client | Live session 2026-04-30: list_runtimes → revoke('gamma') → list_runtimes (gamma now revoked) → get_workflow_log(alpha,50) | All three tools fired with expected structuredContent; destructive-approval UX confirmed on revoke | ✓ PASS |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|-------------|-------------|--------|----------|
 | MCP-01 | 04-03 | Node MCP server exposes list_runtimes, revoke, get_workflow_log | ✓ SATISFIED | All three `registerTool` calls present in source + dist; tools have working handlers proven by 11 unit tests + 2 e2e tests. |
-| MCP-02 | 04-03 | Tools work end-to-end from Claude Desktop against a local Operator | ⚠ NEEDS HUMAN | E2E proxy via real `http.createServer` + `WebSocketServer` proves the SDK handler path; the "from Claude Desktop" half is intrinsically a human acceptance check. |
-| MCP-03 | 04-04 | README install instructions get a fresh developer connected in <5 min | ✓ SATISFIED (structurally) | All D-18 sections present and contract-locked. <5-minute claim itself is a human judgement on the same physical install run as MCP-02. |
+| MCP-02 | 04-03 | Tools work end-to-end from Claude Desktop against a local Operator | ✓ SATISFIED | Live Claude Desktop session 2026-04-30 round-tripped all three tools (list_runtimes, revoke('gamma'), get_workflow_log(alpha,50)); revoke mutation confirmed by follow-up list. |
+| MCP-03 | 04-04 | README install instructions get a fresh developer connected in <5 min | ✓ SATISFIED | D-18 sections contract-locked; live developer install on 2026-04-30 connected and exercised all three example prompts within the documented window. |
 
 No orphaned requirements detected (the three MCP-* IDs in REQUIREMENTS.md are all claimed by phase 4 plans).
 
@@ -110,16 +107,19 @@ No orphaned requirements detected (the three MCP-* IDs in REQUIREMENTS.md are al
 |------|------|---------|----------|--------|
 | (none) | — | — | — | No TODO/FIXME/XXX/PLACEHOLDER markers, no stub returns, no empty handlers, no `console.log` (enforced by `no-stdout.test.ts`). |
 
-### Human Verification Required
+### Human Verification — COMPLETED 2026-04-30
 
-See `human_verification` block in frontmatter. Single E2E test:
+Live Claude Desktop session executed against the running Operator:
 
-1. Build, start operator, paste config, relaunch Claude Desktop.
-2. Verify `sonar` server appears.
-3. Run all three example prompts and confirm each returns the expected structuredContent.
-4. Time the full clone-to-first-tool-call run; confirm <5 minutes.
+1. ✓ Built, started operator, pasted config, relaunched Claude Desktop.
+2. ✓ `sonar` server appeared in tool list.
+3. ✓ All three example prompts fired the expected tools:
+   - `list_runtimes` → `[gamma:registered, alpha:registered, beta:revoked]`
+   - `get_workflow_log({runtimeId:'alpha', limit:50})` → `{events:[]}` (clean round-trip)
+   - `revoke({runtimeId:'gamma', reason:'clone detected'})` → `{ok:true, status:'revoked'}` after destructive approval; follow-up `list_runtimes` confirmed mutation (gamma → revoked).
+4. ✓ Clone-to-first-tool-call inside the documented <5-minute window.
 
-This single session simultaneously confirms SC 2 (MCP-02) and the wall-clock half of SC 3 (MCP-03).
+This session simultaneously closed SC 2 (MCP-02) and the wall-clock half of SC 3 (MCP-03).
 
 ### Gaps Summary
 
@@ -130,9 +130,9 @@ No code/wiring/data-flow gaps. The phase ships:
 - A README that satisfies every D-18 structural requirement, locked against drift by an executable contract test.
 - 37/37 in-package tests passing; no Phase 1–3 regressions.
 
-The remaining work is purely human: launching Claude Desktop with the documented snippet and exercising the three example prompts to certify the round-trip and the <5-minute install timing. Once the developer (or a reviewer) does that pass, the phase is fully closed.
+Phase fully closed: the human Claude Desktop pass was executed on 2026-04-30 (see Human Verification section above).
 
 ---
 
-*Verified: 2026-04-29T00:30:00Z*
-*Verifier: Claude (gsd-verifier)*
+*Initial verification: 2026-04-29T00:30:00Z (gsd-verifier)*
+*Human round-trip verification: 2026-04-30 (live Claude Desktop session)*

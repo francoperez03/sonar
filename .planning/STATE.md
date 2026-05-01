@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-05-01T02:15:00.000Z"
+last_updated: "2026-05-01T19:30:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 5
@@ -27,10 +27,10 @@ progress:
 Phase: 06 (demo-ui-axl-transport) — AUTO COMPLETE; HUMAN SMOKE PENDING
 Plan: 6 of 6 auto portion complete; Plan 06-06 Task 3 (browser + Claude Desktop manual smoke) is the final human gate
 
-- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE) || 05-on-chain-keeperhub-workflow (auto done; M-08 human gate) || 06-demo-ui-axl-transport (6/6 auto plans done; manual smoke pending)
+- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE — human round-trip 2026-04-30) || 05-on-chain-keeperhub-workflow (DONE — live-verified 2026-05-01, M-06 closed) || 06-demo-ui-axl-transport (6/6 auto plans done; manual smoke pending)
 - **Plan**: 06-06 AXL spike PASSED in ~3 min — `createAxlClientTransport` real adapter (gensyn-ai/axl @ 9cba555ff0b8e14ebf1244ae02b274fbc4ec044e) integrated end-to-end (TRAN-03 primary clause). DEMO-01/02/03 satisfied per `.planning/phases/06-demo-ui-axl-transport/06-VERIFICATION.md`.
-- **Status**: 6 plans / 5 waves landed across worktree-isolated executors. Test totals (workspace, excluding pre-existing landing typecheck): shared 5 / keeperhub 37 / demo-ui 73 / runtime 11 / mcp 61 / operator 72 = 259/259 green. Verifier verdict: human_needed (4/4 must-haves verified by code+tests; 1 manual smoke deferred per orchestrator directive).
-- **Progress**: 5/7 phases complete; outstanding human gates = M-06 + M-08 (Phase 5 live KeeperHub + Claude Desktop smoke) and Phase 6 Plan 06-06 Task 3 (8-step browser smoke). Phase 7 (rehearsal + submission) is the only remaining auto phase.
+- **Status**: 6 plans / 5 waves landed across worktree-isolated executors. Test totals (workspace, excluding pre-existing landing typecheck): shared 5 / keeperhub 37 / demo-ui 73 / runtime 11 / mcp 61 / operator 72 = 259/259 green. Phase 5 closed end-to-end on 2026-05-01 via cloudflared tunnel — alpha rotation completed `registered → awaiting → received` with real Base Sepolia tx for transfer-funds + write-contract(deprecate). See 05-DISCUSSION-LOG.md "Reconciliation Pass 2" for findings.
+- **Progress**: 5/7 phases complete (Phase 5 now live-verified). Outstanding human gate = Phase 6 Plan 06-06 Task 3 (8-step browser smoke). M-06 closed; M-08 closed retroactively via 04-VERIFICATION.md update on 2026-04-30. Phase 7 (rehearsal + submission) is the only remaining auto phase, **unblocked**.
 
 ```
 [█████░░] 5/7
@@ -143,8 +143,8 @@ Plan: 6 of 6 auto portion complete; Plan 06-06 Task 3 (browser + Claude Desktop 
 
 ## Session Continuity
 
-- **Last action**: Executed Phase 5 Plan 05 (run_rotation MCP tool + cross-process bridge) on 2026-04-30 — 2 auto-task commits (2b212ab, ae71bfd). apps/mcp now exposes 4 tools (list_runtimes / revoke / get_workflow_log / run_rotation); apps/keeperhub started a localhost poller-server on :8788 for cross-process runId registration. mcp 55/55, keeperhub 37/37 green; corrected KeeperHub run-trigger endpoint to `/api/workflow/{id}/execute` per real API.
-- **Next action**: M-06 (live publish-workflow round-trip — already executed during Plan 04 cleanup; KEEPERHUB_WORKFLOW_ID `zu25iauu5jkv2bw9xngnl` captured) and M-08 (Claude Desktop full quit/relaunch + live smoke run producing a real Base Sepolia deprecate tx). After M-08 success, ROADMAP §Phase 5 SC #5 closes and Phase 5 is fully complete.
+- **Last action**: Closed Phase 5 M-06 via live end-to-end rotation on 2026-05-01. cloudflared tunnel exposed local Operator (`https://showcase-group-suspended-mode.trycloudflare.com`) to KeeperHub cloud; workflow `zu25iauu5jkv2bw9xngnl` ran trigger → webhook(generate) → web3/transfer-funds → webhook(distribute) → web3/write-contract(deprecate) → webhook(log-ingest) end-to-end. Six divergences from plan assumptions discovered + fixed (see 05-DISCUSSION-LOG.md "Reconciliation Pass 2"): KeeperHub template syntax, env-var resolution, ABI string format, functionArgs shape, network as string, Content-Type missing.
+- **Next action**: Phase 7 (rehearsal + submission) is now unblocked — primary on-chain path live-verified, Phase 7 D-06 fallback retained as contingency only. Final human gate is Phase 6 Plan 06-06 Task 3 browser smoke before submission.
 - **Notes**: Phase 1 design-token contract locked (12+8+5+3+6 tokens with parity test). D-13 enforced via ESLint flat config no-restricted-syntax. LAND-04 LCP <= 2000ms gate is now CI-enforceable via .lighthouserc.cjs. Hero shell exposes data-testid hooks (hero, hero-canvas-slot) for stable Playwright selectors across plans 02-04.
 
 ### Plan 01-01 Performance Metrics

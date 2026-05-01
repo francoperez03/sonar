@@ -12,7 +12,7 @@
 - [x] **Phase 2: Workspace Foundation** - pnpm monorepo with shared `ITransport` + message types (3/3 plans complete)
 - [x] **Phase 3: Operator + Runtime + Identity Core** - Operator backend, runtime script, Ed25519 challenge/response, WebSocket transport baseline
 - [x] **Phase 4: Sonar MCP Server** - MCP server exposing `list_runtimes`/`revoke`/`get_workflow_log` to Claude Desktop (4/4 plans complete)
-- [ ] **Phase 5: On-Chain + KeeperHub Workflow** - FleetRegistry on Base Sepolia and 4-node KeeperHub workflow wired to Operator
+- [x] **Phase 5: On-Chain + KeeperHub Workflow** - FleetRegistry on Base Sepolia and 5-node KeeperHub workflow wired to Operator (live-verified end-to-end 2026-05-01)
 - [x] **Phase 6: Demo UI + AXL Transport** - React demo UI mirroring chat/log/runtime panels; AXL transport integrated (primary clause; pending human smoke-test)
 - [ ] **Phase 7: Rehearsal + Submission** - End-to-end rehearsal, video, docs, and ETHGlobal submission
 
@@ -90,8 +90,8 @@
   - [ ] 05-01-PLAN.md — FleetRegistry Foundry workspace + greenfield Sol contract + deploy script (CHAIN-01)
   - [ ] 05-02-PLAN.md — Deploy to Base Sepolia + record deployments/base-sepolia.json + EmitProbe (CHAIN-01, CHAIN-02, CHAIN-03)
   - [ ] 05-03-PLAN.md — Operator /rotation/* aggregator routes + PrivkeyVault + bearer-auth + OPER-05 invariant extension (KEEP-03, OPER-05)
-  - [x] 05-04-PLAN.md — apps/keeperhub glue: workflow.json + publish-workflow + poll-execution → LogBus (KEEP-01, KEEP-02, KEEP-04, CHAIN-02) — auto portion DONE; M-06 publish round-trip pending human
-  - [x] 05-05-PLAN.md — apps/mcp run_rotation tool + cross-process poller-server (KEEP-04) — auto portion DONE (mcp 55/55, keeperhub 37/37); M-08 Claude Desktop restart + live smoke run pending human
+  - [x] 05-04-PLAN.md — apps/keeperhub glue: workflow.json + publish-workflow + poll-execution → LogBus (KEEP-01, KEEP-02, KEEP-04, CHAIN-02) — DONE; M-06 closed live 2026-05-01
+  - [x] 05-05-PLAN.md — apps/mcp run_rotation tool + cross-process poller-server (KEEP-04) — DONE; M-08 closed via 04-VERIFICATION.md round-trip 2026-04-30
 
 ### Phase 6: Demo UI + AXL Transport
 **Goal**: A React demo UI shows the rotation live, and AXL transport is integrated (or explicitly recorded as deferred under the `ITransport` swap-able interface).
@@ -131,7 +131,7 @@
 | 2. Workspace Foundation | 3/3 | Complete | 2026-04-27 |
 | 3. Operator + Runtime + Identity Core | 5/5 | Complete | 2026-04-28 |
 | 4. Sonar MCP Server | 0/0 | Not started | - |
-| 5. On-Chain + KeeperHub Workflow | 5/5 (auto) | Awaiting M-06+M-08 human verify | - |
+| 5. On-Chain + KeeperHub Workflow | 5/5 | Complete (live-verified) | 2026-05-01 |
 | 6. Demo UI + AXL Transport | 0/6 | Planned | - |
 | 7. Rehearsal + Submission | 0/0 | Not started | - |
 

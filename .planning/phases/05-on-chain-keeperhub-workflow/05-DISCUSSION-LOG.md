@@ -309,3 +309,89 @@ Carried forward unchanged: D-01..D-04 (FleetRegistry contract surface, Foundry t
 - Self-hosted KeeperHub / Workflow DevKit deployment
 - BYO Turnkey policy / external signer integration
 - MCP-to-MCP integration with KeeperHub (currently HTTP)
+
+---
+
+# Reconciliation Pass 2 — 2026-05-01 (Live verification, M-06 closure)
+
+> **Trigger:** Live end-to-end run against the production KeeperHub workflow (id `zu25iauu5jkv2bw9xngnl`) on Base Sepolia, exposed via `cloudflared tunnel --url http://localhost:8787`. Six divergences from documented assumptions surfaced and were fixed during the session. This pass anchors the verified runtime contract for any future re-publish or fork.
+
+## Findings vs original assumptions
+
+### Finding 1 — KeeperHub template syntax is `{{@<nodeId>:<NodeLabel>.data.<field>}}`, not `{{ env.X }}` or `{{ node1.X }}`
+
+The 05-04 plan and the workflow.json shipped from the M-05 dump used three template forms that **never resolve server-side**:
+
+- `{{ env.OPERATOR_BASE_URL }}` — KeeperHub does not support workflow-level env vars (confirmed by KeeperHub staff during this session). All env refs ship literal to the runtime.
+- `{{ node1.wallets[0].address }}` — placeholder shorthand assumed by the 05-04 schema; never resolved by the production runtime.
+- `{{ item.address }}` — assumed `forEach` iteration variable; resolves to a literal string and crashes the dashboard UI with `i.trim is not a function` on the `recipientAddress` input control.
+
+The actual canonical syntax (verified against `docs.keeperhub.com/plugins/web3` examples + the workflow export the user produced after configuring fields via the visual ref-picker):
+
+```
+{{@<nodeId>:<NodeLabel>.data.<field>[index].<subfield>}}
+```
+
+Note `data.` is prepended to the response body of webhook nodes — `Webhook.data.wallets[0].address`, not `Webhook.wallets[0].address`.
+
+### Finding 2 — `web3/write-contract.functionArgs` requires `{{@}}` templates inside the JSON-string
+
+The user's UI-edited export shipped `functionArgs: "[[\"Webhook.data.wallets[0].address\"]]"` — bare dot-paths without `{{@}}` wrappers. KeeperHub passes those literally to ethers v6, which then attempts ENS resolution of the string `"Webhook.data.wallets[0].address"` and fails with `code=UNSUPPORTED_OPERATION` on Base Sepolia.
+
+The working form is `[["{{@py93u03noJDAnLHTF7dNU:Webhook.data.wallets[0].address}}"]]` — the dot-paths ONLY work inside `{{@}}`.
+
+### Finding 3 — `web3/write-contract.abi` must be a JSON-encoded **string**, not a JSON array
+
+`prepareWorkflow.ts` was injecting `DEPRECATE_ABI` as an array constant. KeeperHub's runtime serializes that field with `String(value)` somewhere internally → `"[object Object]"` → "Invalid ABI JSON" at call time. The user's exported workflow had `abi` as `"[{...}]\n"` (JSON-string with trailing newline). Fix: `cfg.abi = JSON.stringify(DEPRECATE_ABI)` in publish-workflow's prepare step.
+
+### Finding 4 — `network` is a **string** chain-id, not a number or label
+
+The dashboard normalizes the network field to `"84532"` (Base Sepolia chain-id as string). Both `"Base Sepolia"` (label) and `84532` (number) get accepted by the API but emit warning paths or get silently coerced — the Transfer node showed `network: 84532` while Write Contract showed `network: "Base Sepolia"` until both were forced to `"84532"`. Standardize on string form in workflow.json.
+
+### Finding 5 — Default `Content-Type` on HTTP webhook is `text/plain`
+
+The node5 (log-ingest) webhook had only `Authorization` in `httpHeaders`. KeeperHub then sent the body with `Content-Type: text/plain;charset=UTF-8`. Express's `json()` body-parser silently leaves `req.body` as `undefined` for non-application/json content types → operator route returned 400 invalid_request. Fix: every webhook node MUST include `"Content-Type": "application/json"` in headers.
+
+### Finding 6 — `KEEPERHUB_WEBHOOK_SECRET` is also a non-resolving env-template
+
+For the same reason as Finding 1, `Authorization: Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}` ships literally. Hardcoded `Bearer dev-secret` in workflow.json. Acceptable for demo (dev secret); production scope deferred per D-01 access-control note.
+
+### Findings as code paths
+
+| Finding | Fix landed in |
+|---|---|
+| 1 (template syntax) | `apps/keeperhub/workflow.json` — all refs rewritten to `{{@nodeId:Label.data.field}}` form |
+| 1 (env vars don't resolve) | `apps/keeperhub/workflow.json` — `OPERATOR_BASE_URL` and `KEEPERHUB_WEBHOOK_SECRET` hardcoded |
+| 2 (functionArgs) | `apps/keeperhub/workflow.json` node4 — `[[\"{{@...:Webhook.data.wallets[0].address}}\"]]` |
+| 3 (abi as string) | `apps/keeperhub/src/prepareWorkflow.ts` — `cfg.abi = JSON.stringify(DEPRECATE_ABI)` |
+| 4 (network string) | `apps/keeperhub/workflow.json` — `"network": "84532"` on both web3 nodes |
+| 5 (Content-Type) | `apps/keeperhub/workflow.json` node5 httpHeaders |
+
+Plus the operator-side companions:
+
+- **`/rotation/generate` made idempotent** (`apps/operator/src/http/routes/rotation/generate.ts`) — KeeperHub workflow retries on transient downstream failure replay the same trigger.runId. Returning 409 broke retries; we now return 200 + same wallets if the runId already exists.
+- **`/rotation/log-ingest` accepts both shapes** (`apps/operator/src/http/routes/rotation/log-ingest.ts`) — the local poller pushes `LogEntryMsg`, the workflow webhook pushes `{runId, events:[{kind, txHash|txHashes}]}`. Route now extracts hashes via regex from either and emits one log entry per hash.
+- **`apps/keeperhub/src/poll-execution.ts`** URL fixed: `/api/runs/{id}` (404 every poll, never worked) → `GET /api/workflows/executions/{id}/logs` (correct per `docs.keeperhub.com/api/executions`). New shape `{execution:{status}, logs:[{nodeId, output:{tx_hash}}]}` handled.
+- **`apps/operator/src/http/middleware/requestLog.ts`** (new) — logs `http_in`/`http_out` per request + captures `req.rawBody` on body-parse failure. Critical for diagnosing the Content-Type and JSON-shape issues above.
+- **`apps/operator/src/http/middleware/json.ts`** — body-parser `verify` callback preserves `req.rawBody` for the error log.
+- **`apps/mcp/src/index.ts`** — adds `dotenv` load at process start (relative to the file, not cwd, since Claude Code spawns the MCP from arbitrary cwd). Pre-fix the MCP server never saw `KEEPERHUB_API_TOKEN` even though `apps/mcp/.env` was correct.
+
+## Evidence
+
+- **First successful end-to-end runId:** `lljzfpcnxp333qpcxopso` (operator log shows `/rotation/generate 200`, `/rotation/distribute 200`, runtime `alpha` advanced `registered → received` per `mcp__sonar__list_runtimes`).
+- **First end-to-end with log-ingest 200 (after Content-Type fix):** `bb2kx7y6d06s9gkczwt6p`.
+- **On-chain artifacts:** the Turnkey wallet `0xb60DDB2285500e4635A7E959Eef26016D7547908` emitted real `transfer-funds` and `deprecate(address[])` txs on Base Sepolia (chain-id 84532). Tx hashes are surfaced via `/rotation/log-ingest` events into LogBus (`tx_sent:fund_tx:...`, `tx_sent:deprecate_tx:...`) with `https://sepolia.basescan.org/tx/0x…` explorer URLs.
+- **Tunnel:** `cloudflared tunnel --url http://localhost:8787` (account-less Quick Tunnel) — URL `https://showcase-group-suspended-mode.trycloudflare.com` for the session. Acceptable for demo; ngrok/dedicated cloudflared tunnel recommended for the actual ETHGlobal recording per Phase 7.
+
+## Decisions emerging from this pass
+
+- **D-22 (NEW):** Workflow.json is **canonical for KeeperHub**, but its shape is fragile across PATCH operations. KeeperHub's `PATCH /api/workflows/{id}` is partial-update — `amount`, `httpBody`, and address-typed fields sometimes silently ignore changes when an integration is bound. Always GET-after-PATCH and visually diff. Document the specific fields known to ignore PATCH (`amount` historically ignored; `httpBody` updated reliably after the second republish).
+- **D-23 (NEW):** Quick Tunnel is acceptable for live verification but the URL is ephemeral. Phase 7 demo recording must either (a) use a stable cloudflared named tunnel with custom domain, or (b) bake a fresh URL into workflow.json + republish at recording start.
+- **D-24 (NEW):** `runtimeIds` is hardcoded `["alpha"]` in node1 (generate) and node3 (distribute) httpBody for the demo. `{{ trigger.runtimeIds }}` substitution does not resolve to a JSON-array form (substitutes as bare `alpha` → JSON parse fail at position 48). Multi-runtime support requires either KeeperHub fixing array-trigger substitution OR a workflow that builds one node-set per runtime ID.
+- **D-25 (NEW):** On-chain `deprecate` semantics — the workflow currently passes the **NEW** wallet addresses (from generate response) to `FleetRegistry.deprecate()`. This is technically inverted vs the README narrative ("deprecate old wallets"), but the operator's Registry does not track per-runtime current wallet addresses, so the "old wallets" set is unavailable from the trigger context. Documented as known gap for v2 (see SUMMARY note); does not block submission since the contract's `WalletsDeprecated` event fires with valid EVM addresses + timestamp regardless.
+- **D-26 (NEW):** Runtime self-check (`isDeprecated(myAddress)` before signing) is an obvious v2 upgrade path that turns deprecate from passive announcement into an actual security guardrail. Logged for SUBMISSION writeup ("future work").
+
+## Carried forward unchanged
+
+D-01 through D-21 — all decisions from the original two passes survive. The 05-04 / 05-05 plan was structurally correct; only the **template-resolution boundary between repo-side and KeeperHub-side** required reconciliation.
+

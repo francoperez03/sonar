@@ -14,14 +14,14 @@ Lock the live end-to-end demo run, record the 90-second video, write the four su
 ## Implementation Decisions
 
 ### Rehearsal Sequencing
-- **D-01:** Close pending human gates in order **M-06 → M-08 → Plan 06-06 Task 3 smoke**. Bottom-up: real KeeperHub workflow ID published first, then Claude Desktop wiring sees it, then demo UI surfaces the live run end-to-end.
+- **D-01:** Close pending human gates in order **M-06 → M-08 → Plan 06-06 Task 3 smoke**. Bottom-up: real KeeperHub workflow ID published first, then Claude Desktop wiring sees it, then demo UI surfaces the live run end-to-end. **Status (2026-05-01):** M-06 ✅ closed (live verification, see 05-DISCUSSION-LOG.md "Reconciliation Pass 2"), M-08 ✅ closed via 04-VERIFICATION.md round-trip 2026-04-30. Only Plan 06-06 Task 3 browser smoke remains.
 - **D-02:** Run **2 full rehearsals + 1 recorded take**. Rehearsal 1 surfaces timing/copy issues; rehearsal 2 confirms fixes; take 3 is the recording.
 - **D-03:** Single operator (Franco) drives Claude Desktop on screen-share with live voiceover during the recorded take. No silent run + post-narration.
 - **D-04:** IDEN-02 clone-rejection is demonstrated **live** by booting a 4th `gamma-clone` runtime that reuses gamma's pubkey against the live Operator. Rejection appears in the WS log mid-demo. (Phase 3 fleet-smoke and Phase 6 canvas already model this.)
 
 ### Fallback Policy
 - **D-05:** Hard cutoff at **2026-05-02 EOD (24h before deadline)**. If all three gates (M-06, M-08, 06-06 smoke) are not green by that time, switch to fallback path. No judgment-call-on-the-day decisions.
-- **D-06:** Fallback = **WebSocket transport demo + pre-recorded clone-rejection clip**. AXL primary clause stays merged in code (Phase 6 closed it), but the recorded demo runs on WebSocket transport (Phase 3 baseline) for variance reduction. Clone-rejection clip captured offline and spliced into the video if a live re-run is risky on take day.
+- **D-06:** Fallback = **WebSocket transport demo + pre-recorded clone-rejection clip**. AXL primary clause stays merged in code (Phase 6 closed it), but the recorded demo runs on WebSocket transport (Phase 3 baseline) for variance reduction. Clone-rejection clip captured offline and spliced into the video if a live re-run is risky on take day. **Status (2026-05-01): fallback only — primary on-chain path live-verified end-to-end via M-06 closure.** Retained as contingency: KeeperHub returned Cloudflare 521/524 twice during the verification session, so the WebSocket-transport contingency is non-trivially valuable on demo day. Pre-record the clone-rejection clip during rehearsal 1 regardless.
 - **D-07:** Fallback invocation is automatic at the cutoff — not deferred to recording-time judgment. This protects edit + submission time.
 
 ### Documentation
