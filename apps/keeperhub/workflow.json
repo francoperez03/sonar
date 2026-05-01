@@ -33,11 +33,11 @@
         "type": "action",
         "label": "Webhook",
         "config": {
-          "endpoint": "{{ env.OPERATOR_BASE_URL }}/rotation/generate",
-          "httpBody": "{\"runId\": \"{{ trigger.runId }}\", \"runtimeIds\": {{ trigger.runtimeIds }} }",
+          "endpoint": "https://showcase-group-suspended-mode.trycloudflare.com/rotation/generate",
+          "httpBody": "{\"runId\": \"{{ trigger.runId }}\", \"runtimeIds\": [\"alpha\"] }",
           "actionType": "HTTP Request",
           "httpMethod": "POST",
-          "httpHeaders": "{\"Authorization\": \"Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}\", \"Content-Type\": \"application/json\"}"
+          "httpHeaders": "{\"Authorization\": \"Bearer dev-secret\", \"Content-Type\": \"application/json\"}"
         },
         "status": "idle",
         "description": ""
@@ -54,15 +54,16 @@
         "type": "action",
         "label": "Transfer Native Token",
         "config": {
-          "amount": "0.001",
+          "amount": "0.000001",
           "forEach": {
-            "input": "{{ node1.wallets }}",
+            "input": "{{@py93u03noJDAnLHTF7dNU:Webhook.data.wallets}}",
             "per-iter": {}
           },
-          "network": "Base Sepolia",
+          "network": "84532",
           "actionType": "web3/transfer-funds",
-          "recipientAddress": "{{ item.address }}",
-          "gasLimitMultiplier": "Your gas limit"
+          "recipientAddress": "{{@py93u03noJDAnLHTF7dNU:Webhook.data.wallets[0].address}}",
+          "usePrivateMempool": false,
+          "gasLimitMultiplier": "1.2"
         },
         "status": "idle"
       },
@@ -78,11 +79,11 @@
         "type": "action",
         "label": "Webhook - Distribute",
         "config": {
-          "endpoint": "{{ env.OPERATOR_BASE_URL }}/rotation/distribute",
-          "httpBody": "{\"runId\": \"{{ trigger.runId }}\"}",
+          "endpoint": "https://showcase-group-suspended-mode.trycloudflare.com/rotation/distribute",
+          "httpBody": "{\"runId\": \"{{ trigger.runId }}\", \"runtimeIds\": [\"alpha\"] }",
           "actionType": "HTTP Request",
           "httpMethod": "POST",
-          "httpHeaders": "{\"Authorization\": \"Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}\", \"Content-Type\": \"application/json\"}"
+          "httpHeaders": "{\"Authorization\": \"Bearer dev-secret\", \"Content-Type\": \"application/json\"}"
         },
         "status": "idle"
       },
@@ -98,12 +99,14 @@
         "type": "action",
         "label": "Write Contract",
         "config": {
-          "abi": "Your contract abi",
-          "network": "Base Sepolia",
+          "abi": "[{\"type\":\"function\",\"name\":\"deprecate\",\"inputs\":[{\"name\":\"wallets\",\"type\":\"address[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"WalletsDeprecated\",\"inputs\":[{\"name\":\"wallets\",\"type\":\"address[]\",\"indexed\":false},{\"name\":\"timestamp\",\"type\":\"uint256\",\"indexed\":false}],\"anonymous\":false}]\n",
+          "network": "84532",
           "actionType": "web3/write-contract",
           "abiFunction": "deprecate",
-          "functionArgs": "{\"wallets\": \"{{ node1.wallets[*].address }}\"}",
-          "contractAddress": "0x7eddfC8953A529Ce7ffb35de2030f73Aad89b31F"
+          "functionArgs": "[[\"{{@py93u03noJDAnLHTF7dNU:Webhook.data.wallets[0].address}}\"]]",
+          "useManualAbi": "true",
+          "contractAddress": "0x7eddfC8953A529Ce7ffb35de2030f73Aad89b31F",
+          "usePrivateMempool": false
         },
         "status": "idle"
       },
@@ -119,11 +122,11 @@
         "type": "action",
         "label": "Webhook - Log Ingest",
         "config": {
-          "endpoint": "{{ env.OPERATOR_BASE_URL }}/rotation/log-ingest",
+          "endpoint": "https://showcase-group-suspended-mode.trycloudflare.com/rotation/log-ingest",
           "httpBody": "{\"runId\": \"{{ trigger.runId }}\", \"events\": [{\"kind\": \"fund_tx\", \"txHashes\": \"{{ node2.txHashes }}\"}, {\"kind\": \"deprecate_tx\", \"txHash\": \"{{ node4.txHash }}\"}]}",
           "actionType": "HTTP Request",
           "httpMethod": "POST",
-          "httpHeaders": "{\"Authorization\": \"Bearer {{ env.KEEPERHUB_WEBHOOK_SECRET }}\"}"
+          "httpHeaders": "{\"Authorization\": \"Bearer dev-secret\", \"Content-Type\": \"application/json\"}"
         },
         "status": "idle"
       },
