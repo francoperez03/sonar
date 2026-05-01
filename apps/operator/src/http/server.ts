@@ -10,6 +10,7 @@ import { rotationGenerateRoute } from './routes/rotation/generate.js';
 import { rotationDistributeRoute } from './routes/rotation/distribute.js';
 import { rotationCompleteRoute } from './routes/rotation/complete.js';
 import { rotationLogIngestRoute } from './routes/rotation/log-ingest.js';
+import { logPublishRoute } from './routes/log/publish.js';
 import { mountRuntimeSocket } from '../transport/createServerTransport.js';
 import { mountLogSocket } from '../log/logSubscribers.js';
 import type { Registry } from '../registry/Registry.js';
@@ -37,6 +38,7 @@ export interface OperatorDeps {
  * - POST /rotation/distribute   (Phase 5 D-10/D-11/D-12, bearer-auth)
  * - POST /rotation/complete     (Phase 5 D-19, bearer-auth)
  * - POST /rotation/log-ingest   (Phase 5 D-16, bearer-auth)
+ * - POST /log/publish           (Phase 6 D-07, bearer-auth — chat events)
  * - WS   /runtime     (TRAN-02)
  * - WS   /logs        (OPER-03 broadcast)
  */
@@ -58,6 +60,10 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
   );
   app.post('/rotation/complete', auth, rotationCompleteRoute({ vault: deps.vault, logBus: deps.logBus }));
   app.post('/rotation/log-ingest', auth, rotationLogIngestRoute({ logBus: deps.logBus }));
+
+  // Phase 6 D-07: chat-event ingestion for the demo-ui ChatMirror. Bearer-auth'd
+  // mirror of /rotation/log-ingest's pattern; broadcasts ChatMsg via /logs WS.
+  app.post('/log/publish', auth, logPublishRoute({ logBus: deps.logBus }));
 
   const httpServer = createServer(app);
 
