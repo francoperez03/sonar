@@ -1,7 +1,231 @@
-/* Phase 6 — populated by plans 04 (shell) + 05 (canvas) */
+/* Phase 6 — populated by plans 04 (shell) + 05 (canvas).
+ * Tokens come from apps/landing/src/styles/tokens.css via tokens.css @import.
+ * UI-SPEC §Layout Contract / Color / Typography / Spacing / Radii are the
+ * authoritative reference for every value in this file.
+ */
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
   margin: 0;
   font-family: var(--font-sans);
+}
+
+/* ----- Ambient layer (decorative, behind everything) ----- */
+.sonar-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: var(--z-base);
+}
+.sonar-ambient-dot {
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sonar-ambient-dot {
+    opacity: 0.35;
+  }
+}
+
+/* ----- Shell grid (Layout Contract §Sidebar/Canvas) ----- */
+.demo-shell {
+  display: grid;
+  grid-template-columns: minmax(360px, 440px) 1fr;
+  gap: var(--space-2xl);
+  padding: var(--space-lg);
+  min-height: calc(100vh - 80px);
+  position: relative;
+  z-index: var(--z-content);
+}
+@media (max-width: 899px) {
+  .demo-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.demo-canvas-slot {
+  min-height: 480px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+}
+
+/* ----- Sidebar ----- */
+.demo-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+.demo-sidebar-section {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.demo-eyebrow {
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: var(--lh-snug);
+}
+
+.demo-text-muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+}
+
+/* ----- Footer ----- */
+.demo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  background: var(--color-bg-elevated);
+  position: relative;
+  z-index: var(--z-content);
+}
+.demo-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* ----- Tx hash chip (footer) ----- */
+.tx-hash-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.tx-hash-chip-button {
+  background: transparent;
+  color: var(--color-text);
+  border: none;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+  min-height: var(--size-tap-min);
+}
+.tx-hash-chip-button:focus-visible {
+  outline: 2px solid var(--color-accent-cyan);
+  outline-offset: 2px;
+}
+.tx-hash-chip a {
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  text-decoration: none;
+}
+.tx-hash-chip a:hover,
+.tx-hash-chip a:focus-visible {
+  color: var(--color-accent-cyan);
+  outline: 2px solid var(--color-accent-cyan);
+  outline-offset: 2px;
+}
+
+/* ----- Primary CTA ("Run again") ----- */
+.cta-primary {
+  background: var(--color-accent-cyan);
+  color: var(--color-bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-weight: 600;
+  font-size: var(--text-label);
+  min-height: var(--size-tap-min);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.cta-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cta-primary:focus-visible {
+  outline: 2px solid var(--color-accent-cyan);
+  outline-offset: 2px;
+}
+
+/* ----- A11y helper ----- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ----- Chat bubbles (Task 2 fills with content; styles ready) ----- */
+.chat-bubble {
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  margin-block: var(--space-xs);
+  font-size: var(--text-body);
+  line-height: var(--lh-normal);
+  color: var(--color-text);
+}
+.chat-bubble--user {
+  background: var(--color-bg-elevated);
+  border-left: 1px solid var(--color-accent-cyan);
+}
+.chat-bubble--assistant {
+  background: var(--color-surface);
+}
+.chat-mirror-empty,
+.event-log-empty {
+  padding: var(--space-sm);
+}
+.chat-mirror-empty-heading,
+.event-log-empty-heading {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-label);
+}
+.chat-mirror-empty-body,
+.event-log-empty-body {
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+  margin: 0;
+}
+
+/* ----- Event log rows ----- */
+.event-row {
+  display: grid;
+  grid-template-columns: 60px 90px 1fr;
+  gap: var(--space-sm);
+  padding-block: var(--space-xs);
+  font-size: var(--text-body);
+  align-items: baseline;
+}
+.event-row-ts {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 0.85vw, 13px);
+  color: var(--color-text-muted);
+}
+.event-row-kind {
+  font-size: var(--text-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.event-row-kind.is-accent {
+  color: var(--color-accent-cyan);
+}
+.event-row-body {
+  color: var(--color-text);
+  line-height: var(--lh-snug);
 }
