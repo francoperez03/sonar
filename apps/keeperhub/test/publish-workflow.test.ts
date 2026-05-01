@@ -187,7 +187,9 @@ describe('publishWorkflow', () => {
     const writeNode = body.nodes.find((n: { id: string }) => n.id === 'WRITE');
     // ABI was injected, contractAddress normalized.
     expect(writeNode.data.config.contractAddress).toBe(DEPLOYED);
-    expect(Array.isArray(writeNode.data.config.abi)).toBe(true);
+    // abi is injected as a JSON-encoded string (KeeperHub web3/write-contract requirement).
+    expect(typeof writeNode.data.config.abi).toBe('string');
+    expect(Array.isArray(JSON.parse(writeNode.data.config.abi))).toBe(true);
     // Placeholder refs rewritten.
     expect(writeNode.data.config.functionArgs).toContain('GEN.wallets[*].address');
     expect(writeNode.data.config.functionArgs).not.toContain('node1');

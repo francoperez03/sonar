@@ -22,7 +22,7 @@ function defaultHandlers(s: StubServer): Handlers {
   return {
     runs: (_req, res) => {
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ status: 'running', nodes: [] }));
+      res.end(JSON.stringify({ execution: { status: 'running' }, logs: [] }));
     },
     ingest: (_req, res, body) => {
       try {
@@ -61,7 +61,7 @@ async function startStub(): Promise<StubServer> {
     req.on('end', () => {
       const body = Buffer.concat(chunks).toString('utf8');
       const url = req.url ?? '';
-      if (url.startsWith('/api/runs/')) {
+      if (url.startsWith('/api/workflows/executions/')) {
         stub.runsCalls.push({ url, auth: req.headers['authorization'] as string | undefined });
         stub.handlers.runs(req, res, body);
       } else if (url === '/rotation/log-ingest') {
@@ -109,10 +109,10 @@ describe('pollOnce', () => {
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(
         JSON.stringify({
-          status: 'running',
-          nodes: [
-            { id: 'transfer', output: { tx_hash: TX1 } },
-            { id: 'write', output: { tx_hash: TX2 } },
+          execution: { status: 'running' },
+          logs: [
+            { nodeId: 'transfer', output: { tx_hash: TX1 } },
+            { nodeId: 'write', output: { tx_hash: TX2 } },
           ],
         }),
       );
@@ -130,7 +130,7 @@ describe('pollOnce', () => {
   it('does not re-forward the same tx_hash on subsequent polls (per-run dedup)', async () => {
     stub.handlers.runs = (_req, res) => {
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ status: 'running', nodes: [{ id: 'transfer', output: { tx_hash: TX1 } }] }));
+      res.end(JSON.stringify({ execution: { status: 'running' }, logs: [{ nodeId: 'transfer', output: { tx_hash: TX1 } }] }));
     };
     const state = createPollState();
     await pollOnce('run-1', baseDeps(stub.port), state);
@@ -143,10 +143,10 @@ describe('pollOnce', () => {
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(
         JSON.stringify({
-          status: 'completed',
-          nodes: [
-            { id: 'transfer', output: { tx_hash: TX1 } },
-            { id: 'deprecate', output: { tx_hash: DEPRECATE_TX } },
+          execution: { status: 'completed' },
+          logs: [
+            { nodeId: 'transfer', output: { tx_hash: TX1 } },
+            { nodeId: 'deprecate', output: { tx_hash: DEPRECATE_TX } },
           ],
         }),
       );
@@ -165,7 +165,7 @@ describe('pollOnce', () => {
     let callCount = 0;
     stub.handlers.runs = (_req, res) => {
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ status: 'running', nodes: [{ id: 'transfer', output: { tx_hash: TX1 } }] }));
+      res.end(JSON.stringify({ execution: { status: 'running' }, logs: [{ nodeId: 'transfer', output: { tx_hash: TX1 } }] }));
     };
     stub.handlers.ingest = (_req, res) => {
       callCount += 1;
@@ -209,7 +209,7 @@ describe('pollOnce', () => {
         return;
       }
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ status: 'running', nodes: [{ id: 'transfer', output: { tx_hash: TX1 } }] }));
+      res.end(JSON.stringify({ execution: { status: 'running' }, logs: [{ nodeId: 'transfer', output: { tx_hash: TX1 } }] }));
     };
     const state = createPollState();
     await pollOnce('run-1', baseDeps(stub.port), state);
@@ -249,12 +249,12 @@ describe('mainLoop', () => {
       polls += 1;
       res.writeHead(200, { 'content-type': 'application/json' });
       if (polls < 2) {
-        res.end(JSON.stringify({ status: 'running', nodes: [] }));
+        res.end(JSON.stringify({ execution: { status: 'running' }, logs: [] }));
       } else {
         res.end(
           JSON.stringify({
-            status: 'completed',
-            nodes: [{ id: 'deprecate', output: { tx_hash: DEPRECATE_TX } }],
+            execution: { status: 'completed' },
+            logs: [{ nodeId: 'deprecate', output: { tx_hash: DEPRECATE_TX } }],
           }),
         );
       }

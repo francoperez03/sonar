@@ -151,10 +151,14 @@ describe('prepareWorkflow', () => {
     expect(() => prepareWorkflow(fixture(), 'not-an-address')).toThrow(/invalid_deployment_address/);
   });
 
-  it('injects deprecate(address[]) ABI in place of UI placeholder', () => {
+  it('injects deprecate(address[]) ABI in place of UI placeholder (as JSON-encoded string)', () => {
     const { envelope } = prepareWorkflow(fixture(), DEPLOYED);
     const writeNode = envelope.nodes.find((n) => n.id === 'WRITE_REAL_ID')!;
-    expect((writeNode.data.config as { abi: unknown }).abi).toEqual(DEPRECATE_ABI);
+    // KeeperHub web3/write-contract serializes abi via String(value); passing the array
+    // yields "[object Object]" → "Invalid ABI JSON" at runtime. Inject as JSON-string instead.
+    const abi = (writeNode.data.config as { abi: unknown }).abi;
+    expect(typeof abi).toBe('string');
+    expect(JSON.parse(abi as string)).toEqual(DEPRECATE_ABI);
   });
 
   it('injects default gasLimitMultiplier in place of UI placeholder', () => {

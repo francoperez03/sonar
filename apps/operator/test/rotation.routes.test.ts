@@ -178,14 +178,18 @@ describe('POST /rotation/generate', () => {
     expect(body.error).toBe('invalid_request');
   });
 
-  it('409 on duplicate runId', async () => {
+  it('idempotent on duplicate runId — returns existing wallets with 200', async () => {
+    // Workflow retries on transient downstream failure replay the same trigger.runId;
+    // returning 409 broke retries. The route now returns 200 + the same wallets.
     const { port } = await spinUp();
     const r1 = await postJson(port, '/rotation/generate', { runId: 'dup', runtimeIds: ['a'] });
     expect(r1.status).toBe(200);
+    const b1 = await r1.json() as { runId: string; wallets: { runtimeId: string; address: string }[] };
     const r2 = await postJson(port, '/rotation/generate', { runId: 'dup', runtimeIds: ['a'] });
-    expect(r2.status).toBe(409);
-    const body = await r2.json() as { error: string };
-    expect(body.error).toBe('run_exists');
+    expect(r2.status).toBe(200);
+    const b2 = await r2.json() as { runId: string; wallets: { runtimeId: string; address: string }[] };
+    expect(b2.runId).toBe(b1.runId);
+    expect(b2.wallets[0]!.address).toBe(b1.wallets[0]!.address);
   });
 
   it('emits wallets_generated log with count only (no privkey leakage)', async () => {
