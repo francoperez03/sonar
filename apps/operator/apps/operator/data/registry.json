@@ -1,0 +1,25 @@
+{
+  "runtimes": [
+    {
+      "runtimeId": "gamma",
+      "pubkey": "GXDXVpNjd5zAnvlZPV8a2lOcRY3fBZgbwaNc0KEKpQc=",
+      "status": "revoked",
+      "registeredAt": 1777553147140,
+      "lastHandshakeAt": 1777553150187
+    },
+    {
+      "runtimeId": "alpha",
+      "pubkey": "w0G6G+/VQKCPGIgZ8i4gDd8KD/8v8vLiKIHdMSQvQrs=",
+      "status": "registered",
+      "registeredAt": 1777553147144,
+      "lastHandshakeAt": 1777666468247
+    },
+    {
+      "runtimeId": "beta",
+      "pubkey": "ZDIkoEUlA1+r+NcmP9Ldkgb/VltmQfnlbJlMXcN2M9s=",
+      "status": "revoked",
+      "registeredAt": 1777553147145,
+      "lastHandshakeAt": 1777553150153
+    }
+  ]
+}
