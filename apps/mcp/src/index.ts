@@ -27,12 +27,12 @@ connectLogs({ url: cfg.operatorLogsWs, buffer });
 const server = buildMcpServer({
   buffer,
   operatorHttpUrl: cfg.operatorHttpUrl,
-  // Phase 5 — run_rotation tool deps.
   keeperhubBaseUrl: cfg.keeperhubBaseUrl,
   keeperhubApiToken: cfg.keeperhubApiToken,
   keeperhubWorkflowId: cfg.keeperhubWorkflowId,
   pollerBaseUrl: cfg.pollerBaseUrl,
   keeperhubWebhookSecret: cfg.keeperhubWebhookSecret,
+  operatorWebhookSecret: cfg.operatorWebhookSecret,
 });
 const transport = new StdioServerTransport();
 

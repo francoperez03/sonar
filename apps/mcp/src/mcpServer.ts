@@ -13,21 +13,22 @@ import type { RingBuffer } from './buffer/RingBuffer.js';
 export interface McpDeps {
   buffer: RingBuffer;
   operatorHttpUrl: string;
-  // Phase 5 — run_rotation tool deps. Optional so Phase 4 tests + downstream
-  // callers that only need the original three tools continue to typecheck.
-  // The tool itself returns mcpError('keeperhub_not_configured', ...) if
-  // apiToken/workflowId end up empty at invocation time.
   keeperhubBaseUrl?: string;
   keeperhubApiToken?: string;
   keeperhubWorkflowId?: string;
   pollerBaseUrl?: string;
   keeperhubWebhookSecret?: string;
+  operatorWebhookSecret?: string;
 }
 
 export function buildMcpServer(deps: McpDeps): McpServer {
   const server = new McpServer({ name: 'sonar', version: '0.1.0' });
-  registerListRuntimes(server, { operatorHttpUrl: deps.operatorHttpUrl });
-  registerRevoke(server, { operatorHttpUrl: deps.operatorHttpUrl });
+  const chatCtx = {
+    operatorHttpUrl: deps.operatorHttpUrl,
+    operatorWebhookSecret: deps.operatorWebhookSecret ?? '',
+  };
+  registerListRuntimes(server, chatCtx);
+  registerRevoke(server, chatCtx);
   registerGetWorkflowLog(server, { buffer: deps.buffer });
   registerRunRotation(server, {
     apiBaseUrl: deps.keeperhubBaseUrl ?? 'https://app.keeperhub.com',

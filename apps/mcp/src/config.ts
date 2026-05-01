@@ -11,15 +11,15 @@
  *   - keeperhubWebhookSecret: KEEPERHUB_WEBHOOK_SECRET — REQUIRED, throws at boot if unset (D-18 / B-02)
  */
 export interface McpConfig {
-  operatorHttpUrl: string;        // OPERATOR_HTTP_URL,        default http://localhost:8787
-  operatorLogsWs: string;         // OPERATOR_LOGS_WS,         default ws://localhost:8787/logs
-  logBufferSize: number;          // LOG_BUFFER_SIZE,          default 500
-  // Phase 5 additions:
+  operatorHttpUrl: string;
+  operatorLogsWs: string;
+  logBufferSize: number;
   keeperhubApiToken: string;
   keeperhubBaseUrl: string;
   keeperhubWorkflowId: string;
   pollerBaseUrl: string;
-  keeperhubWebhookSecret: string; // strict — throws if unset
+  keeperhubWebhookSecret: string;
+  operatorWebhookSecret: string;
 }
 
 export function getConfig(): McpConfig {
@@ -36,5 +36,6 @@ export function getConfig(): McpConfig {
     keeperhubWorkflowId:    process.env['KEEPERHUB_WORKFLOW_ID']  ?? '',
     pollerBaseUrl:          process.env['POLLER_BASE_URL']        ?? 'http://localhost:8788',
     keeperhubWebhookSecret: webhookSecret,
+    operatorWebhookSecret:  webhookSecret,
   };
 }
