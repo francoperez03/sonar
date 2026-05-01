@@ -91,7 +91,7 @@
   - [ ] 05-02-PLAN.md — Deploy to Base Sepolia + record deployments/base-sepolia.json + EmitProbe (CHAIN-01, CHAIN-02, CHAIN-03)
   - [ ] 05-03-PLAN.md — Operator /rotation/* aggregator routes + PrivkeyVault + bearer-auth + OPER-05 invariant extension (KEEP-03, OPER-05)
   - [x] 05-04-PLAN.md — apps/keeperhub glue: workflow.json + publish-workflow + poll-execution → LogBus (KEEP-01, KEEP-02, KEEP-04, CHAIN-02) — auto portion DONE; M-06 publish round-trip pending human
-  - [ ] 05-05-PLAN.md — apps/mcp run_rotation tool + cross-process poller-server + Claude Desktop M-08 smoke (KEEP-04)
+  - [x] 05-05-PLAN.md — apps/mcp run_rotation tool + cross-process poller-server (KEEP-04) — auto portion DONE (mcp 55/55, keeperhub 37/37); M-08 Claude Desktop restart + live smoke run pending human
 
 ### Phase 6: Demo UI + AXL Transport
 **Goal**: A React demo UI shows the rotation live, and AXL transport is integrated (or explicitly recorded as deferred under the `ITransport` swap-able interface).
@@ -131,7 +131,7 @@
 | 2. Workspace Foundation | 3/3 | Complete | 2026-04-27 |
 | 3. Operator + Runtime + Identity Core | 5/5 | Complete | 2026-04-28 |
 | 4. Sonar MCP Server | 0/0 | Not started | - |
-| 5. On-Chain + KeeperHub Workflow | 4/5 | In progress | - |
+| 5. On-Chain + KeeperHub Workflow | 5/5 (auto) | Awaiting M-06+M-08 human verify | - |
 | 6. Demo UI + AXL Transport | 0/6 | Planned | - |
 | 7. Rehearsal + Submission | 0/0 | Not started | - |
 

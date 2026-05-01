@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-30T14:52:00.000Z"
+last_updated: "2026-04-30T17:30:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 21
-  completed_plans: 16
-  percent: 76
+  completed_plans: 17
+  percent: 81
 ---
 
 # State: Sonar
@@ -25,12 +25,12 @@ progress:
 ## Current Position
 
 Phase: 05 (on-chain-keeperhub-workflow) — IN PROGRESS
-Plan: 4 of 5 complete (auto portion); M-06 human round-trip is the next manual gate
+Plan: 5 of 5 auto portion complete; M-08 (Claude Desktop restart + smoke run) is the final human gate
 
-- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE) || 05-on-chain-keeperhub-workflow (05-01..05-04 auto portion done; 05-04 M-06 human gate pending; 05-05 next)
-- **Plan**: 05-04 auto tasks landed — @sonar/keeperhub buildable + 27/27 tests green; workflow.json (M-05) committed; M-06 publish round-trip is the next manual step (the human will run `pnpm --filter @sonar/keeperhub publish:workflow` to capture KEEPERHUB_WORKFLOW_ID).
-- **Status**: 05-04 produced apps/keeperhub package: publish-workflow.ts (POST/PUT to /api/workflows with bearer; injects deprecate ABI + gasLimitMultiplier; validates contractAddress against deployments/base-sepolia.json), poll-execution.ts (long-lived poller forwarding tx_hash → /rotation/log-ingest with per-runId backoff + dedup; fires /rotation/complete on completion), runRegistry, README with all 11 MANUAL-OPS IDs.
-- **Progress**: 4/7 phases complete; Phase 5 ~80% (4/5 plans, M-06 pending)
+- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE) || 05-on-chain-keeperhub-workflow (05-01..05-05 auto portion done; M-08 human-verify pending)
+- **Plan**: 05-05 auto tasks landed — apps/mcp run_rotation tool registered as 4th tool; KeeperHub HTTP client (corrected to `/api/workflow/{id}/execute` per real API); apps/keeperhub poller-server localhost bridge running on :8788 with bearer-authed POST /poller/register. mcp 55/55, keeperhub 37/37 green.
+- **Status**: Plan 05-05 commits 2b212ab + ae71bfd. Plan acceptance fully met for Tasks 1-2; Task 3 is the M-08 checkpoint:human-verify (Claude Desktop full quit/relaunch, verify 4-tool list, live smoke run that produces a real Base Sepolia deprecate tx).
+- **Progress**: 4/7 phases complete; Phase 5 auto portion 100% (5/5 plans); M-06 + M-08 are the live-system human gates remaining
 
 ```
 [████░░░] 4/7
@@ -47,6 +47,7 @@ Plan: 4 of 5 complete (auto portion); M-06 human round-trip is the next manual g
 | Days to deadline | 5 (as of 2026-04-28) |
 | Phase 03 P05 | 8 min | - tasks | - files |
 | Phase 05 P04 | ~12 min | 3 tasks | 19 files (15 new src/test + 4 config) |
+| Phase 05 P05 | ~14 min | 2 auto tasks (3rd is M-08 human-verify) | 16 files (9 new + 7 modified); +28 tests |
 
 ## Accumulated Context
 
@@ -67,6 +68,11 @@ Plan: 4 of 5 complete (auto portion); M-06 human round-trip is the next manual g
 - 05-04: publish-workflow.ts factored as `publishWorkflow()` named export + auto-run guard (not child_process spawn) — tests import the function directly for ~10x faster runs and deterministic dependency injection.
 - 05-04: /rotation/complete is fired by the poller (CONTEXT D-19/D-21 discretion), not by an explicit on-success webhook in workflow.json.
 - 05-04: M-06 (live publish round-trip + capture KEEPERHUB_WORKFLOW_ID) deliberately deferred to human; auto run stopped before live network call.
+- 05-05: KeeperHub run-trigger endpoint corrected from plan pseudo-code — real API is `POST /api/workflow/{id}/execute` (SINGULAR `workflow`, `execute` segment) with body `{input}` and response `{executionId|id|runId}`. Plan referenced wrong path `/api/workflows/{id}/runs` (PLURAL + `runs`). Same correction class as 05-04 commit 0ead9b4 found during M-06.
+- 05-05: D-20 cross-process register transport = localhost HTTP (`POST /poller/register` on 127.0.0.1:8788) bearer-authed via `KEEPERHUB_WEBHOOK_SECRET` with `crypto.timingSafeEqual`. Failure-tolerant (1s `AbortSignal.timeout`); poller-down does NOT fail run_rotation — surfaced as `structuredContent.pollerRegistered:false` + warning text.
+- 05-05: `buildMcpServer`'s Phase 5 `McpDeps` fields are optional with sensible defaults so existing 11 Phase 4 test call sites typecheck unchanged (additive, backward-compat). The `keeperhub_not_configured` mcpError still fires at invocation time.
+- 05-05: Tool registration site stayed in `mcpServer.ts` factory (not `index.ts` as plan suggested) — keeps the Phase 4 DI factory pattern consistent and lets tests build the server without spawning index.ts.
+- 05-05: M-08 (Claude Desktop full quit + relaunch + 4-tool visibility check + live smoke run) deliberately NOT executed — gated as checkpoint:human-verify. Documented in apps/mcp/README.md §5 and 05-05-SUMMARY.md.
 
 ### Plan-Level Decisions (Phase 4)
 
@@ -137,8 +143,8 @@ Plan: 4 of 5 complete (auto portion); M-06 human round-trip is the next manual g
 
 ## Session Continuity
 
-- **Last action**: Executed Phase 4 (sonar-mcp-server) on 2026-04-29 — 4 plans across 3 waves; 11 commits (418f18a, 057e6b5, 82a8aab, 23e51b2, 1bbb955, 8c23053, 33c806a, a9e5084, b232e71, 9cec80c, 117283d, 3b7342b). apps/mcp scaffolded with config + RingBuffer + operator HTTP/WS clients, three MCP tools (list_runtimes / revoke / get_workflow_log), buildMcpServer factory, stdio entry, README + contract test. operator 35/35 + runtime 11/11 + mcp 37/37 green.
-- **Next action**: Phase 5 (On-Chain + KeeperHub workflow) — needs research per the KeeperHub deep-dive directive.
+- **Last action**: Executed Phase 5 Plan 05 (run_rotation MCP tool + cross-process bridge) on 2026-04-30 — 2 auto-task commits (2b212ab, ae71bfd). apps/mcp now exposes 4 tools (list_runtimes / revoke / get_workflow_log / run_rotation); apps/keeperhub started a localhost poller-server on :8788 for cross-process runId registration. mcp 55/55, keeperhub 37/37 green; corrected KeeperHub run-trigger endpoint to `/api/workflow/{id}/execute` per real API.
+- **Next action**: M-06 (live publish-workflow round-trip — already executed during Plan 04 cleanup; KEEPERHUB_WORKFLOW_ID `zu25iauu5jkv2bw9xngnl` captured) and M-08 (Claude Desktop full quit/relaunch + live smoke run producing a real Base Sepolia deprecate tx). After M-08 success, ROADMAP §Phase 5 SC #5 closes and Phase 5 is fully complete.
 - **Notes**: Phase 1 design-token contract locked (12+8+5+3+6 tokens with parity test). D-13 enforced via ESLint flat config no-restricted-syntax. LAND-04 LCP <= 2000ms gate is now CI-enforceable via .lighthouserc.cjs. Hero shell exposes data-testid hooks (hero, hero-canvas-slot) for stable Playwright selectors across plans 02-04.
 
 ### Plan 01-01 Performance Metrics
