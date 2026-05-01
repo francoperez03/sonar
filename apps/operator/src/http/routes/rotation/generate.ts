@@ -35,8 +35,16 @@ export function rotationGenerateRoute(deps: Deps) {
     }
     const { runId, runtimeIds } = parsed.data;
 
-    if (deps.vault.has(runId)) {
-      res.status(409).json({ error: 'run_exists' });
+    // Idempotent: if runId already exists, return the same wallets instead of 409.
+    // KeeperHub workflow retries on transient downstream failure may replay this webhook
+    // with the same trigger.runId — replying 200 lets the run progress without restart.
+    const existing = deps.vault.get(runId);
+    if (existing) {
+      const responseWallets = runtimeIds.map((runtimeId, i) => ({
+        runtimeId,
+        address: existing[i]!.address,
+      }));
+      res.status(200).json({ runId, wallets: responseWallets });
       return;
     }
 

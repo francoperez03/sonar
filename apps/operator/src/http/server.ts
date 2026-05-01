@@ -2,6 +2,7 @@ import { createServer, type Server } from 'node:http';
 import express, { type Express } from 'express';
 import { WebSocketServer } from 'ws';
 import { jsonBody } from './middleware/json.js';
+import { requestLog, bodyParseErrorLog } from './middleware/requestLog.js';
 import { bearerAuth } from './middleware/bearerAuth.js';
 import { distributeRoute } from './routes/distribute.js';
 import { revokeRoute } from './routes/revoke.js';
@@ -44,6 +45,7 @@ export interface OperatorDeps {
  */
 export function createOperatorServer(deps: OperatorDeps): { app: Express; httpServer: Server; wssRuntime: WebSocketServer; wssLogs: WebSocketServer } {
   const app = express();
+  app.use(requestLog);
   app.use(jsonBody);
 
   app.post('/distribute', distributeRoute({ sessions: deps.sessions, coordinator: deps.coordinator }));
@@ -64,6 +66,8 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
   // Phase 6 D-07: chat-event ingestion for the demo-ui ChatMirror. Bearer-auth'd
   // mirror of /rotation/log-ingest's pattern; broadcasts ChatMsg via /logs WS.
   app.post('/log/publish', auth, logPublishRoute({ logBus: deps.logBus }));
+
+  app.use(bodyParseErrorLog);
 
   const httpServer = createServer(app);
 
