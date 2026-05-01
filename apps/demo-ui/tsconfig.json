@@ -1,9 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client", "@testing-library/jest-dom/vitest"],
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "noUncheckedIndexedAccess": false
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "exclude": ["dist", "node_modules"]
 }
