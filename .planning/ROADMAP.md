@@ -13,7 +13,7 @@
 - [x] **Phase 3: Operator + Runtime + Identity Core** - Operator backend, runtime script, Ed25519 challenge/response, WebSocket transport baseline
 - [x] **Phase 4: Sonar MCP Server** - MCP server exposing `list_runtimes`/`revoke`/`get_workflow_log` to Claude Desktop (4/4 plans complete)
 - [ ] **Phase 5: On-Chain + KeeperHub Workflow** - FleetRegistry on Base Sepolia and 4-node KeeperHub workflow wired to Operator
-- [ ] **Phase 6: Demo UI + AXL Transport** - React demo UI mirroring chat/log/runtime panels; AXL transport (or recorded fallback)
+- [x] **Phase 6: Demo UI + AXL Transport** - React demo UI mirroring chat/log/runtime panels; AXL transport integrated (primary clause; pending human smoke-test)
 - [ ] **Phase 7: Rehearsal + Submission** - End-to-end rehearsal, video, docs, and ETHGlobal submission
 
 ## Phase Details
@@ -103,12 +103,12 @@
   3. Per-runtime panels (alpha/beta/gamma) reflect the runtime status transitions: registered → awaiting → received → deprecated, with revoked also visible
   4. AXL transport is implemented under `ITransport` and validated end-to-end OR the deferred-decision policy is invoked and the WebSocket fallback is recorded as the demo transport in `docs/`
 **Plans**: 6 plans
-  - [ ] 06-01-PLAN.md — Wave 0 scaffold (apps/demo-ui Vite/React/Vitest harness, tokens import, ChatMsg shared schema) (DEMO-01, DEMO-02, DEMO-03)
-  - [ ] 06-02-PLAN.md — Operator POST /log/publish + MCP chatPublish hook (chat events on existing /logs WS) (DEMO-01)
-  - [ ] 06-03-PLAN.md — Browser ITransport adapter + module-level store + reducer with allowed transitions + useSyncExternalStore hooks (DEMO-02, DEMO-03)
-  - [ ] 06-04-PLAN.md — Shell port: AmbientBackground + Sidebar + Footer + ChatMirror + EventLog (Virtuoso) + TxHashChip (DEMO-01, DEMO-02)
-  - [ ] 06-05-PLAN.md — Canvas: 4 RuntimeNodes (alpha/beta/gamma/gamma-clone) + 3 ServiceNodes + EdgePulse + StatusPill + IdentityStrip (DEMO-03)
-  - [ ] 06-06-PLAN.md — AXL spike (90-min hard box) + branch decision + demo-ui README + end-to-end smoke checkpoint (TRAN-03)
+  - [x] 06-01-PLAN.md — Wave 0 scaffold (apps/demo-ui Vite/React/Vitest harness, tokens import, ChatMsg shared schema) (DEMO-01, DEMO-02, DEMO-03)
+  - [x] 06-02-PLAN.md — Operator POST /log/publish + MCP chatPublish hook (chat events on existing /logs WS) (DEMO-01)
+  - [x] 06-03-PLAN.md — Browser ITransport adapter + module-level store + reducer with allowed transitions + useSyncExternalStore hooks (DEMO-02, DEMO-03)
+  - [x] 06-04-PLAN.md — Shell port: AmbientBackground + Sidebar + Footer + ChatMirror + EventLog (Virtuoso) + TxHashChip (DEMO-01, DEMO-02)
+  - [x] 06-05-PLAN.md — Canvas: 4 RuntimeNodes (alpha/beta/gamma/gamma-clone) + 3 ServiceNodes + EdgePulse + StatusPill + IdentityStrip (DEMO-03)
+  - [x] 06-06-PLAN.md — AXL spike (90-min hard box) + branch decision + demo-ui README + end-to-end smoke checkpoint (TRAN-03)
 **UI hint**: yes
 
 ### Phase 7: Rehearsal + Submission

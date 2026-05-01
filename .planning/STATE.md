@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-30T17:30:00.000Z"
+last_updated: "2026-05-01T02:15:00.000Z"
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 21
-  completed_plans: 17
-  percent: 81
+  completed_plans: 23
+  percent: 100
 ---
 
 # State: Sonar
@@ -24,16 +24,16 @@ progress:
 
 ## Current Position
 
-Phase: 05 (on-chain-keeperhub-workflow) — IN PROGRESS
-Plan: 5 of 5 auto portion complete; M-08 (Claude Desktop restart + smoke run) is the final human gate
+Phase: 06 (demo-ui-axl-transport) — AUTO COMPLETE; HUMAN SMOKE PENDING
+Plan: 6 of 6 auto portion complete; Plan 06-06 Task 3 (browser + Claude Desktop manual smoke) is the final human gate
 
-- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE) || 05-on-chain-keeperhub-workflow (05-01..05-05 auto portion done; M-08 human-verify pending)
-- **Plan**: 05-05 auto tasks landed — apps/mcp run_rotation tool registered as 4th tool; KeeperHub HTTP client (corrected to `/api/workflow/{id}/execute` per real API); apps/keeperhub poller-server localhost bridge running on :8788 with bearer-authed POST /poller/register. mcp 55/55, keeperhub 37/37 green.
-- **Status**: Plan 05-05 commits 2b212ab + ae71bfd. Plan acceptance fully met for Tasks 1-2; Task 3 is the M-08 checkpoint:human-verify (Claude Desktop full quit/relaunch, verify 4-tool list, live smoke run that produces a real Base Sepolia deprecate tx).
-- **Progress**: 4/7 phases complete; Phase 5 auto portion 100% (5/5 plans); M-06 + M-08 are the live-system human gates remaining
+- **Phase**: 01-public-landing (DONE) || 02-workspace-foundation (DONE) || 03-operator-runtime-identity-core (DONE) || 04-sonar-mcp-server (DONE) || 05-on-chain-keeperhub-workflow (auto done; M-08 human gate) || 06-demo-ui-axl-transport (6/6 auto plans done; manual smoke pending)
+- **Plan**: 06-06 AXL spike PASSED in ~3 min — `createAxlClientTransport` real adapter (gensyn-ai/axl @ 9cba555ff0b8e14ebf1244ae02b274fbc4ec044e) integrated end-to-end (TRAN-03 primary clause). DEMO-01/02/03 satisfied per `.planning/phases/06-demo-ui-axl-transport/06-VERIFICATION.md`.
+- **Status**: 6 plans / 5 waves landed across worktree-isolated executors. Test totals (workspace, excluding pre-existing landing typecheck): shared 5 / keeperhub 37 / demo-ui 73 / runtime 11 / mcp 61 / operator 72 = 259/259 green. Verifier verdict: human_needed (4/4 must-haves verified by code+tests; 1 manual smoke deferred per orchestrator directive).
+- **Progress**: 5/7 phases complete; outstanding human gates = M-06 + M-08 (Phase 5 live KeeperHub + Claude Desktop smoke) and Phase 6 Plan 06-06 Task 3 (8-step browser smoke). Phase 7 (rehearsal + submission) is the only remaining auto phase.
 
 ```
-[████░░░] 4/7
+[█████░░] 5/7
 ```
 
 ## Performance Metrics
