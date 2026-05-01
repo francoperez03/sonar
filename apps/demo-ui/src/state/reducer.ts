@@ -47,11 +47,13 @@ export interface DemoState {
 }
 
 // RESEARCH Pattern 3 — canonical transition table.
+// `received → awaiting` is allowed for re-rotations: once a runtime has its
+// first key, subsequent rotations restart the awaiting/received cycle.
 const ALLOWED: Record<RuntimeStatus, RuntimeStatus[]> = {
   registered: ["awaiting", "revoked"],
   awaiting: ["received", "revoked", "clone-rejected"],
-  received: ["deprecated", "revoked"],
-  deprecated: [],
+  received: ["awaiting", "deprecated", "revoked"],
+  deprecated: ["awaiting", "revoked"],
   revoked: [],
   "clone-rejected": [],
 };
@@ -68,7 +70,9 @@ function nextId(timestamp: number): string {
   return `${timestamp}-${__seq}`;
 }
 
-const WALLETS_DEPRECATED_RE = /WalletsDeprecated.*?(0x[a-fA-F0-9]{64})/;
+// Matches either the contract event name (WalletsDeprecated) or the operator's
+// /rotation/log-ingest tag (deprecate_tx) followed somewhere later by a tx hash.
+const WALLETS_DEPRECATED_RE = /(?:WalletsDeprecated|deprecate_tx).*?(0x[a-fA-F0-9]{64})/;
 const CLONE_REJECTED_RE = /^Clone rejected:/;
 
 function isRuntimeId(id: string): id is RuntimeId {

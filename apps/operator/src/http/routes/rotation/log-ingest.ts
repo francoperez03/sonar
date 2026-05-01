@@ -59,7 +59,10 @@ export function rotationLogIngestRoute(deps: Deps) {
         const raw = (ev.txHash ?? '') + ' ' + (Array.isArray(ev.txHashes) ? ev.txHashes.join(' ') : ev.txHashes ?? '');
         const hashes = raw.match(TX_HASH_RE) ?? [];
         for (const hash of hashes) {
-          deps.logBus.logEntry('-', 'info', `tx_sent:${ev.kind}:${runId}:${hash}:${explorerUrl(hash)}`);
+          // Tag the deprecate event with the contract event name so the demo-ui's
+          // WALLETS_DEPRECATED_RE matches and the footer chip lights up.
+          const tag = ev.kind === 'deprecate_tx' ? 'WalletsDeprecated' : ev.kind;
+          deps.logBus.logEntry('-', 'info', `tx_sent:${ev.kind}:${tag}:${runId}:${hash}:${explorerUrl(hash)}`);
           count++;
         }
       }
