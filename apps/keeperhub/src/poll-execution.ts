@@ -116,7 +116,7 @@ export async function pollOnce(
 ): Promise<PollOnceResult> {
   let res: Response;
   try {
-    res = await fetch(`${deps.apiBaseUrl}/api/runs/${runId}`, {
+    res = await fetch(`${deps.apiBaseUrl}/api/workflows/executions/${runId}/logs`, {
       headers: { 'authorization': `Bearer ${deps.apiToken}` },
     });
   } catch (e) {
@@ -131,20 +131,26 @@ export async function pollOnce(
       bumpBackoff(state, runId);
       return { done: false, transient: true };
     }
-    // 4xx: not transient (auth/path issue). Surface but don't backoff.
     return { done: false };
   }
 
-  // Success — reset backoff for this runId.
   state.backoff.set(runId, BASE_BACKOFF_MS);
 
-  let run: KeeperhubRun;
+  let payload: { execution?: { status?: string }; logs?: Array<{ nodeId: string; output?: Record<string, unknown> }> };
   try {
-    run = (await res.json()) as KeeperhubRun;
+    payload = (await res.json()) as typeof payload;
   } catch (e) {
     log({ msg: 'poll_parse_error', runId, err: String(e) });
     return { done: false };
   }
+
+  const run: KeeperhubRun = {
+    status: payload.execution?.status ?? 'pending',
+    nodes: (payload.logs ?? []).map((l) => ({
+      id: l.nodeId,
+      output: l.output as { tx_hash?: string } | undefined,
+    })),
+  };
 
   const seenForRun = state.seen.get(runId) ?? new Set<string>();
   for (const n of run.nodes ?? []) {

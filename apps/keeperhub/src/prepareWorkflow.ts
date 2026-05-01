@@ -82,9 +82,11 @@ export function prepareWorkflow(
     }
 
     // 2. Inject the real ABI if the UI placeholder is present.
-    if (typeof cfg['abi'] === 'string') {
-      cfg['abi'] = DEPRECATE_ABI;
-      rewrites.push('injected deprecate(address[]) ABI into write-contract node');
+    // KeeperHub web3/write-contract expects the abi as a JSON-encoded STRING (not an array),
+    // otherwise the runtime serializes the array via String(obj) → "[object Object]" and fails parsing.
+    if (typeof cfg['abi'] !== 'string' || !cfg['abi'].trim().startsWith('[')) {
+      cfg['abi'] = JSON.stringify(DEPRECATE_ABI);
+      rewrites.push('injected deprecate(address[]) ABI (json-stringified) into write-contract node');
     }
 
   }
