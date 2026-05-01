@@ -14,6 +14,7 @@
     "test:run": "pnpm -r --parallel test:run",
     "test:e2e": "pnpm -F @sonar/landing test:e2e",
     "dev:fleet": "concurrently -n alpha,beta,gamma -c blue,green,magenta \"RUNTIME_ID=alpha pnpm -F @sonar/runtime dev\" \"RUNTIME_ID=beta pnpm -F @sonar/runtime dev\" \"RUNTIME_ID=gamma pnpm -F @sonar/runtime dev\"",
+    "dev:fleet+ui": "concurrently -k -n operator,alpha,beta,gamma,demo-ui -c yellow,blue,green,magenta,cyan \"pnpm -F @sonar/operator dev\" \"RUNTIME_ID=alpha pnpm -F @sonar/runtime dev\" \"RUNTIME_ID=beta pnpm -F @sonar/runtime dev\" \"RUNTIME_ID=gamma pnpm -F @sonar/runtime dev\" \"pnpm -F @sonar/demo-ui dev\"",
     "lhci": "pnpm -F @sonar/landing lhci",
     "lint": "pnpm -F @sonar/landing lint",
     "dev:operator": "pnpm --filter @sonar/operator dev",
