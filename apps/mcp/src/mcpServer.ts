@@ -12,12 +12,22 @@ import type { RingBuffer } from './buffer/RingBuffer.js';
 export interface McpDeps {
   buffer: RingBuffer;
   operatorHttpUrl: string;
+  /**
+   * Bearer secret for Operator's POST /log/publish (Phase 6 D-07). Optional —
+   * tools fall back to no-op chat publishing when empty so unit tests that
+   * predate Phase 6 keep passing without env wiring.
+   */
+  operatorWebhookSecret?: string;
 }
 
 export function buildMcpServer(deps: McpDeps): McpServer {
   const server = new McpServer({ name: 'sonar', version: '0.1.0' });
-  registerListRuntimes(server, { operatorHttpUrl: deps.operatorHttpUrl });
-  registerRevoke(server, { operatorHttpUrl: deps.operatorHttpUrl });
+  const chatCtx = {
+    operatorHttpUrl: deps.operatorHttpUrl,
+    operatorWebhookSecret: deps.operatorWebhookSecret ?? '',
+  };
+  registerListRuntimes(server, chatCtx);
+  registerRevoke(server, chatCtx);
   registerGetWorkflowLog(server, { buffer: deps.buffer });
   return server;
 }

@@ -24,7 +24,11 @@ const buffer = new RingBuffer(cfg.logBufferSize);
 // Fire-and-forget — connectLogs retries forever internally (CONTEXT D-03).
 connectLogs({ url: cfg.operatorLogsWs, buffer });
 
-const server = buildMcpServer({ buffer, operatorHttpUrl: cfg.operatorHttpUrl });
+const server = buildMcpServer({
+  buffer,
+  operatorHttpUrl: cfg.operatorHttpUrl,
+  operatorWebhookSecret: cfg.operatorWebhookSecret,
+});
 const transport = new StdioServerTransport();
 
 log({

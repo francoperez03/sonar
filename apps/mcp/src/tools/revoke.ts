@@ -14,8 +14,12 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { listRuntimes as httpListRuntimes, revoke as httpRevoke } from '../operator/http.js';
 import { mcpError } from './_shared.js';
+import { publishChat } from '../operator/chatPublish.js';
 
-export function registerRevoke(server: McpServer, ctx: { operatorHttpUrl: string }) {
+export function registerRevoke(
+  server: McpServer,
+  ctx: { operatorHttpUrl: string; operatorWebhookSecret: string },
+) {
   server.registerTool('revoke',
     {
       title: 'Revoke a runtime',
@@ -30,6 +34,14 @@ export function registerRevoke(server: McpServer, ctx: { operatorHttpUrl: string
       },
     },
     async ({ runtimeId, reason }) => {
+      // Phase 6 D-07: fire-and-forget user bubble for the chat mirror.
+      void publishChat({
+        operatorUrl: ctx.operatorHttpUrl,
+        webhookSecret: ctx.operatorWebhookSecret,
+        role: 'user',
+        content: `Call revoke({runtimeId: "${runtimeId}"})`,
+      }).catch(() => { /* decorative — never blocks the tool path */ });
+
       // Pre-check: surface runtime_not_found / already_revoked.
       let list: { runtimes: Array<{ runtimeId: string; status: string }> };
       try {
@@ -46,6 +58,13 @@ export function registerRevoke(server: McpServer, ctx: { operatorHttpUrl: string
       } catch {
         return mcpError('operator_unavailable', 'Operator HTTP rejected /revoke');
       }
+      // Phase 6 D-07: fire-and-forget assistant bubble on the success path only.
+      void publishChat({
+        operatorUrl: ctx.operatorHttpUrl,
+        webhookSecret: ctx.operatorWebhookSecret,
+        role: 'assistant',
+        content: `Revoked ${runtimeId}`,
+      }).catch(() => { /* decorative */ });
       return {
         content: [{ type: 'text' as const, text: `Revoked ${runtimeId}.` }],
         structuredContent: { ok: true as const, status: 'revoked' as const },
