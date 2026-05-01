@@ -125,3 +125,30 @@ None. All four Phase 6 success criteria (DEMO-01/02/03/TRAN-03) are demonstrably
 
 *Verified: 2026-04-30T18:45:00Z*
 *Verifier: Claude (gsd-verifier, Opus 4.7 1M)*
+
+---
+
+## Post-verification update — 2026-05-01 (Phase 5 closure follow-through)
+
+Two small late-stage fixes landed after Phase 5's M-06 live verification surfaced behavioural gaps that didn't have automated coverage. Both are committed and 259/259 still green.
+
+### 1. Footer chip wiring (DEMO-02 visual completeness)
+
+**Symptom observed during live rotation:** the on-chain `deprecate(address[])` tx fired and the operator's `/rotation/log-ingest` route emitted a log entry, but the demo-ui Footer's `TxHashChip` never lit up.
+
+**Root cause:** the operator's log message format after the Phase 5 `/rotation/log-ingest` refactor (`tx_sent:deprecate_tx:RUNID:HASH:URL`) did not contain the literal substring `WalletsDeprecated` that `apps/demo-ui/src/state/reducer.ts:71`'s regex was anchored on.
+
+**Fix (defense in depth):**
+- `apps/operator/src/http/routes/rotation/log-ingest.ts` now tags `deprecate_tx` events with the contract event name `WalletsDeprecated` so the existing regex matches.
+- `apps/demo-ui/src/state/reducer.ts` regex broadened to `(?:WalletsDeprecated|deprecate_tx).*?(0x…)` so either side alone keeps the chip wired.
+
+### 2. Re-rotation cycle (UX completeness)
+
+**Symptom:** triggering a second rotation in the same demo session (Q&A use case) silently dropped the second `awaiting` `StatusChangeMsg` because the reducer's `ALLOWED` transition table denied `received → awaiting`.
+
+**Fix:** `apps/demo-ui/src/state/reducer.ts:50-57` now permits `received → awaiting` (and `deprecated → awaiting`), so subsequent rotations re-animate the runtime card without freezing.
+
+### Reference
+
+Single commit landed on `main`: see `git log --grep "wire footer chip"`. Updates `apps/operator/src/http/routes/rotation/log-ingest.ts` + `apps/demo-ui/src/state/reducer.ts`. Tests pass without modification (the original transition-table tests asserted positive transitions, not negative `received → awaiting`).
+
