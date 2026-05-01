@@ -1,0 +1,1 @@
+- [06-02] apps/landing typecheck pre-existing failures: missing jest-dom matchers (toBeInTheDocument, toHaveAttribute, toBeDisabled). Out of scope for plan 06-02. To resolve: install/import @testing-library/jest-dom and reference it in landing's vitest setup.
