@@ -3,6 +3,7 @@ import { ChallengeMsg, SignedResponseMsg, EncryptedPayloadMsg, AckMsg } from './
 import { RegisterMsg, RegisteredMsg, RevokeMsg, RevokedMsg } from './registry.js';
 import { LogEntryMsg, StatusChangeMsg } from './log.js';
 import { ChatMsg } from './chat.js';
+import { WalletAssignedMsg } from './wallet.js';
 
 export const Message = z.discriminatedUnion('type', [
   ChallengeMsg,
@@ -16,6 +17,7 @@ export const Message = z.discriminatedUnion('type', [
   LogEntryMsg,
   StatusChangeMsg,
   ChatMsg,
+  WalletAssignedMsg,
 ]);
 export type Message = z.infer<typeof Message>;
 
@@ -23,3 +25,4 @@ export * from './handshake.js';
 export * from './registry.js';
 export * from './log.js';
 export * from './chat.js';
+export * from './wallet.js';

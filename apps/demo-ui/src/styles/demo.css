@@ -47,23 +47,12 @@ textarea {
 /* ----- Shell grid ----- */
 .demo-shell {
   display: grid;
-  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
+  grid-template-columns: minmax(360px, 462px) minmax(0, 1fr);
+  align-items: start;
   gap: clamp(16px, 2vw, 28px);
-  min-height: calc(100dvh - 88px);
   padding: 0 clamp(16px, 2vw, 28px) 18px;
   position: relative;
   z-index: var(--z-content);
-}
-
-/* ----- Canvas-embedded event log ----- */
-.demo-canvas-events {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 0;
 }
 
 /* ----- Topbar status cluster + rotation status ----- */
@@ -117,7 +106,7 @@ textarea {
 
 .demo-sidebar {
   display: grid;
-  grid-template-rows: minmax(0, 1.08fr) minmax(190px, 0.72fr);
+  grid-template-rows: minmax(360px, auto) minmax(220px, auto);
   gap: 14px;
   min-height: 0;
 }
@@ -297,7 +286,9 @@ textarea {
   font-weight: 700;
   letter-spacing: 0.14em;
   cursor: pointer;
-  transition: background 160ms var(--ease-standard, ease), color 160ms var(--ease-standard, ease);
+  transition:
+    background 160ms var(--ease-standard, ease),
+    color 160ms var(--ease-standard, ease);
 }
 
 .transport-toggle-button:hover:not(.transport-toggle-button--active) {
@@ -382,6 +373,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: auto;
 }
 
 .chat-suggestions {
@@ -532,8 +524,9 @@ textarea {
 .demo-canvas {
   position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: clamp(14px, 1.9vw, 24px);
+  grid-template-rows: auto auto auto auto;
+  align-content: start;
+  gap: clamp(14px, 1.6vw, 20px);
   padding: clamp(16px, 2vw, 28px);
   min-height: 0;
   border-radius: 16px;
@@ -615,16 +608,16 @@ textarea {
 .demo-canvas-services {
   display: grid;
   grid-template-columns: 1fr 1.16fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 
 .service-node {
   position: relative;
-  min-height: 72px;
+  min-height: 42px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 14px 14px 12px 40px;
+  border-radius: 9px;
+  padding: 11px 12px 10px 34px;
   overflow: hidden;
 }
 
@@ -635,10 +628,10 @@ textarea {
 
 .service-node-orbit {
   position: absolute;
-  left: 14px;
-  top: 18px;
-  width: 11px;
-  height: 11px;
+  left: 13px;
+  top: 14px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: rgba(250, 250, 250, 0.4);
   box-shadow: 0 0 0 5px rgba(250, 250, 250, 0.035);
@@ -651,8 +644,8 @@ textarea {
 
 .service-node-label {
   font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  letter-spacing: 0.18em;
   color: rgba(250, 250, 250, 0.84);
   font-weight: 800;
   text-transform: uppercase;
@@ -660,9 +653,9 @@ textarea {
 }
 
 .service-node-detail {
-  margin-top: 9px;
+  margin-top: 5px;
   color: rgba(250, 250, 250, 0.48);
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.25;
 }
 
@@ -680,7 +673,8 @@ textarea {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
-  align-items: end;
+  align-items: stretch;
+  margin-top: clamp(10px, 1vw, 18px);
 }
 
 .runtime-node {
@@ -747,6 +741,34 @@ textarea {
 .runtime-node-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.07);
+}
+
+.runtime-node-wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(63, 184, 201, 0.08);
+  border: 1px solid rgba(63, 184, 201, 0.22);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.runtime-node-wallet-address {
+  color: var(--color-accent-cyan);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+.runtime-node-wallet-address:hover {
+  text-decoration: underline;
+}
+
+.runtime-node-wallet-balance {
+  color: rgba(250, 250, 250, 0.78);
+  font-variant-numeric: tabular-nums;
 }
 
 .runtime-node--awaiting {

@@ -5,6 +5,7 @@ import "./styles/tokens.css";
 import "./styles/demo.css";
 import { configureTransport, swapTransport } from "./transport/transportManager.js";
 import { store } from "./state/store.js";
+import { bootstrapRuntimes } from "./state/bootstrapRuntimes.js";
 
 // Singleton transport at module scope — never inside a useEffect (Pitfall 1, 2, 8).
 // The transportManager owns the singleton and lets components swap kinds at
@@ -27,6 +28,7 @@ configureTransport({
 });
 
 void swapTransport(initialKind);
+void bootstrapRuntimes();
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("#root element missing in index.html");

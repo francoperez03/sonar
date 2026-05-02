@@ -22,6 +22,7 @@ import type { LogBus } from '../../../log/LogBus.js';
 import type { PrivkeyVault } from '../../../rotation/PrivkeyVault.js';
 import type { HandshakeCoordinator } from '../../../handshake/HandshakeCoordinator.js';
 import type { ActiveSessions } from '../../../sessions/ActiveSessions.js';
+import type { Registry } from '../../../registry/Registry.js';
 
 export const RotationDistributeRequest = z.object({
   runId: z.string().min(1),
@@ -38,6 +39,7 @@ interface Deps {
   coordinator: HandshakeCoordinator;
   logBus: LogBus;
   sessions: ActiveSessions;
+  registry: Registry;
 }
 
 type RuntimeResult =
@@ -117,6 +119,16 @@ export function rotationDistributeRoute(deps: Deps) {
       }
       const result = await distributeOne(deps, runId, runtimeId, wallet.address, wallet.privkey);
       results.push(result);
+      if (result.status === 'ack') {
+        const now = Date.now();
+        await deps.registry.setWallet(runtimeId, wallet.address, now);
+        deps.logBus.emitEvent({
+          type: 'wallet_assigned',
+          runtimeId,
+          address: wallet.address,
+          timestamp: now,
+        });
+      }
     }
 
     const allOk = results.every((r) => r.status === 'ack');

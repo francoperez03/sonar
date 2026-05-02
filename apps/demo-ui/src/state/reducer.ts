@@ -17,6 +17,8 @@ export interface RuntimeView {
   pubkey: string | null;
   status: RuntimeStatus;
   lastEventAt: number | null;
+  walletAddress: `0x${string}` | null;
+  walletAssignedAt: number | null;
 }
 
 export interface ChatRow {
@@ -105,17 +107,23 @@ function appendCapped<T>(arr: T[], item: T, cap: number): T[] {
   return next;
 }
 
+function emptyRuntime(id: RuntimeId): RuntimeView {
+  return {
+    id,
+    pubkey: null,
+    status: "registered",
+    lastEventAt: null,
+    walletAddress: null,
+    walletAssignedAt: null,
+  };
+}
+
 export const initialState: DemoState = {
   runtimes: {
-    alpha: { id: "alpha", pubkey: null, status: "registered", lastEventAt: null },
-    beta: { id: "beta", pubkey: null, status: "registered", lastEventAt: null },
-    gamma: { id: "gamma", pubkey: null, status: "registered", lastEventAt: null },
-    "gamma-clone": {
-      id: "gamma-clone",
-      pubkey: null,
-      status: "registered",
-      lastEventAt: null,
-    },
+    alpha: emptyRuntime("alpha"),
+    beta: emptyRuntime("beta"),
+    gamma: emptyRuntime("gamma"),
+    "gamma-clone": emptyRuntime("gamma-clone"),
   },
   chats: [],
   events: [],
@@ -176,6 +184,22 @@ export function reduce(state: DemoState, msg: Message): DemoState {
       return {
         ...state,
         chats: appendCapped(state.chats, row, MAX_CHATS),
+      };
+    }
+
+    case "wallet_assigned": {
+      if (!isRuntimeId(msg.runtimeId)) return state;
+      const current = state.runtimes[msg.runtimeId];
+      return {
+        ...state,
+        runtimes: {
+          ...state.runtimes,
+          [msg.runtimeId]: {
+            ...current,
+            walletAddress: msg.address as `0x${string}`,
+            walletAssignedAt: msg.timestamp,
+          },
+        },
       };
     }
 

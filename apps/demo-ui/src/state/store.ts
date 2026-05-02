@@ -62,4 +62,33 @@ export const store = {
     state = { ...state, agentBusy: false, agentDraft: null };
     listeners.forEach((l) => l());
   },
+  /**
+   * Bootstrap-only override: set a runtime's status + walletAddress directly,
+   * bypassing the reducer's transition guard. Used by bootstrapRuntimes()
+   * after a page refresh so the UI reflects the operator's current truth even
+   * though the WS has no past events to replay.
+   */
+  bootstrapRuntime(input: {
+    runtimeId: string;
+    status?: import("./reducer.js").RuntimeStatus;
+    walletAddress?: `0x${string}`;
+    walletAssignedAt?: number;
+  }): void {
+    const id = input.runtimeId as keyof DemoState["runtimes"];
+    const current = state.runtimes[id];
+    if (!current) return;
+    state = {
+      ...state,
+      runtimes: {
+        ...state.runtimes,
+        [id]: {
+          ...current,
+          ...(input.status ? { status: input.status } : {}),
+          ...(input.walletAddress ? { walletAddress: input.walletAddress } : {}),
+          ...(input.walletAssignedAt ? { walletAssignedAt: input.walletAssignedAt } : {}),
+        },
+      },
+    };
+    listeners.forEach((l) => l());
+  },
 };

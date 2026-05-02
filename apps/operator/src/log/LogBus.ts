@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
-import type { LogEntryMsg, StatusChangeMsg, ChatMsg } from '@sonar/shared';
+import type { LogEntryMsg, StatusChangeMsg, ChatMsg, WalletAssignedMsg } from '@sonar/shared';
 
-type Event = LogEntryMsg | StatusChangeMsg | ChatMsg;
+type Event = LogEntryMsg | StatusChangeMsg | ChatMsg | WalletAssignedMsg;
 
 /**
  * EventEmitter-backed fan-out for LogEntryMsg | StatusChangeMsg | ChatMsg.

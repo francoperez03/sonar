@@ -16,6 +16,8 @@ export function runtimesRoute(deps: Deps) {
       runtimeId: r.runtimeId,
       status: r.status,
       registeredAt: r.registeredAt,
+      walletAddress: r.walletAddress,
+      walletAssignedAt: r.walletAssignedAt,
     }));
     res.status(200).json({ runtimes });
   };

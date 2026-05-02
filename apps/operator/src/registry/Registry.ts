@@ -8,6 +8,9 @@ export interface RegistryRecord {
   status: StatusChangeMsg['status'];  // reuse the locked enum
   registeredAt: number;
   lastHandshakeAt?: number;
+  // Phase 7: most recent EVM EOA handed to this runtime by /rotation/distribute.
+  walletAddress?: `0x${string}`;
+  walletAssignedAt?: number;
 }
 
 interface StoredShape {
@@ -64,6 +67,22 @@ export class Registry {
       ...(lastHandshakeAt !== undefined ? { lastHandshakeAt } : {}),
     };
     this.map.set(runtimeId, updated);
+    await this._flush();
+  }
+
+  /**
+   * Phase 7: stamp the runtime with the EVM EOA it just received via the
+   * rotation distribute path. No-op if the runtimeId is unknown (avoids
+   * crashing the distribute fanout when a record is missing).
+   */
+  async setWallet(
+    runtimeId: string,
+    walletAddress: `0x${string}`,
+    walletAssignedAt: number,
+  ): Promise<void> {
+    const existing = this.map.get(runtimeId);
+    if (!existing) return;
+    this.map.set(runtimeId, { ...existing, walletAddress, walletAssignedAt });
     await this._flush();
   }
 

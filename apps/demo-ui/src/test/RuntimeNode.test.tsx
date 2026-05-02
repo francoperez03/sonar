@@ -9,6 +9,8 @@ function rv(over: Partial<RuntimeView> = {}): RuntimeView {
     pubkey: null,
     status: "registered",
     lastEventAt: null,
+    walletAddress: null,
+    walletAssignedAt: null,
     ...over,
   };
 }

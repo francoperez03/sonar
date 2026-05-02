@@ -110,6 +110,9 @@ async function spinUp(opts: { coordinator?: StubCoordinator } = {}): Promise<Har
       coordinator: coordinator as unknown as Parameters<typeof rotationDistributeRoute>[0]['coordinator'],
       logBus,
       sessions: {} as unknown as Parameters<typeof rotationDistributeRoute>[0]['sessions'],
+      registry: {
+        setWallet: async () => {},
+      } as unknown as Parameters<typeof rotationDistributeRoute>[0]['registry'],
     }),
   );
   app.post('/rotation/complete', auth, rotationCompleteRoute({ vault, logBus }));

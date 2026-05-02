@@ -61,7 +61,10 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
 
   app.post('/distribute', distributeRoute({ sessions: deps.sessions, coordinator: deps.coordinator }));
   app.post('/revoke', revokeRoute({ coordinator: deps.coordinator }));
-  app.get('/runtimes', runtimesRoute({ registry: deps.registry }));
+  // Browser-readable: GET /runtimes is consumed by demo-ui at boot to hydrate
+  // wallet addresses; CORS-locked via the same allowlist as /agent/chat.
+  app.options('/runtimes', agentCors);
+  app.get('/runtimes', agentCors, runtimesRoute({ registry: deps.registry }));
 
   // Phase 5 D-18: workflow-facing /rotation/* surface, bearer-auth at every entry.
   const auth = bearerAuth(deps.webhookSecret);
@@ -69,7 +72,7 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
   app.post(
     '/rotation/distribute',
     auth,
-    rotationDistributeRoute({ vault: deps.vault, coordinator: deps.coordinator, logBus: deps.logBus, sessions: deps.sessions }),
+    rotationDistributeRoute({ vault: deps.vault, coordinator: deps.coordinator, logBus: deps.logBus, sessions: deps.sessions, registry: deps.registry }),
   );
   app.post('/rotation/complete', auth, rotationCompleteRoute({ vault: deps.vault, logBus: deps.logBus }));
   app.post('/rotation/log-ingest', auth, rotationLogIngestRoute({ logBus: deps.logBus }));
