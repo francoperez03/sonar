@@ -1,11 +1,10 @@
 import { ChatMirror } from '../sidebar/ChatMirror.js';
 import { ChatInput } from '../sidebar/ChatInput.js';
-import { EventLog } from '../sidebar/EventLog.js';
 
 /**
- * Sidebar — vertical stack: ChatMirror (top) + EventLog (bottom). Per UI-SPEC
- * §Layout Contract and CONTEXT D-02. The visually-hidden h2 surfaces the
- * "Sonar — Live Rotation" header to assistive tech without painting it.
+ * Sidebar — single section: AGENT RUNTIME (chat history + input). The
+ * OPERATOR STREAM (event log) was moved into the canvas footer so the
+ * telemetry sits adjacent to the runtimes it describes.
  */
 export function Sidebar(): JSX.Element {
   return (
@@ -21,16 +20,6 @@ export function Sidebar(): JSX.Element {
         </div>
         <ChatMirror />
         <ChatInput />
-      </section>
-      <section className="demo-sidebar-section" aria-label="Event log">
-        <div className="demo-section-head">
-          <div>
-            <div className="demo-eyebrow">OPERATOR STREAM</div>
-            <div className="demo-section-kicker">runtime, vault, chain events</div>
-          </div>
-          <span className="demo-section-index">02</span>
-        </div>
-        <EventLog />
       </section>
     </aside>
   );

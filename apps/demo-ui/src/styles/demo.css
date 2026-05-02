@@ -47,12 +47,23 @@ textarea {
 /* ----- Shell grid ----- */
 .demo-shell {
   display: grid;
-  grid-template-columns: minmax(360px, 460px) minmax(0, 1fr);
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
   gap: clamp(16px, 2vw, 28px);
   min-height: calc(100dvh - 88px);
   padding: 0 clamp(16px, 2vw, 28px) 18px;
   position: relative;
   z-index: var(--z-content);
+}
+
+/* ----- Canvas-embedded event log ----- */
+.demo-canvas-events {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
 }
 
 /* ----- Topbar status cluster + rotation status ----- */

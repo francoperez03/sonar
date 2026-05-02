@@ -3,6 +3,7 @@ import type { RuntimeId } from '../../state/reducer.js';
 import { RuntimeNode } from './RuntimeNode.js';
 import { ServiceNode } from './ServiceNode.js';
 import { EdgePulse } from './EdgePulse.js';
+import { EventLog } from '../sidebar/EventLog.js';
 
 /**
  * Canvas — the visual hero of the demo (DEMO-03). Renders:
@@ -91,6 +92,15 @@ export function Canvas(): JSX.Element {
           rejected edge case.
         </div>
       )}
+      <div className="demo-canvas-events" aria-label="Event log">
+        <div className="demo-section-head">
+          <div>
+            <div className="demo-eyebrow">OPERATOR STREAM</div>
+            <div className="demo-section-kicker">runtime, vault, chain events</div>
+          </div>
+        </div>
+        <EventLog />
+      </div>
     </section>
   );
 }
