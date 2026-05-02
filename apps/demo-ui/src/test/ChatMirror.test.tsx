@@ -20,7 +20,7 @@ describe("ChatMirror", () => {
     expect(screen.getByText("Awaiting prompt")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Trigger a rotation from Claude Desktop to mirror the conversation here.",
+        /Type below to drive the agent/i,
       ),
     ).toBeInTheDocument();
   });

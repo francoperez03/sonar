@@ -1,6 +1,7 @@
 import { AmbientBackground } from "./components/shell/AmbientBackground.js";
 import { Sidebar } from "./components/shell/Sidebar.js";
 import { Footer } from "./components/shell/Footer.js";
+import { ConnectionBadge } from "./components/shell/ConnectionBadge.js";
 import { Canvas } from "./components/canvas/Canvas.js";
 
 /**
@@ -13,6 +14,9 @@ export function App(): JSX.Element {
   return (
     <>
       <AmbientBackground />
+      <header className="demo-topbar" aria-label="Connection status">
+        <ConnectionBadge />
+      </header>
       <main className="demo-shell" data-testid="demo-ui-root" aria-label="Sonar demo">
         <Sidebar />
         <Canvas />

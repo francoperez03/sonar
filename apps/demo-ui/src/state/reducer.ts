@@ -39,11 +39,29 @@ export interface DeprecationRecord {
   timestamp: number;
 }
 
+export type ConnectionStatus = "connecting" | "open" | "closed";
+
+export interface ConnectionState {
+  status: ConnectionStatus;
+  url: string | null;
+  lastMessageAt: number | null;
+  closeCode: number | null;
+  closeReason: string | null;
+}
+
+export interface AgentDraft {
+  text: string;
+  startedAt: number;
+}
+
 export interface DemoState {
   runtimes: Record<RuntimeId, RuntimeView>;
   chats: ChatRow[];
   events: EventRow[];
   lastDeprecation: DeprecationRecord | null;
+  connection: ConnectionState;
+  agentDraft: AgentDraft | null;
+  agentBusy: boolean;
 }
 
 // RESEARCH Pattern 3 — canonical transition table.
@@ -100,6 +118,15 @@ export const initialState: DemoState = {
   chats: [],
   events: [],
   lastDeprecation: null,
+  connection: {
+    status: "connecting",
+    url: null,
+    lastMessageAt: null,
+    closeCode: null,
+    closeReason: null,
+  },
+  agentDraft: null,
+  agentBusy: false,
 };
 
 export function reduce(state: DemoState, msg: Message): DemoState {
@@ -150,6 +177,11 @@ export function reduce(state: DemoState, msg: Message): DemoState {
     }
 
     case "log_entry": {
+      // Suppress retry-spam from runtimes stuck in revoked: 1×/s of these
+      // would drown the EventLog. They carry no UI signal — the runtime's
+      // revoked status is already reflected on the canvas.
+      if (msg.message === "register_rejected_revoked") return state;
+
       const row: EventRow = {
         kind: msg.level,
         message: msg.message,

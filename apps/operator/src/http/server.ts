@@ -12,6 +12,8 @@ import { rotationDistributeRoute } from './routes/rotation/distribute.js';
 import { rotationCompleteRoute } from './routes/rotation/complete.js';
 import { rotationLogIngestRoute } from './routes/rotation/log-ingest.js';
 import { logPublishRoute } from './routes/log/publish.js';
+import { agentChatRoute } from './routes/agent/chat.js';
+import { agentCors } from './middleware/cors.js';
 import { mountRuntimeSocket } from '../transport/createServerTransport.js';
 import { mountLogSocket } from '../log/logSubscribers.js';
 import type { Registry } from '../registry/Registry.js';
@@ -19,6 +21,7 @@ import type { ActiveSessions } from '../sessions/ActiveSessions.js';
 import type { LogBus } from '../log/LogBus.js';
 import type { HandshakeCoordinator } from '../handshake/HandshakeCoordinator.js';
 import type { PrivkeyVault } from '../rotation/PrivkeyVault.js';
+import type { RingBuffer } from '../log/RingBuffer.js';
 
 export interface OperatorDeps {
   registry: Registry;
@@ -27,6 +30,14 @@ export interface OperatorDeps {
   coordinator: HandshakeCoordinator;
   vault: PrivkeyVault;
   webhookSecret: string;
+  buffer: RingBuffer;
+  anthropicApiKey: string;
+  keeperhub: {
+    apiBaseUrl: string;
+    apiToken: string;
+    workflowId: string;
+    pollerBaseUrl: string;
+  };
 }
 
 /**
@@ -66,6 +77,23 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
   // Phase 6 D-07: chat-event ingestion for the demo-ui ChatMirror. Bearer-auth'd
   // mirror of /rotation/log-ingest's pattern; broadcasts ChatMsg via /logs WS.
   app.post('/log/publish', auth, logPublishRoute({ logBus: deps.logBus }));
+
+  // Phase 7: agent SSE endpoint — browser-callable, CORS-locked to demo-ui.
+  app.options('/agent/chat', agentCors);
+  app.post(
+    '/agent/chat',
+    agentCors,
+    agentChatRoute({
+      apiKey: deps.anthropicApiKey,
+      logBus: deps.logBus,
+      toolsCtx: {
+        registry: deps.registry,
+        coordinator: deps.coordinator,
+        buffer: deps.buffer,
+        keeperhub: { ...deps.keeperhub, webhookSecret: deps.webhookSecret },
+      },
+    }),
+  );
 
   app.use(bodyParseErrorLog);
 

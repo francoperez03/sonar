@@ -13,6 +13,7 @@
     "test:run": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "@sonar/shared": "workspace:*",
     "dotenv": "^16.4.5",
     "ed2curve": "0.3.0",

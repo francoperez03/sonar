@@ -35,13 +35,15 @@ describe("Sections — locked copy", () => {
     }
   });
 
-  it("DemoCtaSection contains primary + secondary CTA both disabled with Soon badge", () => {
+  it("DemoCtaSection contains primary + secondary CTAs as live links", () => {
     render(<DemoCtaSection />);
-    const primary = screen.getByText("Watch the 90s demo").closest("button");
-    const secondary = screen.getByText("Read the source").closest("button");
-    expect(primary).toBeDisabled();
-    expect(secondary).toBeDisabled();
-    expect(screen.getAllByText("Soon").length).toBe(2);
+    const primary = screen.getByText("Open the live demo").closest("a");
+    const secondary = screen.getByText("Go to GitHub").closest("a");
+    expect(primary).toHaveAttribute("href", "https://sonar-demo-ui.vercel.app/");
+    expect(secondary).toHaveAttribute(
+      "href",
+      "https://github.com/francoperez03/sonar",
+    );
   });
 });
 

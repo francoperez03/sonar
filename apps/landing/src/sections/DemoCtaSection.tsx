@@ -3,7 +3,8 @@ import { Button } from "../components/primitives/Button";
 import styles from "./sections.module.css";
 
 export function DemoCtaSection() {
-  const videoHref = import.meta.env.VITE_DEMO_VIDEO_URL ?? "#demo";
+  const demoHref =
+    import.meta.env.VITE_DEMO_APP_URL ?? "https://sonar-demo-ui.vercel.app/";
   return (
     <Section id="demo" eyebrow="03 / SEE IT RUN">
       <div className={styles.card}>
@@ -16,11 +17,11 @@ export function DemoCtaSection() {
           Source on GitHub if you want to read the wire.
         </p>
         <div className={styles.ctaRow}>
-          <Button variant="primary" disabled badge="Soon">
-            Watch the 90s demo
+          <Button variant="primary" href={demoHref}>
+            Open the live demo
           </Button>
-          <Button variant="secondary" disabled badge="Soon">
-            Read the source
+          <Button variant="secondary" href="https://github.com/francoperez03/sonar">
+            Go to GitHub
           </Button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { Virtuoso } from "react-virtuoso";
-import { useChats } from "../../state/hooks.js";
+import { useChats, useAgentDraft } from "../../state/hooks.js";
 import type { ChatRow } from "../../state/reducer.js";
 
 /**
@@ -18,23 +18,36 @@ import type { ChatRow } from "../../state/reducer.js";
  */
 export function ChatMirror(): JSX.Element {
   const chats = useChats();
-  if (chats.length === 0) {
+  const draft = useAgentDraft();
+
+  if (chats.length === 0 && !draft) {
     return (
       <div className="chat-mirror-empty" aria-live="polite">
         <div className="chat-mirror-empty-heading">Awaiting prompt</div>
         <p className="chat-mirror-empty-body">
-          Trigger a rotation from Claude Desktop to mirror the conversation here.
+          Type below to drive the agent — or trigger a rotation from Claude Desktop.
         </p>
       </div>
     );
   }
+  const data: ChatRow[] = draft
+    ? [
+        ...chats,
+        {
+          id: "__draft__",
+          role: "assistant",
+          content: draft.text || "…",
+          timestamp: draft.startedAt,
+        },
+      ]
+    : chats;
   return (
     <Virtuoso
       style={{ height: 320 }}
-      data={chats}
+      data={data}
       followOutput="smooth"
       atBottomThreshold={48}
-      initialItemCount={chats.length}
+      initialItemCount={data.length}
       itemContent={(_index, c): JSX.Element => <ChatBubble row={c} />}
       aria-live="polite"
     />

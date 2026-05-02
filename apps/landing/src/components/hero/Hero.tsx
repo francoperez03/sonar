@@ -35,7 +35,7 @@ export function Hero() {
             className={`${styles.btn} ${styles.btnSecondary}`}
             href="https://github.com/francoperez03/sonar"
           >
-            Read the source
+            Go to GitHub
           </a>
         </div>
       </div>

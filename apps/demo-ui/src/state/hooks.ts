@@ -1,7 +1,9 @@
 import { useSyncExternalStore } from "react";
 import { store } from "./store.js";
 import type {
+  AgentDraft,
   ChatRow,
+  ConnectionState,
   DeprecationRecord,
   DemoState,
   EventRow,
@@ -33,6 +35,18 @@ export function useEvents(): EventRow[] {
 
 export function useLastDeprecation(): DeprecationRecord | null {
   return useSyncExternalStore(subscribe, () => store.getSnapshot().lastDeprecation);
+}
+
+export function useConnection(): ConnectionState {
+  return useSyncExternalStore(subscribe, () => store.getSnapshot().connection);
+}
+
+export function useAgentDraft(): AgentDraft | null {
+  return useSyncExternalStore(subscribe, () => store.getSnapshot().agentDraft);
+}
+
+export function useAgentBusy(): boolean {
+  return useSyncExternalStore(subscribe, () => store.getSnapshot().agentBusy);
 }
 
 export type { DemoState };

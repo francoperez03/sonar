@@ -14,6 +14,8 @@ import { store } from "./state/store.js";
 const operatorWsUrl =
   import.meta.env.VITE_OPERATOR_WS_URL ?? "ws://localhost:8080/logs";
 
+store.setConnection({ url: operatorWsUrl, status: "connecting" });
+
 const transport =
   import.meta.env.VITE_TRANSPORT === "axl"
     ? createAxlClientTransport({
@@ -21,7 +23,22 @@ const transport =
           import.meta.env.VITE_AXL_BRIDGE_URL ?? "http://127.0.0.1:9002",
         destPeerId: import.meta.env.VITE_AXL_DEST_PEER_ID ?? "",
       })
-    : createBrowserClientTransport({ url: operatorWsUrl });
+    : createBrowserClientTransport({
+        url: operatorWsUrl,
+        onOpen: () =>
+          store.setConnection({
+            status: "open",
+            url: operatorWsUrl,
+            closeCode: null,
+            closeReason: null,
+          }),
+        onClose: (code, reason) =>
+          store.setConnection({
+            status: "closed",
+            closeCode: code,
+            closeReason: reason,
+          }),
+      });
 transport.onMessage(store.receive);
 
 const rootEl = document.getElementById("root");
