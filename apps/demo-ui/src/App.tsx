@@ -1,6 +1,6 @@
 import { AmbientBackground } from './components/shell/AmbientBackground.js';
 import { Sidebar } from './components/shell/Sidebar.js';
-import { Footer } from './components/shell/Footer.js';
+import { ActionBar } from './components/shell/ActionBar.js';
 import { ConnectionBadge } from './components/shell/ConnectionBadge.js';
 import { TransportToggle } from './components/shell/TransportToggle.js';
 import { Canvas } from './components/canvas/Canvas.js';
@@ -9,7 +9,7 @@ import { Canvas } from './components/canvas/Canvas.js';
  * App — three regions:
  *   - <AmbientBackground/> fixed behind everything (z-0, decorative)
  *   - <main.demo-shell> with <Sidebar/> + <Canvas/> (4 runtimes + 3 services + edge pulses)
- *   - <Footer/> (rotation status + latest on-chain deprecation)
+ *   - <ActionBar/> (full-width prompt + rotation status + latest deprecation)
  */
 export function App(): JSX.Element {
   return (
@@ -23,7 +23,7 @@ export function App(): JSX.Element {
         <Sidebar />
         <Canvas />
       </main>
-      <Footer />
+      <ActionBar />
     </>
   );
 }
