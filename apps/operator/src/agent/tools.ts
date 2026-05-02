@@ -2,6 +2,7 @@ import type { Registry } from '../registry/Registry.js';
 import type { HandshakeCoordinator } from '../handshake/HandshakeCoordinator.js';
 import type { RingBuffer } from '../log/RingBuffer.js';
 import { triggerKeeperhubRun, registerRunWithPoller } from './keeperhub.js';
+import { simulateCloneAttack } from './cloneAttack.js';
 
 /**
  * Anthropic-API tool definitions mirroring apps/mcp/src/tools/*. The dispatcher
@@ -20,6 +21,8 @@ export interface AgentToolsCtx {
     pollerBaseUrl: string;
     webhookSecret: string;
   };
+  /** ws://127.0.0.1:<port>/runtime — used by simulate_clone_attack to dial the operator. */
+  runtimeWsUrl: string;
 }
 
 export const TOOL_DEFS = [
@@ -75,6 +78,23 @@ export const TOOL_DEFS = [
         limit: { type: 'integer', minimum: 1, maximum: 500 },
         runtimeId: { type: 'string' },
       },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'simulate_clone_attack',
+    description:
+      'Spawns a fake "clone" runtime that tries to register under an existing runtimeId with a fresh ed25519 keypair (i.e. NOT the legitimate runtime\'s privkey). The Operator\'s pubkey-mismatch gate rejects it; the demo-ui flashes the gamma-clone card. Use to demonstrate Sonar\'s clone-rejection guarantee.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        runtimeId: {
+          type: 'string',
+          minLength: 1,
+          description: 'The legitimate runtime to impersonate (e.g. "alpha", "gamma").',
+        },
+      },
+      required: ['runtimeId'],
       additionalProperties: false,
     },
   },
@@ -147,6 +167,20 @@ export async function dispatchTool(
       const runtimeId = typeof input['runtimeId'] === 'string' ? input['runtimeId'] : undefined;
       const events = ctx.buffer.snapshot({ runtimeId }, limit);
       return { ok: true, output: { events, count: events.length } };
+    }
+
+    case 'simulate_clone_attack': {
+      const runtimeId = String(input['runtimeId'] ?? '');
+      if (!runtimeId) return { ok: false, code: 'invalid_input', message: 'runtimeId required' };
+      const record = ctx.registry.get(runtimeId);
+      if (!record) {
+        return { ok: false, code: 'runtime_not_found', message: `unknown runtime: ${runtimeId}` };
+      }
+      const result = await simulateCloneAttack({
+        runtimeWsUrl: ctx.runtimeWsUrl,
+        runtimeId,
+      });
+      return { ok: true, output: { runtimeId, ...result } };
     }
 
     default:

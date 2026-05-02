@@ -36,6 +36,7 @@ const { httpServer } = createOperatorServer({
     workflowId: cfg.keeperhubWorkflowId,
     pollerBaseUrl: cfg.pollerBaseUrl,
   },
+  runtimeWsUrl: `ws://127.0.0.1:${cfg.httpPort}/runtime`,
 });
 
 httpServer.listen(cfg.httpPort, () => {

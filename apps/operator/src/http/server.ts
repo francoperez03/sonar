@@ -38,6 +38,8 @@ export interface OperatorDeps {
     workflowId: string;
     pollerBaseUrl: string;
   };
+  /** Loopback WS URL — passed to the agent's simulate_clone_attack tool. */
+  runtimeWsUrl: string;
 }
 
 /**
@@ -94,6 +96,7 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
         coordinator: deps.coordinator,
         buffer: deps.buffer,
         keeperhub: { ...deps.keeperhub, webhookSecret: deps.webhookSecret },
+        runtimeWsUrl: deps.runtimeWsUrl,
       },
     }),
   );

@@ -133,7 +133,7 @@ describe('IDEN-02: clone defense — second WS for active runtimeId rejected', (
     expect(dupEntry?.message).toMatch(/duplicate_session_rejected/);
   });
 
-  it('different pubkey same id is also rejected (single-active-session gate)', async () => {
+  it('different pubkey same id is rejected (Phase 7 pubkey-mismatch gate)', async () => {
     const { port } = await spinUp();
     const kp = freshKeypair();
     const kpDifferent = freshKeypair(); // different keypair — different identity
@@ -141,13 +141,14 @@ describe('IDEN-02: clone defense — second WS for active runtimeId rejected', (
     // Runtime A registers with kp
     await connectAndRegister(port, 'alpha', kp.pubkeyB64);
 
-    // Cloner uses a DIFFERENT pubkey — still rejected because session gate is by runtimeId only
+    // Cloner uses a DIFFERENT pubkey — rejected by the Phase 7 pubkey-mismatch
+    // gate (HandshakeCoordinator.onRegister) BEFORE we ever reach the
+    // duplicate-session check. Code 4403 'pubkey_mismatch'.
     const wsClone = await connectRuntime(port);
     openSockets.push(wsClone);
     wsClone.send(JSON.stringify({ type: 'register', runtimeId: 'alpha', pubkey: naclUtil.encodeBase64(kpDifferent.keypair.publicKey) }));
 
     const [cloneCode] = await once(wsClone, 'close') as [number];
-    // Must be 4409 (not 4403 revoked or 4404 not-registered)
-    expect(cloneCode).toBe(4409);
+    expect(cloneCode).toBe(4403);
   });
 });

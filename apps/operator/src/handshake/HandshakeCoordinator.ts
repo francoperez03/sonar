@@ -58,6 +58,18 @@ export class HandshakeCoordinator {
       ws.close(4403, 'revoked');
       return;
     }
+    // Phase 7: clone-rejection. If the runtimeId is already known with a
+    // different pubkey, refuse to overwrite — that's the "binary copy with
+    // wrong identity" attack the project's security claim is built on.
+    if (record && record.pubkey !== msg.pubkey) {
+      this.logBus.logEntry(
+        msg.runtimeId,
+        'warn',
+        `Clone rejected: ${msg.runtimeId} presented foreign pubkey; handshake denied.`,
+      );
+      ws.close(4403, 'pubkey_mismatch');
+      return;
+    }
     const existing = this.sessions.get(msg.runtimeId);
     if (existing && existing !== ws && existing.readyState === 1 /* OPEN */) {
       this.logBus.logEntry(msg.runtimeId, 'warn', 'duplicate_session_rejected');
@@ -124,7 +136,11 @@ export class HandshakeCoordinator {
       state.verificationWaiter?.resolve();
     } else {
       state.verified = false;
-      this.logBus.logEntry(msg.runtimeId, 'warn', 'sig_verify_failed');
+      this.logBus.logEntry(
+        msg.runtimeId,
+        'warn',
+        `Clone rejected: ${msg.runtimeId} signed challenge with wrong privkey (sig_verify_failed).`,
+      );
       state.verificationWaiter?.reject(new Error('identity_unverified'));
       ws.close(4401, 'sig_verify_failed');
     }
