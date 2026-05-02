@@ -1,4 +1,5 @@
 import { ChatMirror } from '../sidebar/ChatMirror.js';
+import { ChatInput } from '../sidebar/ChatInput.js';
 import { EventLog } from '../sidebar/EventLog.js';
 
 /**
@@ -19,6 +20,7 @@ export function Sidebar(): JSX.Element {
           <span className="demo-section-index">01</span>
         </div>
         <ChatMirror />
+        <ChatInput />
       </section>
       <section className="demo-sidebar-section" aria-label="Event log">
         <div className="demo-section-head">

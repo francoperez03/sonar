@@ -1,29 +1,34 @@
 import { AmbientBackground } from './components/shell/AmbientBackground.js';
 import { Sidebar } from './components/shell/Sidebar.js';
-import { ActionBar } from './components/shell/ActionBar.js';
 import { ConnectionBadge } from './components/shell/ConnectionBadge.js';
 import { TransportToggle } from './components/shell/TransportToggle.js';
+import { RotationStatus } from './components/shell/RotationStatus.js';
 import { Canvas } from './components/canvas/Canvas.js';
 
 /**
- * App — three regions:
+ * App — two regions:
  *   - <AmbientBackground/> fixed behind everything (z-0, decorative)
- *   - <main.demo-shell> with <Sidebar/> + <Canvas/> (4 runtimes + 3 services + edge pulses)
- *   - <ActionBar/> (full-width prompt + rotation status + latest deprecation)
+ *   - <header.demo-topbar/>: connection + transport + rotation status (single status row)
+ *   - <main.demo-shell/>: <Sidebar/> (chat — output + input together) + <Canvas/>
+ *
+ * The chat conversation lives in one column (history + input adjacent) so the
+ * user reads and acts in the same field of view; the canvas owns the rest.
  */
 export function App(): JSX.Element {
   return (
     <>
       <AmbientBackground />
-      <header className="demo-topbar" aria-label="Connection status">
-        <ConnectionBadge />
-        <TransportToggle />
+      <header className="demo-topbar" aria-label="System status">
+        <div className="demo-topbar-cluster">
+          <ConnectionBadge />
+          <TransportToggle />
+        </div>
+        <RotationStatus />
       </header>
       <main className="demo-shell" data-testid="demo-ui-root" aria-label="Sonar demo">
         <Sidebar />
         <Canvas />
       </main>
-      <ActionBar />
     </>
   );
 }

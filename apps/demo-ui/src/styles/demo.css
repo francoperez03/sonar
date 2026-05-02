@@ -47,66 +47,61 @@ textarea {
 /* ----- Shell grid ----- */
 .demo-shell {
   display: grid;
-  grid-template-columns: minmax(320px, 410px) minmax(0, 1fr);
+  grid-template-columns: minmax(360px, 460px) minmax(0, 1fr);
   gap: clamp(16px, 2vw, 28px);
-  min-height: calc(100dvh - 230px);
-  padding: 0 clamp(16px, 2vw, 28px) 12px;
+  min-height: calc(100dvh - 88px);
+  padding: 0 clamp(16px, 2vw, 28px) 18px;
   position: relative;
   z-index: var(--z-content);
 }
 
-/* ----- Action bar (bottom command surface) ----- */
-.demo-actionbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(16px, 2vw, 28px);
-  align-items: end;
-  padding: 12px clamp(16px, 2vw, 28px) 16px;
-  background: rgba(8, 8, 9, 0.94);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  position: relative;
-  z-index: var(--z-content);
-}
-
-.demo-actionbar-prompt {
+/* ----- Topbar status cluster + rotation status ----- */
+.demo-topbar-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   min-width: 0;
 }
 
-.demo-actionbar-rotation {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-  min-width: 220px;
-}
-
-.demo-actionbar-rotation-row {
+.rotation-status {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  color: rgba(250, 250, 250, 0.72);
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(18, 18, 21, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  color: rgba(250, 250, 250, 0.72);
   white-space: nowrap;
 }
 
-.demo-actionbar-rotation-label {
-  letter-spacing: 0.06em;
+.rotation-status-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(250, 250, 250, 0.32);
+  flex: 0 0 auto;
 }
 
-.demo-actionbar-rotation-eyebrow {
-  font-size: 10px;
+.rotation-status-led.is-active {
+  background: var(--color-accent-cyan);
+  box-shadow: 0 0 0 4px rgba(63, 184, 201, 0.12);
+  animation: connection-pulse 1.2s ease-in-out infinite;
 }
 
-@media (max-width: 720px) {
-  .demo-actionbar {
-    grid-template-columns: 1fr;
-  }
-  .demo-actionbar-rotation {
-    align-items: flex-start;
-    min-width: 0;
-  }
+.rotation-status-label {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.rotation-status-tx {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .demo-sidebar {
@@ -182,6 +177,8 @@ textarea {
   padding: 10px clamp(16px, 2vw, 28px) 8px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   position: relative;
   z-index: var(--z-content);
 }
