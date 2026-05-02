@@ -1,14 +1,14 @@
-import { useState, type FormEvent, type KeyboardEvent } from "react";
-import { useAgentBusy } from "../../state/hooks.js";
-import { submitAgentPrompt } from "../../state/agentTurn.js";
+import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useAgentBusy } from '../../state/hooks.js';
+import { submitAgentPrompt } from '../../state/agentTurn.js';
 
-const PLACEHOLDER = "list runtimes · rotate alpha · revoke beta";
+const PLACEHOLDER = 'Ask Sonar to inspect or rotate runtime keys';
 
 const SUGGESTIONS: ReadonlyArray<{ label: string; prompt: string }> = [
-  { label: "List runtimes", prompt: "list runtimes" },
-  { label: "Rotate alpha", prompt: "rota las claves de alpha" },
-  { label: "Last 5 events", prompt: "trae los ultimos 5 eventos del log" },
-  { label: "Revoke beta", prompt: "revocá el runtime beta" },
+  { label: 'List runtimes', prompt: 'list runtimes' },
+  { label: 'Rotate fleet', prompt: 'rota las claves de alpha, beta y gamma' },
+  { label: 'Rotate alpha', prompt: 'rota las claves de alpha' },
+  { label: 'Inspect last events', prompt: 'trae los ultimos 5 eventos del log' },
 ];
 
 /**
@@ -18,19 +18,19 @@ const SUGGESTIONS: ReadonlyArray<{ label: string; prompt: string }> = [
  * SSE token stream feeds a local draft bubble for streaming feel.
  */
 export function ChatInput(): JSX.Element {
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
   const busy = useAgentBusy();
 
   const submit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (busy || !text.trim()) return;
     const t = text;
-    setText("");
+    setText('');
     await submitAgentPrompt(t);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       e.currentTarget.form?.requestSubmit();
     }
@@ -38,7 +38,7 @@ export function ChatInput(): JSX.Element {
 
   const onSuggestionClick = async (prompt: string): Promise<void> => {
     if (busy) return;
-    setText("");
+    setText('');
     await submitAgentPrompt(prompt);
   };
 
@@ -80,7 +80,7 @@ export function ChatInput(): JSX.Element {
           disabled={busy || !text.trim()}
           data-testid="chat-input-send"
         >
-          {busy ? "…" : "Send"}
+          {busy ? '…' : 'Send'}
         </button>
       </form>
     </div>

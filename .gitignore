@@ -32,3 +32,8 @@ test-results/
 apps/operator/data/registry.json
 apps/operator/data/registry.json.tmp.*
 
+# AXL transport — local mesh keys + binary + state
+infra/axl/keys/
+infra/axl/bin/
+infra/axl/data/
+

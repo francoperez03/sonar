@@ -1,1 +1,5 @@
-@import "../../../landing/src/styles/tokens.css";
+@import '../../../landing/src/styles/tokens.css';
+
+:root[data-theme='dark'] {
+  --font-sans: 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+}

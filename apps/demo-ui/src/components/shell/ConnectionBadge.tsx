@@ -39,6 +39,13 @@ export function ConnectionBadge(): JSX.Element {
           {conn.url.replace(/^wss?:\/\//, "")}
         </span>
       )}
+      <span
+        className={`connection-badge-transport connection-badge-transport--${conn.transport}`}
+        title={conn.transport === "axl" ? "P2P via gensyn-ai/axl mesh" : "Operator WebSocket"}
+        data-testid="connection-badge-transport"
+      >
+        VIA {conn.transport.toUpperCase()}
+      </span>
       <span className="connection-badge-meta">· last event {lastSeen}</span>
       {conn.status === "closed" && conn.closeReason && (
         <span className="connection-badge-meta">

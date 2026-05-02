@@ -40,6 +40,7 @@ export interface DeprecationRecord {
 }
 
 export type ConnectionStatus = "connecting" | "open" | "closed";
+export type TransportKind = "ws" | "axl";
 
 export interface ConnectionState {
   status: ConnectionStatus;
@@ -47,6 +48,7 @@ export interface ConnectionState {
   lastMessageAt: number | null;
   closeCode: number | null;
   closeReason: string | null;
+  transport: TransportKind;
 }
 
 export interface AgentDraft {
@@ -124,6 +126,7 @@ export const initialState: DemoState = {
     lastMessageAt: null,
     closeCode: null,
     closeReason: null,
+    transport: "ws",
   },
   agentDraft: null,
   agentBusy: false,

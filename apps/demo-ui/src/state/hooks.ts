@@ -1,5 +1,5 @@
-import { useSyncExternalStore } from "react";
-import { store } from "./store.js";
+import { useSyncExternalStore } from 'react';
+import { store } from './store.js';
 import type {
   AgentDraft,
   ChatRow,
@@ -9,7 +9,8 @@ import type {
   EventRow,
   RuntimeView,
   RuntimeId,
-} from "./reducer.js";
+  TransportKind,
+} from './reducer.js';
 
 /**
  * useSyncExternalStore-backed selector hooks (RESEARCH Pattern 2).
@@ -47,6 +48,25 @@ export function useAgentDraft(): AgentDraft | null {
 
 export function useAgentBusy(): boolean {
   return useSyncExternalStore(subscribe, () => store.getSnapshot().agentBusy);
+}
+
+export function useRotationInFlight(): boolean {
+  return useSyncExternalStore(subscribe, () => {
+    const runtimes = store.getSnapshot().runtimes;
+    return Object.values(runtimes).some(
+      (runtime) => runtime.status === 'awaiting' || runtime.status === 'received',
+    );
+  });
+}
+
+export function useTransport(): TransportKind {
+  return useSyncExternalStore(subscribe, () => store.getSnapshot().connection.transport);
+}
+
+export function useAxlAvailable(): boolean {
+  return Boolean(
+    import.meta.env.VITE_AXL_BRIDGE_URL && import.meta.env.VITE_AXL_DEST_PEER_ID,
+  );
 }
 
 export type { DemoState };

@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
-import type { RuntimeView } from "../../state/reducer.js";
-import { StatusPill } from "../primitives/StatusPill.js";
-import { IdentityStrip } from "../primitives/IdentityStrip.js";
+import { motion } from 'framer-motion';
+import type { RuntimeView } from '../../state/reducer.js';
+import { StatusPill } from '../primitives/StatusPill.js';
+import { IdentityStrip } from '../primitives/IdentityStrip.js';
 
 /**
  * RuntimeNode — visual card for a single runtime (alpha/beta/gamma/gamma-clone).
@@ -16,10 +16,11 @@ import { IdentityStrip } from "../primitives/IdentityStrip.js";
  * Motion Contract's standard ease + duration.base.
  */
 export function RuntimeNode({ runtime }: { runtime: RuntimeView }): JSX.Element {
-  const isGhost = runtime.id === "gamma-clone";
+  const isGhost = runtime.id === 'gamma-clone';
+  const kind = isGhost ? 'clone candidate' : 'legit runtime';
   const cls =
     `runtime-node runtime-node--${runtime.status} runtime-node--${runtime.id}` +
-    (isGhost ? " runtime-node--ghost" : "");
+    (isGhost ? ' runtime-node--ghost' : '');
   return (
     <motion.div
       className={cls}
@@ -27,8 +28,17 @@ export function RuntimeNode({ runtime }: { runtime: RuntimeView }): JSX.Element 
       layout
       transition={{ layout: { duration: 0.28, ease: [0.2, 0.8, 0.2, 1] } }}
     >
-      <div className="runtime-node-name">{runtime.id.toUpperCase()}</div>
-      <StatusPill status={runtime.status} />
+      <div className="runtime-node-topline">
+        <div>
+          <div className="runtime-node-kind">{kind}</div>
+          <div className="runtime-node-name">{runtime.id.toUpperCase()}</div>
+        </div>
+        <span className="runtime-node-led" aria-hidden="true" />
+      </div>
+      <div className="runtime-node-status-row">
+        <StatusPill status={runtime.status} />
+      </div>
+      <div className="runtime-node-divider" aria-hidden="true" />
       <IdentityStrip pubkey={runtime.pubkey} lastEventAt={runtime.lastEventAt} />
     </motion.div>
   );

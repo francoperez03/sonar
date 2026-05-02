@@ -1,9 +1,9 @@
-import { useLastDeprecation } from "../../state/hooks.js";
-import { TxHashChip } from "../primitives/TxHashChip.js";
+import { useLastDeprecation, useRotationInFlight } from '../../state/hooks.js';
+import { TxHashChip } from '../primitives/TxHashChip.js';
 
 /**
- * Footer — bottom of the demo shell. Left: LAST DEPRECATION eyebrow + TxHashChip
- * (or empty-state copy). Right: Run again CTA.
+ * Footer — bottom operation strip. Shows rotation readiness plus the latest
+ * on-chain deprecation hash when the Operator observes WalletsDeprecated.
  *
  * In-flight gating ("Rotation in flight…" disabled label per UI-SPEC line 217)
  * is deferred — there is no `runInFlight` selector at this point in Phase 6,
@@ -12,19 +12,26 @@ import { TxHashChip } from "../primitives/TxHashChip.js";
  */
 export function Footer(): JSX.Element {
   const dep = useLastDeprecation();
+  const rotationInFlight = useRotationInFlight();
   return (
     <footer className="demo-footer" aria-label="Demo controls">
       <div className="demo-footer-left">
-        <div className="demo-eyebrow">LAST DEPRECATION</div>
-        {dep ? (
-          <TxHashChip hash={dep.hash} />
-        ) : (
-          <span className="demo-text-muted">No on-chain deprecation yet</span>
-        )}
+        <div className="demo-footer-status">
+          <span
+            className={`demo-footer-led${rotationInFlight ? ' is-active' : ''}`}
+            aria-hidden="true"
+          />
+          <span>{rotationInFlight ? 'Rotation in flight' : 'Ready for rotation'}</span>
+        </div>
+        <div>
+          <div className="demo-eyebrow">LAST DEPRECATION</div>
+          {dep ? (
+            <TxHashChip hash={dep.hash} />
+          ) : (
+            <span className="demo-text-muted">No on-chain deprecation yet</span>
+          )}
+        </div>
       </div>
-      <button type="button" className="cta-primary" data-testid="run-again">
-        Run again
-      </button>
     </footer>
   );
 }

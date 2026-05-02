@@ -1,7 +1,7 @@
-import { Virtuoso } from "react-virtuoso";
-import { useEvents } from "../../state/hooks.js";
-import type { EventRow } from "../../state/reducer.js";
-import { useRelativeTime } from "../../util/relativeTime.js";
+import { Virtuoso } from 'react-virtuoso';
+import { useEvents } from '../../state/hooks.js';
+import type { EventRow } from '../../state/reducer.js';
+import { useRelativeTime } from '../../util/relativeTime.js';
 
 /**
  * EventLog — live operator/runtime event stream (DEMO-02). Reads useEvents()
@@ -24,15 +24,13 @@ import { useRelativeTime } from "../../util/relativeTime.js";
  */
 export function EventLog(): JSX.Element {
   const all = useEvents();
-  const events = all.filter((e) => e.kind !== "chat");
+  const events = all.filter((e) => e.kind !== 'chat');
 
   if (events.length === 0) {
     return (
       <div className="event-log-empty" aria-live="polite">
-        <div className="event-log-empty-heading">No events yet</div>
-        <p className="event-log-empty-body">
-          Operator and runtimes will stream live events when the rotation starts.
-        </p>
+        <div className="event-log-empty-heading">Stream armed</div>
+        <p className="event-log-empty-body">Rotation events will stream here.</p>
       </div>
     );
   }
@@ -58,7 +56,8 @@ function EventRowItem({ row }: { row: EventRow }): JSX.Element {
   return (
     <div className="event-row">
       <span className="event-row-ts">{rel}</span>
-      <span className={`event-row-kind${accent ? " is-accent" : ""}`}>
+      <span className="event-row-runtime">{row.runtimeId ?? 'system'}</span>
+      <span className={`event-row-kind${accent ? ' is-accent' : ''}`}>
         {row.kind.toUpperCase()}
       </span>
       <span className="event-row-body">{row.message}</span>

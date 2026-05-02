@@ -1,6 +1,6 @@
-import { ChatMirror } from "../sidebar/ChatMirror.js";
-import { ChatInput } from "../sidebar/ChatInput.js";
-import { EventLog } from "../sidebar/EventLog.js";
+import { ChatMirror } from '../sidebar/ChatMirror.js';
+import { ChatInput } from '../sidebar/ChatInput.js';
+import { EventLog } from '../sidebar/EventLog.js';
 
 /**
  * Sidebar — vertical stack: ChatMirror (top) + EventLog (bottom). Per UI-SPEC
@@ -12,12 +12,24 @@ export function Sidebar(): JSX.Element {
     <aside className="demo-sidebar" aria-label="Sidebar">
       <h2 className="visually-hidden">Sonar — Live Rotation</h2>
       <section className="demo-sidebar-section" aria-label="Chat mirror">
-        <div className="demo-eyebrow">CHAT</div>
+        <div className="demo-section-head">
+          <div>
+            <div className="demo-eyebrow">AGENT RUNTIME</div>
+            <div className="demo-section-kicker">Claude Desktop / MCP driver</div>
+          </div>
+          <span className="demo-section-index">01</span>
+        </div>
         <ChatMirror />
         <ChatInput />
       </section>
       <section className="demo-sidebar-section" aria-label="Event log">
-        <div className="demo-eyebrow">EVENTS</div>
+        <div className="demo-section-head">
+          <div>
+            <div className="demo-eyebrow">OPERATOR STREAM</div>
+            <div className="demo-section-kicker">runtime, vault, chain events</div>
+          </div>
+          <span className="demo-section-index">02</span>
+        </div>
         <EventLog />
       </section>
     </aside>

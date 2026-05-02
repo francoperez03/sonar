@@ -1,6 +1,6 @@
-import { Virtuoso } from "react-virtuoso";
-import { useChats, useAgentDraft } from "../../state/hooks.js";
-import type { ChatRow } from "../../state/reducer.js";
+import { Virtuoso } from 'react-virtuoso';
+import { useChats, useAgentDraft } from '../../state/hooks.js';
+import type { ChatRow } from '../../state/reducer.js';
 
 /**
  * ChatMirror — bubble chat (DEMO-01). Reads useChats() (the reducer keeps chat
@@ -23,10 +23,8 @@ export function ChatMirror(): JSX.Element {
   if (chats.length === 0 && !draft) {
     return (
       <div className="chat-mirror-empty" aria-live="polite">
-        <div className="chat-mirror-empty-heading">Awaiting prompt</div>
-        <p className="chat-mirror-empty-body">
-          Type below to drive the agent — or trigger a rotation from Claude Desktop.
-        </p>
+        <div className="chat-mirror-empty-heading">Agent runtime idle</div>
+        <p className="chat-mirror-empty-body">Ask Sonar to inspect or rotate runtime keys.</p>
       </div>
     );
   }
@@ -34,9 +32,9 @@ export function ChatMirror(): JSX.Element {
     ? [
         ...chats,
         {
-          id: "__draft__",
-          role: "assistant",
-          content: draft.text || "…",
+          id: '__draft__',
+          role: 'assistant',
+          content: draft.text || '…',
           timestamp: draft.startedAt,
         },
       ]
@@ -57,6 +55,7 @@ export function ChatMirror(): JSX.Element {
 function ChatBubble({ row }: { row: ChatRow }): JSX.Element {
   return (
     <div className={`chat-bubble chat-bubble--${row.role}`} data-role={row.role}>
+      <div className="chat-bubble-role">{row.role === 'user' ? 'operator' : 'sonar'}</div>
       <div className="chat-bubble-content">{row.content}</div>
     </div>
   );
