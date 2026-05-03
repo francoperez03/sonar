@@ -659,11 +659,13 @@ textarea {
 
 .demo-canvas-sequence {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   align-self: stretch;
   padding: 0;
   border-radius: 10px;
+  position: relative;
+  z-index: 1;
 }
 
 .demo-canvas-sequence .sequence-step {
@@ -671,31 +673,28 @@ textarea {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1px;
-  min-height: 44px;
-  padding: 6px 9px 6px 18px;
+  gap: 2px;
+  min-height: 54px;
+  padding: 9px 11px 9px 22px;
   border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
+  border-radius: 9px;
   background: rgba(255, 255, 255, 0.028);
   color: rgba(250, 250, 250, 0.5);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.2;
   transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
 }
 
-.demo-canvas-sequence .sequence-step::before {
-  content: '';
+.sequence-step-dot {
   position: absolute;
-  left: 7px;
+  left: 9px;
   top: 50%;
-  width: 5px;
-  height: 5px;
-  margin-top: -2.5px;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
-  transition: background 200ms ease, box-shadow 200ms ease;
+  display: block;
 }
 
 .sequence-step-label {
@@ -703,46 +702,47 @@ textarea {
 }
 
 .sequence-step-state {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(250, 250, 250, 0.32);
 }
 
+/* Active state outer ring is kept in CSS (framer animates the fill/border
+ * but the box-shadow ring stays declarative for crispness). */
 .sequence-step--active {
-  border-color: rgba(63, 184, 201, 0.42);
-  background: rgba(63, 184, 201, 0.08);
-  color: rgba(250, 250, 250, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(125, 211, 252, 0.35),
+    inset 0 0 22px rgba(125, 211, 252, 0.18);
 }
 
-.sequence-step--active::before {
-  background: var(--color-accent-cyan);
-  box-shadow: 0 0 0 4px rgba(63, 184, 201, 0.18);
-  animation: connection-pulse 1.4s ease-in-out infinite;
-}
-
-.sequence-step--active .sequence-step-state {
-  color: rgba(63, 184, 201, 0.78);
+/* OPERATOR shares dimensions with the rest of the sequence chips but reads
+ * as the "live" anchor of the strip — label uppercased with extra letter
+ * spacing. Color values come from framer-motion in SequenceStep.tsx. */
+.sequence-step--primary .sequence-step-label {
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 11px;
 }
 
 .demo-canvas-services {
   display: grid;
-  grid-template-columns: 188px minmax(0, 1fr);
-  column-gap: 36px;
+  grid-template-columns: 168px minmax(0, 1fr);
+  column-gap: 28px;
   row-gap: 10px;
   align-items: stretch;
 }
 
 .service-node {
   position: relative;
-  min-height: 44px;
+  min-height: 54px;
   width: 100%;
-  max-width: 188px;
+  max-width: 168px;
   justify-self: start;
   background: rgba(63, 184, 201, 0.075);
   border: 1px solid rgba(63, 184, 201, 0.36);
-  border-radius: 8px;
-  padding: 8px 10px 8px 28px;
+  border-radius: 9px;
+  padding: 11px 12px 10px 34px;
   overflow: hidden;
 }
 
@@ -772,30 +772,30 @@ textarea {
 
 .service-node-orbit {
   position: absolute;
-  left: 11px;
-  top: 11px;
-  width: 7px;
-  height: 7px;
+  left: 13px;
+  top: 14px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--color-accent-cyan);
-  box-shadow: 0 0 0 4px rgba(63, 184, 201, 0.11);
+  box-shadow: 0 0 0 5px rgba(63, 184, 201, 0.11);
 }
 
 .service-node-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: rgba(250, 250, 250, 0.84);
   font-weight: 800;
   text-transform: uppercase;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .service-node-detail {
-  margin-top: 3px;
+  margin-top: 5px;
   color: rgba(250, 250, 250, 0.48);
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: 11px;
+  line-height: 1.25;
 }
 
 .demo-canvas-edges {
@@ -1223,17 +1223,8 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .demo-canvas-services {
-    grid-template-columns: 210px minmax(0, 1fr);
-    column-gap: 20px;
-  }
-
-  .service-node {
-    max-width: 210px;
-  }
-
   .demo-canvas-sequence {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .demo-canvas-runtimes {
@@ -1287,17 +1278,8 @@ textarea {
     font-size: 31px;
   }
 
-  .demo-canvas-services,
   .demo-canvas-runtimes {
     grid-template-columns: 1fr;
-  }
-
-  .service-node {
-    max-width: none;
-  }
-
-  .demo-canvas-services > .demo-canvas-sequence {
-    grid-column: 1;
   }
 
   .demo-canvas-sequence {

@@ -6,9 +6,9 @@ import {
 } from '../../state/hooks.js';
 import type { RuntimeId } from '../../state/reducer.js';
 import { RuntimeNode } from './RuntimeNode.js';
-import { ServiceNode } from './ServiceNode.js';
 import { EdgePulse } from './EdgePulse.js';
 import { MiniTimeline } from './MiniTimeline.js';
+import { SequenceStep } from './SequenceStep.js';
 
 /**
  * Canvas — the visual hero of the demo (DEMO-03). Renders:
@@ -72,7 +72,20 @@ export function Canvas(): JSX.Element {
   const anyReceivedRecent = RUNTIME_ORDER.some(
     (rid) => runtimes[rid].status === 'received' && recent(runtimes[rid].lastEventAt, 3000),
   );
-  const sequence: ReadonlyArray<{ id: string; label: string; active: boolean; idleHint: string }> = [
+  const sequence: ReadonlyArray<{
+    id: string;
+    label: string;
+    active: boolean;
+    idleHint: string;
+    primary?: boolean;
+  }> = [
+    {
+      id: 'operator',
+      label: 'OPERATOR',
+      active: operatorActive,
+      idleHint: 'awaiting runtime event',
+      primary: true,
+    },
     { id: 'agent-asks', label: 'agent asks', active: agentBusy, idleHint: 'idle' },
     {
       id: 'keeperhub',
@@ -104,23 +117,17 @@ export function Canvas(): JSX.Element {
           </h1>
         </div>
       </div>
-      <div className="demo-canvas-services">
-        <ServiceNode id="operator" active={operatorActive} />
-        <div className="demo-canvas-sequence" aria-label="Rotation sequence">
-          {sequence.map((step) => (
-            <span
-              key={step.id}
-              className={`sequence-step${step.active ? ' sequence-step--active' : ''}`}
-              data-active={step.active ? 'true' : 'false'}
-              data-testid={`sequence-step-${step.id}`}
-            >
-              <span className="sequence-step-label">{step.label}</span>
-              <span className="sequence-step-state" aria-hidden="true">
-                {step.active ? 'active' : step.idleHint}
-              </span>
-            </span>
-          ))}
-        </div>
+      <div className="demo-canvas-sequence" aria-label="Rotation sequence">
+        {sequence.map((step) => (
+          <SequenceStep
+            key={step.id}
+            id={step.id}
+            label={step.label}
+            active={step.active}
+            idleHint={step.idleHint}
+            primary={step.primary}
+          />
+        ))}
       </div>
       <svg
         className="demo-canvas-edges"
