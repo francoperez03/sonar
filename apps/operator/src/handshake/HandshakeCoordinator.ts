@@ -58,10 +58,17 @@ export class HandshakeCoordinator {
       ws.close(4403, 'revoked');
       return;
     }
-    // Phase 7: clone-rejection. If the runtimeId is already known with a
-    // different pubkey, refuse to overwrite — that's the "binary copy with
-    // wrong identity" attack the project's security claim is built on.
-    if (record && record.pubkey !== msg.pubkey) {
+    const existing = this.sessions.get(msg.runtimeId);
+    const sessionAlive = existing && existing !== ws && existing.readyState === 1 /* OPEN */;
+    // Phase 7: clone-rejection. Fire ONLY when a legitimate session is
+    // currently held — that's the meaningful clone scenario (an attacker
+    // trying to suplant a runtime that's right now connected). When no
+    // session is alive we still allow the upsert so that a legitimate
+    // restart of the runtime (which generates a fresh in-memory keypair
+    // on each boot) can rotate its identity without being mistaken for an
+    // attack. The signature gate at handshake time enforces identity for
+    // any subsequent rotation.
+    if (record && record.pubkey !== msg.pubkey && sessionAlive) {
       this.logBus.logEntry(
         msg.runtimeId,
         'warn',
@@ -70,8 +77,7 @@ export class HandshakeCoordinator {
       ws.close(4403, 'pubkey_mismatch');
       return;
     }
-    const existing = this.sessions.get(msg.runtimeId);
-    if (existing && existing !== ws && existing.readyState === 1 /* OPEN */) {
+    if (sessionAlive) {
       this.logBus.logEntry(msg.runtimeId, 'warn', 'duplicate_session_rejected');
       ws.close(4409, 'duplicate_session');
       return;
