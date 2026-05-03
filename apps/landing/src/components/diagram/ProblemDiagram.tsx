@@ -253,7 +253,7 @@ export function ProblemDiagram() {
       </motion.div>
       <figcaption className={styles.caption}>
         every line in the agent&apos;s memory is treated as trusted ·{" "}
-        <span className={styles.captionRef}>OWASP LLM06</span>
+        <span className={styles.captionRef}>OWASP LLM06 · Sensitive Information Disclosure</span>
       </figcaption>
     </figure>
   );

@@ -8,7 +8,8 @@ import { MiniTimeline } from './MiniTimeline.js';
 
 /**
  * Canvas — the visual hero of the demo (DEMO-03). Renders:
- *   - 1 service chip anchored at top: OPERATOR (the live identity gate)
+ *   - 1 service chip anchored left: OPERATOR (the live identity gate)
+ *   - A compact path strip to its right for the rest of the rotation flow
  *   - 4 runtime nodes in a row underneath: alpha, beta, gamma, gamma-clone
  *     (gamma-clone visually offset to the right per UI-SPEC §Canvas)
  *   - An SVG overlay with EdgePulse paths from Operator → each runtime,
@@ -65,16 +66,15 @@ export function Canvas(): JSX.Element {
             Sonar coordinates the key swap without seeing the key.
           </h1>
         </div>
-        <div className="demo-canvas-sequence" aria-label="Rotation sequence">
-          <span>agent asks</span>
-          <span>KeeperHub workflow</span>
-          <span>operator verifies</span>
-          <span>runtime receives</span>
-          <span>chain deprecates</span>
-        </div>
       </div>
       <div className="demo-canvas-services">
         <ServiceNode id="operator" active={operatorActive} />
+        <div className="demo-canvas-sequence" aria-label="Rotation sequence">
+          <span>agent asks</span>
+          <span>KeeperHub workflow</span>
+          <span>runtime receives</span>
+          <span>chain deprecates</span>
+        </div>
       </div>
       <svg
         className="demo-canvas-edges"

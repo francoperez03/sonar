@@ -10,7 +10,8 @@ describe("Sections — locked copy", () => {
     expect(
       screen.getByText("Your agent is a liability with the keys."),
     ).toBeInTheDocument();
-    expect(screen.getByText(/OWASP LLM06 names it/)).toBeInTheDocument();
+    expect(screen.getByText(/Open Worldwide Application Security Project/)).toBeInTheDocument();
+    expect(screen.getByText(/LLM06: Sensitive Information Disclosure/)).toBeInTheDocument();
   });
 
   it("ApproachSection contains locked headline + diagram svg", () => {

@@ -1,6 +1,6 @@
 /**
- * ServiceNode — live chip for the Operator identity gate. KeeperHub and Chain
- * are shown in the compact sequence row to avoid extra status lights.
+ * ServiceNode — live chip for the Operator identity gate. The rest of the
+ * rotation path sits beside it so the canvas reads left to right.
  */
 export function ServiceNode({ active = false }: { id?: 'operator'; active?: boolean }): JSX.Element {
   return (

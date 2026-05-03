@@ -44,8 +44,9 @@ curl -sS -o /dev/null -w "ngrok: %{http_code}\n" \
 Open `https://sonar-demo-ui.vercel.app/`. You should see:
 - Topbar: `● LIVE  christian-actinographic-…/logs  VIA WS  · last event Xs ago`
 - Topbar right: `● READY` and `FLEET REGISTRY 0x7edd…b31f`
-- Canvas: sequence row shows `agent asks → KeeperHub workflow → operator verifies → runtime receives → chain deprecates`
-- Canvas: one live `OPERATOR` chip, ALPHA registered with a small ETH balance, BETA/GAMMA in any state, GAMMA-CLONE as a ghost
+- Canvas: left gate shows one live `OPERATOR` chip
+- Canvas: path row shows `agent asks → KeeperHub workflow → runtime receives → chain deprecates`
+- Canvas: ALPHA registered with a small ETH balance, BETA/GAMMA in any state, GAMMA-CLONE as a ghost
 - Sidebar OPERATOR STREAM: recent events
 - If BETA or GAMMA show `revoked`, **fire "Reset demo" from the chat before you start**.
 
@@ -68,7 +69,7 @@ Open `https://sonar-demo-ui.vercel.app/`. You should see:
 
 Slowly scroll to `01 / PROBLEM`.
 
-> "The problem is simple. If an agent has secrets in its context, it can leak them. One bad log line can expose a key. This is the **OWASP LLM06** risk. Sonar avoids that by never giving the LLM the key."
+> "The problem is simple. If an agent has secrets in its context, it can leak them. One bad log line can expose a key. OWASP — the Open Worldwide Application Security Project — calls this **LLM06: Sensitive Information Disclosure**. Sonar avoids that by never giving the LLM the key."
 
 Scroll to `02 / APPROACH`.
 
@@ -90,7 +91,7 @@ Click the `0x7edd…b31f` chip (opens a new tab).
 
 Back to the demo tab.
 
-> "In the canvas, the top row is the full path: agent asks, KeeperHub runs the workflow, the operator verifies identity, the runtime receives the wallet, and chain deprecates the old one. The big live chip is the Operator, because that is the identity gate we can see reacting here."
+> "In the canvas, the Operator is on the left because it is the identity gate we can see reacting here. The path continues to the right: the agent asks, KeeperHub runs the workflow, the runtime receives the wallet, and chain deprecates the old one."
 
 > "Below that, we have three real runtimes: alpha, beta, and gamma. We also have gamma-clone in shadow. That one represents the attacker case. Each card shows status, wallet address, and live balance, even for very small testnet amounts."
 

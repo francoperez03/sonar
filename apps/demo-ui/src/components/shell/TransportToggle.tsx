@@ -1,5 +1,6 @@
 import { useTransport, useAxlAvailable } from "../../state/hooks.js";
 import { swapTransport } from "../../transport/transportManager.js";
+import { engageAxlMock, disengageAxlMock } from "../../transport/mockAxlBridge.js";
 import type { TransportKind } from "../../state/reducer.js";
 
 const ITEMS: ReadonlyArray<{ kind: TransportKind; label: string; tooltip: string }> = [
@@ -13,14 +14,24 @@ const ITEMS: ReadonlyArray<{ kind: TransportKind; label: string; tooltip: string
 ];
 
 /**
- * Topbar segmented control for swapping the live transport. Renders only
- * when AXL is configured (env vars present); otherwise the demo silently
- * stays on WebSocket and there's nothing to switch.
+ * Topbar segmented control for swapping the live transport. Always rendered
+ * so the AXL story is tellable on stage; when the real bridge isn't running
+ * the toggle falls through to a scripted "as-if" mode that flips the chrome
+ * and prints a short sequence of routing log lines.
  */
-export function TransportToggle(): JSX.Element | null {
+export function TransportToggle(): JSX.Element {
   const active = useTransport();
   const axlAvailable = useAxlAvailable();
-  if (!axlAvailable) return null;
+
+  function onSelect(kind: TransportKind): void {
+    if (kind === active) return;
+    if (axlAvailable) {
+      void swapTransport(kind);
+      return;
+    }
+    if (kind === "axl") engageAxlMock();
+    else disengageAxlMock();
+  }
 
   return (
     <div
@@ -39,9 +50,7 @@ export function TransportToggle(): JSX.Element | null {
             aria-checked={selected}
             title={item.tooltip}
             className={`transport-toggle-button ${selected ? "transport-toggle-button--active" : ""}`}
-            onClick={() => {
-              if (!selected) void swapTransport(item.kind);
-            }}
+            onClick={() => onSelect(item.kind)}
             data-testid={`transport-toggle-${item.kind}`}
           >
             {item.label}

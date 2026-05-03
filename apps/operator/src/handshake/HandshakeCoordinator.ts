@@ -40,12 +40,44 @@ export class HandshakeCoordinator {
   private logBus: LogBus;
   private nonceStore: NonceStore;
   private pending = new Map<string, PendingState>();
+  // Coalesces repeated clone-rejection warnings per (runtimeId, kind) so a
+  // looping attacker can't flood the operator log (and the demo UI) with
+  // identical lines. Logs the first hit, then suppresses for WINDOW_MS and
+  // emits a "+N suppressed" summary on the next hit past the window.
+  private cloneSuppress = new Map<
+    string,
+    { firstAt: number; suppressed: number; timer: NodeJS.Timeout }
+  >();
+  private static readonly CLONE_SUPPRESS_WINDOW_MS = 30_000;
 
   constructor(deps: Deps) {
     this.registry = deps.registry;
     this.sessions = deps.sessions;
     this.logBus = deps.logBus;
     this.nonceStore = deps.nonceStore;
+  }
+
+  private logCloneRejection(runtimeId: string, kind: 'pubkey' | 'sig', message: string): void {
+    const key = `${runtimeId}:${kind}`;
+    const existing = this.cloneSuppress.get(key);
+    if (existing) {
+      existing.suppressed += 1;
+      return;
+    }
+    this.logBus.logEntry(runtimeId, 'warn', message);
+    const timer = setTimeout(() => {
+      const entry = this.cloneSuppress.get(key);
+      this.cloneSuppress.delete(key);
+      if (entry && entry.suppressed > 0) {
+        this.logBus.logEntry(
+          runtimeId,
+          'warn',
+          `Clone rejected: ${entry.suppressed} additional ${kind === 'pubkey' ? 'pubkey-mismatch' : 'sig-verify'} attempts suppressed in last ${Math.round(HandshakeCoordinator.CLONE_SUPPRESS_WINDOW_MS / 1000)}s.`,
+        );
+      }
+    }, HandshakeCoordinator.CLONE_SUPPRESS_WINDOW_MS);
+    if (typeof timer.unref === 'function') timer.unref();
+    this.cloneSuppress.set(key, { firstAt: Date.now(), suppressed: 0, timer });
   }
 
   /**
@@ -69,9 +101,9 @@ export class HandshakeCoordinator {
     // attack. The signature gate at handshake time enforces identity for
     // any subsequent rotation.
     if (record && record.pubkey !== msg.pubkey && sessionAlive) {
-      this.logBus.logEntry(
+      this.logCloneRejection(
         msg.runtimeId,
-        'warn',
+        'pubkey',
         `Clone rejected: ${msg.runtimeId} presented foreign pubkey; handshake denied.`,
       );
       ws.close(4403, 'pubkey_mismatch');
@@ -142,9 +174,9 @@ export class HandshakeCoordinator {
       state.verificationWaiter?.resolve();
     } else {
       state.verified = false;
-      this.logBus.logEntry(
+      this.logCloneRejection(
         msg.runtimeId,
-        'warn',
+        'sig',
         `Clone rejected: ${msg.runtimeId} signed challenge with wrong privkey (sig_verify_failed).`,
       );
       state.verificationWaiter?.reject(new Error('identity_unverified'));

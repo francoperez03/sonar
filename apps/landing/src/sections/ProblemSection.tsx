@@ -11,8 +11,10 @@ export function ProblemSection() {
       <p className={styles.body}>
         Today&apos;s agents hold secrets in plaintext context. The LLM cannot
         tell which lines are trusted and which were injected by an attacker.
-        One log entry and the key walks. OWASP LLM06 names it; production
-        deployments still ship it. Sonar never shows the LLM a key.
+        One log entry and the key walks. OWASP — the Open Worldwide
+        Application Security Project — calls this LLM06: Sensitive Information
+        Disclosure. Production deployments still ship it. Sonar never shows the
+        LLM a key.
       </p>
       <ProblemDiagram />
     </Section>

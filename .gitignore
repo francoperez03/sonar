@@ -12,6 +12,7 @@ build/
 .vite/
 coverage/
 CLAUDE.md
+DEMO-SCRIPT.md
 
 # pnpm + workspace
 **/node_modules
@@ -36,4 +37,3 @@ apps/operator/data/registry.json.tmp.*
 infra/axl/keys/
 infra/axl/bin/
 infra/axl/data/
-
