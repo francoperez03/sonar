@@ -1,4 +1,5 @@
-import { useRuntimes } from '../../state/hooks.js';
+import { useEffect, useState } from 'react';
+import { useRuntimes, useLastDeprecation } from '../../state/hooks.js';
 import type { RuntimeId } from '../../state/reducer.js';
 import { RuntimeNode } from './RuntimeNode.js';
 import { ServiceNode } from './ServiceNode.js';
@@ -34,8 +35,14 @@ const PATHS: Record<string, string> = {
 
 export function Canvas(): JSX.Element {
   const runtimes = useRuntimes();
+  const lastDeprecation = useLastDeprecation();
   const allRegistered = RUNTIME_ORDER.every((id) => runtimes[id].status === 'registered');
-  const now = Date.now();
+  // Re-render every 1s so the service-node activity decay is smooth.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const isActiveEdge = (rid: RuntimeId): boolean => {
     const r = runtimes[rid];
@@ -45,6 +52,16 @@ export function Canvas(): JSX.Element {
       now - r.lastEventAt < 1500
     );
   };
+
+  // Service-node activity heuristics. Each lights up briefly when the
+  // corresponding system did real work.
+  const recent = (ts: number | null, windowMs: number): boolean =>
+    ts != null && now - ts < windowMs;
+  const operatorActive = RUNTIME_ORDER.some((rid) => recent(runtimes[rid].lastEventAt, 2500));
+  const keeperhubActive = RUNTIME_ORDER.some((rid) =>
+    recent(runtimes[rid].walletAssignedAt, 4000),
+  );
+  const chainActive = recent(lastDeprecation?.timestamp ?? null, 6000);
 
   return (
     <section className="demo-canvas" aria-label="Canvas">
@@ -63,9 +80,9 @@ export function Canvas(): JSX.Element {
         </div>
       </div>
       <div className="demo-canvas-services">
-        <ServiceNode id="keeperhub" />
-        <ServiceNode id="operator" />
-        <ServiceNode id="chain" />
+        <ServiceNode id="keeperhub" active={keeperhubActive} />
+        <ServiceNode id="operator" active={operatorActive} />
+        <ServiceNode id="chain" active={chainActive} />
       </div>
       <svg
         className="demo-canvas-edges"

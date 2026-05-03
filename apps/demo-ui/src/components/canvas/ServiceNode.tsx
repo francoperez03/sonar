@@ -18,13 +18,14 @@ const DETAIL: Record<ServiceId, string> = {
   chain: 'WalletsDeprecated',
 };
 
-export function ServiceNode({ id }: { id: ServiceId }): JSX.Element {
+export function ServiceNode({ id, active = false }: { id: ServiceId; active?: boolean }): JSX.Element {
   return (
     <div
-      className={`service-node service-node--${id}`}
+      className={`service-node service-node--${id}${active ? ' service-node--active' : ''}`}
       role="group"
       aria-label={LABEL[id]}
       data-service={id}
+      data-active={active ? 'true' : 'false'}
     >
       <span className="service-node-orbit" aria-hidden="true" />
       <div className="service-node-label">{LABEL[id]}</div>

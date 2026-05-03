@@ -742,6 +742,22 @@ textarea {
   background: rgba(63, 184, 201, 0.075);
 }
 
+/* Phase 7: each ServiceNode lights up cyan when its corresponding system
+ * just did real work (KEEPERHUB on wallet_assigned, OPERATOR on any
+ * status_change, CHAIN on WalletsDeprecated). */
+.service-node--active {
+  border-color: rgba(63, 184, 201, 0.55);
+  background: rgba(63, 184, 201, 0.13);
+  box-shadow: 0 0 0 1px rgba(63, 184, 201, 0.22), 0 0 28px rgba(63, 184, 201, 0.18);
+  transition: border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
+}
+
+.service-node--active .service-node-orbit {
+  background: var(--color-accent-cyan);
+  box-shadow: 0 0 0 4px rgba(63, 184, 201, 0.18);
+  animation: connection-pulse 1.4s ease-in-out infinite;
+}
+
 .service-node-orbit {
   position: absolute;
   left: 13px;
