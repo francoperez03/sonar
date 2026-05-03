@@ -61,7 +61,7 @@ function withStatus(state: DemoState, id: RuntimeId, status: RuntimeStatus): Dem
 describe("reducer.transitions — initialState", () => {
   it("has exactly 4 runtimes with expected ids and registered status", () => {
     const ids = Object.keys(initialState.runtimes).sort();
-    expect(ids).toEqual(["alpha", "beta", "gamma", "gamma-clone"]);
+    expect(ids).toEqual(["alpha", "alpha-clone", "beta", "gamma"]);
     for (const id of ids) {
       const r = initialState.runtimes[id as RuntimeId];
       expect(r.status).toBe("registered");
@@ -122,19 +122,19 @@ describe("reducer.transitions — ALLOWED transitions", () => {
   });
 
   it("clone-rejected is terminal", () => {
-    const s = withStatus(initialState, "gamma-clone", "clone-rejected");
-    const next = reduce(s, statusChange("gamma-clone", "received"));
-    expect(next.runtimes["gamma-clone"].status).toBe("clone-rejected");
+    const s = withStatus(initialState, "alpha-clone", "clone-rejected");
+    const next = reduce(s, statusChange("alpha-clone", "received"));
+    expect(next.runtimes["alpha-clone"].status).toBe("clone-rejected");
   });
 });
 
 describe("reducer.transitions — independence + lastEventAt", () => {
-  it("status_change for alpha doesn't touch beta/gamma/gamma-clone", () => {
+  it("status_change for alpha doesn't touch beta/gamma/alpha-clone", () => {
     const next = reduce(initialState, statusChange("alpha", "awaiting", 999));
     expect(next.runtimes.alpha.status).toBe("awaiting");
     expect(next.runtimes.beta.status).toBe("registered");
     expect(next.runtimes.gamma.status).toBe("registered");
-    expect(next.runtimes["gamma-clone"].status).toBe("registered");
+    expect(next.runtimes["alpha-clone"].status).toBe("registered");
   });
 
   it("lastEventAt is bumped from msg.timestamp on accepted transitions", () => {
@@ -166,15 +166,15 @@ describe("reducer.transitions — chats and events", () => {
 });
 
 describe("reducer.transitions — UI-side derivations", () => {
-  it("LogEntryMsg with 'Clone rejected: ...' sets gamma-clone.status='clone-rejected' and appends event", () => {
+  it("LogEntryMsg with 'Clone rejected: ...' sets alpha-clone.status='clone-rejected' and appends event", () => {
     const msg = logEntry(
-      "gamma-clone",
-      "Clone rejected: gamma-clone presented a copied pubkey; handshake denied.",
+      "alpha-clone",
+      "Clone rejected: alpha-clone presented a copied pubkey; handshake denied.",
       555,
     );
     const next = reduce(initialState, msg);
-    expect(next.runtimes["gamma-clone"].status).toBe("clone-rejected");
-    expect(next.runtimes["gamma-clone"].lastEventAt).toBe(555);
+    expect(next.runtimes["alpha-clone"].status).toBe("clone-rejected");
+    expect(next.runtimes["alpha-clone"].lastEventAt).toBe(555);
     expect(next.events).toHaveLength(1);
   });
 

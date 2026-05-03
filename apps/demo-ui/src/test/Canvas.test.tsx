@@ -14,13 +14,13 @@ describe('Canvas', () => {
     vi.resetModules();
   });
 
-  it('renders 4 runtime nodes (alpha, beta, gamma, gamma-clone)', async () => {
+  it('renders 4 runtime nodes (alpha, beta, gamma, alpha-clone)', async () => {
     const { Canvas } = await loadCanvas();
     render(<Canvas />);
     expect(screen.getByTestId('runtime-node-alpha')).toBeInTheDocument();
     expect(screen.getByTestId('runtime-node-beta')).toBeInTheDocument();
     expect(screen.getByTestId('runtime-node-gamma')).toBeInTheDocument();
-    expect(screen.getByTestId('runtime-node-gamma-clone')).toBeInTheDocument();
+    expect(screen.getByTestId('runtime-node-alpha-clone')).toBeInTheDocument();
   });
 
   it('renders operator as the live service chip and KeeperHub/Chain in the sequence row', async () => {
@@ -53,19 +53,19 @@ describe('Canvas', () => {
     expect(screen.queryByText(/alpha, beta, and gamma are legitimate runtimes/i)).toBeNull();
   });
 
-  it("after a 'Clone rejected:' log_entry, gamma-clone node has the clone-rejected class", async () => {
+  it("after a 'Clone rejected:' log_entry, alpha-clone node has the clone-rejected class", async () => {
     const { store, Canvas } = await loadCanvas();
     render(<Canvas />);
     await act(async () => {
       store.receive({
         type: 'log_entry',
-        runtimeId: 'gamma-clone',
+        runtimeId: 'alpha-clone',
         level: 'warn',
-        message: 'Clone rejected: gamma-clone presented a copied pubkey; handshake denied.',
+        message: 'Clone rejected: alpha-clone presented a copied pubkey; handshake denied.',
         timestamp: Date.now(),
       });
     });
-    const ghost = screen.getByTestId('runtime-node-gamma-clone');
+    const ghost = screen.getByTestId('runtime-node-alpha-clone');
     expect(ghost.className).toContain('clone-rejected');
   });
 });

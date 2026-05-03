@@ -692,8 +692,8 @@ textarea {
 
 .demo-canvas-services {
   display: grid;
-  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
-  column-gap: 16px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  column-gap: 28px;
   row-gap: 10px;
   align-items: stretch;
 }
@@ -702,7 +702,7 @@ textarea {
   position: relative;
   min-height: 54px;
   width: 100%;
-  max-width: 340px;
+  max-width: 220px;
   justify-self: start;
   background: rgba(63, 184, 201, 0.075);
   border: 1px solid rgba(63, 184, 201, 0.36);
@@ -974,7 +974,7 @@ textarea {
   background: var(--color-destructive);
 }
 
-.runtime-node--gamma-clone {
+.runtime-node--alpha-clone {
   transform: translateX(10px);
 }
 
@@ -1185,11 +1185,12 @@ textarea {
   }
 
   .demo-canvas-services {
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    grid-template-columns: 210px minmax(0, 1fr);
+    column-gap: 20px;
   }
 
   .service-node {
-    max-width: 300px;
+    max-width: 210px;
   }
 
   .demo-canvas-sequence {
@@ -1200,7 +1201,7 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .runtime-node--gamma-clone {
+  .runtime-node--alpha-clone {
     transform: none;
   }
 }

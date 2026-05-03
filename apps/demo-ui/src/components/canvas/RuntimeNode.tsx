@@ -7,12 +7,12 @@ import { useBalance } from '../../state/useBalance.js';
 import { RuntimeActions } from './RuntimeActions.js';
 
 /**
- * RuntimeNode — visual card for a single runtime (alpha/beta/gamma/gamma-clone).
+ * RuntimeNode — visual card for a single runtime (alpha/beta/gamma/alpha-clone).
  * Composes:
  *   - <StatusPill> (6-state pill)
  *   - <IdentityStrip> (4..4 pubkey + relative timestamp)
  *
- * gamma-clone is the cinematic ghost (CONTEXT D-11): desaturated at idle,
+ * alpha-clone is the cinematic ghost (CONTEXT D-11): desaturated at idle,
  * destructive flash on `clone-rejected` (CSS keyframes in demo.css).
  *
  * Layout transitions use framer-motion's `layout` prop with the
@@ -23,7 +23,7 @@ function shortAddress(addr: `0x${string}`): string {
 }
 
 export function RuntimeNode({ runtime }: { runtime: RuntimeView }): JSX.Element {
-  const isGhost = runtime.id === 'gamma-clone';
+  const isGhost = runtime.id === 'alpha-clone';
   const kind = isGhost ? 'clone candidate' : 'legit runtime';
   const cls =
     `runtime-node runtime-node--${runtime.status} runtime-node--${runtime.id}` +

@@ -86,7 +86,7 @@ export const TOOL_DEFS = [
   {
     name: 'simulate_clone_attack',
     description:
-      'Spawns a fake "clone" runtime that tries to register under an existing runtimeId with a fresh ed25519 keypair (i.e. NOT the legitimate runtime\'s privkey). The Operator\'s pubkey-mismatch gate rejects it; the demo-ui flashes the gamma-clone card. Use to demonstrate Sonar\'s clone-rejection guarantee.',
+      'Spawns a fake "clone" runtime that tries to register under an existing runtimeId with a fresh ed25519 keypair (i.e. NOT the legitimate runtime\'s privkey). The Operator\'s pubkey-mismatch gate rejects it; the demo-ui flashes the alpha-clone card. Use to demonstrate Sonar\'s clone-rejection guarantee.',
     input_schema: {
       type: 'object' as const,
       properties: {

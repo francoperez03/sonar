@@ -10,8 +10,8 @@ import { MiniTimeline } from './MiniTimeline.js';
  * Canvas — the visual hero of the demo (DEMO-03). Renders:
  *   - 1 service chip anchored left: OPERATOR (the live identity gate)
  *   - A compact path strip to its right for the rest of the rotation flow
- *   - 4 runtime nodes in a row underneath: alpha, beta, gamma, gamma-clone
- *     (gamma-clone visually offset to the right per UI-SPEC §Canvas)
+ *   - 4 runtime nodes in a row underneath: alpha, beta, gamma, alpha-clone
+ *     (alpha-clone visually offset to the right per UI-SPEC §Canvas)
  *   - An SVG overlay with EdgePulse paths from Operator → each runtime,
  *     active when that runtime's status is 'awaiting' or 'received' and
  *     a state event landed within the last 1500ms (heuristic per CONTEXT
@@ -21,7 +21,7 @@ import { MiniTimeline } from './MiniTimeline.js';
  * 4 runtimes are still in 'registered'.
  */
 
-const RUNTIME_ORDER: RuntimeId[] = ['alpha', 'beta', 'gamma', 'gamma-clone'];
+const RUNTIME_ORDER: RuntimeId[] = ['alpha', 'beta', 'gamma', 'alpha-clone'];
 
 // Canvas geometry (Claude's discretion per CONTEXT). viewBox 0 0 800 480.
 // Operator anchored at (400, 60); runtimes spread along y=380. Soft cubic
@@ -30,7 +30,7 @@ const PATHS: Record<string, string> = {
   'operator-alpha': 'M 400 60 Q 200 240 120 380',
   'operator-beta': 'M 400 60 Q 360 240 320 380',
   'operator-gamma': 'M 400 60 Q 480 240 520 380',
-  'operator-gamma-clone': 'M 400 60 Q 700 240 720 380',
+  'operator-alpha-clone': 'M 400 60 Q 700 240 720 380',
 };
 
 export function Canvas(): JSX.Element {
@@ -97,7 +97,7 @@ export function Canvas(): JSX.Element {
       </div>
       {allRegistered && (
         <div className="demo-canvas-idle">
-          Standing by: alpha, beta, and gamma are legitimate runtimes; gamma-clone is staged as the
+          Standing by: alpha, beta, and gamma are legitimate runtimes; alpha-clone is staged as the
           rejected edge case.
         </div>
       )}

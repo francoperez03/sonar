@@ -20,7 +20,7 @@ describe("store.fanout", () => {
       "alpha",
       "beta",
       "gamma",
-      "gamma-clone",
+      "alpha-clone",
     ]);
     expect(snap.chats).toEqual([]);
     expect(snap.events).toEqual([]);

@@ -26,13 +26,13 @@ describe("RuntimeNode", () => {
     expect(screen.getByText("ALPHA")).toBeInTheDocument();
   });
 
-  it("renders BETA, GAMMA, GAMMA-CLONE in uppercase", () => {
+  it("renders BETA, GAMMA, ALPHA-CLONE in uppercase", () => {
     const { rerender } = render(<RuntimeNode runtime={rv({ id: "beta" })} />);
     expect(screen.getByText("BETA")).toBeInTheDocument();
     rerender(<RuntimeNode runtime={rv({ id: "gamma" })} />);
     expect(screen.getByText("GAMMA")).toBeInTheDocument();
-    rerender(<RuntimeNode runtime={rv({ id: "gamma-clone" })} />);
-    expect(screen.getByText("GAMMA-CLONE")).toBeInTheDocument();
+    rerender(<RuntimeNode runtime={rv({ id: "alpha-clone" })} />);
+    expect(screen.getByText("ALPHA-CLONE")).toBeInTheDocument();
   });
 
   it("renders the StatusPill with the current status text", () => {
@@ -53,16 +53,16 @@ describe("RuntimeNode", () => {
     expect(strip.textContent).toBe("—");
   });
 
-  it("gamma-clone with status='clone-rejected' has clone-rejected class on node", () => {
+  it("alpha-clone with status='clone-rejected' has clone-rejected class on node", () => {
     const { container } = render(
-      <RuntimeNode runtime={rv({ id: "gamma-clone", status: "clone-rejected" })} />,
+      <RuntimeNode runtime={rv({ id: "alpha-clone", status: "clone-rejected" })} />,
     );
     const node = container.querySelector(".runtime-node--clone-rejected");
     expect(node).not.toBeNull();
   });
 
-  it("gamma-clone has the ghost class at idle (status=registered)", () => {
-    const { container } = render(<RuntimeNode runtime={rv({ id: "gamma-clone" })} />);
+  it("alpha-clone has the ghost class at idle (status=registered)", () => {
+    const { container } = render(<RuntimeNode runtime={rv({ id: "alpha-clone" })} />);
     expect(container.querySelector(".runtime-node--ghost")).not.toBeNull();
   });
 });

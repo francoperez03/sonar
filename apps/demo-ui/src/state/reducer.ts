@@ -8,9 +8,9 @@ export type RuntimeStatus =
   | "revoked"
   | "clone-rejected";
 
-export type RuntimeId = "alpha" | "beta" | "gamma" | "gamma-clone";
+export type RuntimeId = "alpha" | "beta" | "gamma" | "alpha-clone";
 
-const RUNTIME_IDS: readonly RuntimeId[] = ["alpha", "beta", "gamma", "gamma-clone"];
+const RUNTIME_IDS: readonly RuntimeId[] = ["alpha", "beta", "gamma", "alpha-clone"];
 
 export interface RuntimeView {
   id: RuntimeId;
@@ -128,7 +128,7 @@ export const initialState: DemoState = {
     alpha: emptyRuntime("alpha"),
     beta: emptyRuntime("beta"),
     gamma: emptyRuntime("gamma"),
-    "gamma-clone": emptyRuntime("gamma-clone"),
+    "alpha-clone": emptyRuntime("alpha-clone"),
   },
   chats: [],
   events: [],
@@ -235,33 +235,19 @@ export function reduce(state: DemoState, msg: Message): DemoState {
         events: appendCapped(state.events, row, MAX_EVENTS),
       };
 
-      // UI-side derivation A7 — "Clone rejected: ..." flips gamma-clone status.
+      // UI-side derivation A7 — "Clone rejected: ..." flips alpha-clone status.
       if (CLONE_REJECTED_RE.test(msg.message)) {
-        const clone = next.runtimes["gamma-clone"];
+        const clone = next.runtimes["alpha-clone"];
         if (clone.status !== "clone-rejected") {
           next = {
             ...next,
             runtimes: {
               ...next.runtimes,
-              "gamma-clone": {
+              "alpha-clone": {
                 ...clone,
                 status: "clone-rejected",
                 lastEventAt: msg.timestamp,
               },
-            },
-          };
-        }
-        // Phase 7 ghost overlay: stamp the *attacked* runtime so its card
-        // can render the translucent "clone trying to land" silhouette
-        // alongside it (gamma-clone gets the destructive flash; this is a
-        // separate pointer for the legitimate runtime that was targeted).
-        if (isRuntimeId(msg.runtimeId) && msg.runtimeId !== "gamma-clone") {
-          const target = next.runtimes[msg.runtimeId];
-          next = {
-            ...next,
-            runtimes: {
-              ...next.runtimes,
-              [msg.runtimeId]: { ...target, attackedAt: msg.timestamp },
             },
           };
         }
