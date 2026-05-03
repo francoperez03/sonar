@@ -1,213 +1,213 @@
-# Sonar — Demo Script (live, ~3 min)
+# Sonar — Live Demo Script (~3 min)
 
 ## Context
 
-Demo en vivo end-to-end para ETHGlobal OpenAgents: arrancamos en la landing, mostramos el problema/approach, clickeamos para entrar a la demo app, ejercitamos las 4 acciones del agente (list / rotate / clone-attack / reset), y abrimos KeeperHub en paralelo para evidenciar el workflow on-chain. El objetivo es que el evaluador vea (a) la narrativa del producto, (b) el sistema reaccionando en vivo, y (c) las pruebas verificables (chain + dashboard de KH).
+Live end-to-end demo for ETHGlobal OpenAgents: start on the landing page, walk through the problem/approach, click into the demo app, exercise the four agent actions (list / rotate / clone-attack / reset), and keep KeeperHub open in parallel to prove the on-chain workflow. Goal: the judge sees (a) the product narrative, (b) the system reacting in real time, and (c) verifiable evidence (chain + KH dashboard).
 
 ---
 
-## 0. Pre-flight — antes de salir al aire
+## 0. Pre-flight — before going live
 
-### 0.1 Terminales (orden importa)
+### 0.1 Terminals (order matters)
 
 ```bash
-# Terminal 1 — operator (puerto 8787)
+# Terminal 1 — operator (port 8787)
 pnpm --filter @sonar/operator dev
 
-# Terminal 2 — runtime alpha (necesario para rotation real)
+# Terminal 2 — alpha runtime (required for a real rotation)
 RUNTIME_ID=alpha pnpm --filter @sonar/runtime dev
 
-# Terminal 3 — keeperhub poller (puerto 8788, broadcastea on-chain events al operator)
+# Terminal 3 — keeperhub poller (port 8788, broadcasts on-chain events to the operator)
 pnpm --filter @sonar/keeperhub dev
 
-# Terminal 4 — ngrok hacia operator
+# Terminal 4 — ngrok pointing at the operator
 ngrok http --url=christian-actinographic-impliedly.ngrok-free.dev 8787
-# Verificá que la URL coincide con la del workflow.json:
+# Confirm the URL matches the workflow.json endpoints:
 #   apps/keeperhub/workflow.json → endpoints
 
-# Terminal 5 — opcional, AXL p2p (si vas a mostrar el toggle)
+# Terminal 5 — optional, AXL p2p (only if you want to demo the toggle)
 ./infra/axl/start-a.sh   # node A (api 9001, tls 9101)
-./infra/axl/start-b.sh   # node B (api 9002, peerea con A)
+./infra/axl/start-b.sh   # node B (api 9002, peers with A)
 B_PUB=$(curl -s http://127.0.0.1:9002/topology | python3 -c "import json,sys; print(json.load(sys.stdin)['our_public_key'])")
 AXL_DEST_PEER_ID="$B_PUB" node scripts/axl-bridge.mjs
 ```
 
-### 0.2 Verificación rápida (60 segundos antes de empezar)
+### 0.2 Quick health check (60 seconds before going live)
 
 ```bash
 curl -sS -o /dev/null -w "ngrok: %{http_code}\n" \
   https://christian-actinographic-impliedly.ngrok-free.dev/runtimes \
   -H "ngrok-skip-browser-warning: 1"
-# esperado: 200
+# expected: 200
 ```
 
-Abrí `https://sonar-demo-ui.vercel.app/`. Tiene que mostrar:
+Open `https://sonar-demo-ui.vercel.app/`. You should see:
 - Topbar: `● LIVE  christian-actinographic-…/logs  VIA WS  · last event Xs ago`
-- Topbar derecha: `● READY` y `FLEET REGISTRY 0x7edd…b31f`
-- Canvas: ALPHA registered con balance, BETA/GAMMA en cualquier estado, GAMMA-CLONE ghost
-- Sidebar OPERATOR STREAM: eventos recientes
-- Si BETA o GAMMA están `revoked`, **tirá Reset demo desde el chat antes de empezar**.
+- Topbar right: `● READY` and `FLEET REGISTRY 0x7edd…b31f`
+- Canvas: ALPHA registered with a balance, BETA/GAMMA in any state, GAMMA-CLONE as a ghost
+- Sidebar OPERATOR STREAM: recent events
+- If BETA or GAMMA show `revoked`, **fire "Reset demo" from the chat before you start**.
 
-### 0.3 Tabs del browser (en este orden)
+### 0.3 Browser tabs (in this order)
 
-| Tab | URL | Para qué |
+| Tab | URL | Purpose |
 |---|---|---|
-| 1 | `https://sonar-demo-ui.vercel.app/` (es el deploy de la landing — DemoCtaSection lo expone como "Open the live demo") — **ojo: la landing es otra URL si tenés el split** | Inicio del demo |
-| 2 | `https://sonar-demo-ui.vercel.app/` | App live |
-| 3 | `https://app.keeperhub.com/workflows/zu25iauu5jkv2bw9xngnl` | Dashboard del workflow KH |
+| 1 | Landing page (the deploy that hosts Hero + DemoCtaSection — "Open the live demo" CTA) | Demo opener |
+| 2 | `https://sonar-demo-ui.vercel.app/` | Live app |
+| 3 | `https://app.keeperhub.com/workflows/zu25iauu5jkv2bw9xngnl` | KeeperHub workflow dashboard |
 | 4 | `https://sepolia.basescan.org/address/0x7eddfc8953a529ce7ffb35de2030f73aad89b31f` | FleetRegistry contract |
 
 ---
 
-## 1. Apertura — landing (~30 s)
+## 1. Opening — landing (~30 s)
 
-**Tab 1 (landing).** Mostrá hero arriba sin scrollear.
+**Tab 1 (landing).** Show the hero, no scroll yet.
 
-> "Sonar es un sistema para rotar credenciales sin que el LLM jamás vea una sola privkey. La promesa la pueden leer arriba: **Rotate keys without trusting the agent**."
+> "Sonar is a system to rotate credentials without ever showing the LLM a single private key. The promise is right there at the top: **Rotate keys without trusting the agent**."
 
-Scroll lento hasta `01 / PROBLEM`.
+Slowly scroll to `01 / PROBLEM`.
 
-> "El problema. Hoy un agente con secretos en contexto es un riesgo: una línea de log envenenada y la key se va. **OWASP LLM06**. Sonar nunca le muestra una key al LLM."
+> "The problem. Today an agent holding secrets in its context is a liability — one poisoned log line and the key walks. **OWASP LLM06**. Sonar never shows the LLM a key."
 
-Scroll a `02 / APPROACH`.
+Scroll to `02 / APPROACH`.
 
-> "Approach. El LLM orquesta toda la rotación: generar wallets, fondearlas, distribuir, y deprecar las viejas on-chain. Pero cada runtime tiene que firmar un challenge antes de recibir nada. Sin firma válida, no hay key. Los clones no pasan."
+> "The approach. The LLM orchestrates the full rotation — generate wallets, fund them, distribute, and deprecate the old ones on-chain — but every runtime has to sign a challenge before receiving anything. No valid signature, no key. Clones don't pass."
 
-Scroll a `03 / SEE IT RUN`. Click en **"Open the live demo"**.
-
----
-
-## 2. Primer vistazo a la demo (~20 s)
-
-**Tab 2 (demo app).** Pausa. Guiá la mirada por el topbar primero.
-
-> "Arriba: a la izquierda el badge me dice que estoy en vivo, conectado al operator vía WebSocket. Puedo cambiar el transport a AXL p2p con un click — ya vamos a probarlo. A la derecha: rotation status, y el contrato de FleetRegistry en Base Sepolia, que es donde se deprecan las wallets viejas."
-
-Hacé click en el chip `0x7edd…b31f` (abre nueva tab).
-
-> "Ahí lo tienen, en basescan."
-
-Volvé a la tab del demo.
-
-> "El canvas: tres runtimes legítimos — alpha, beta, gamma — y un cuarto, gamma-clone, mostrado en sombra. Es la silueta del 'atacante' que vamos a probar. Cada card muestra status, address EVM y balance en vivo."
+Scroll to `03 / SEE IT RUN`. Click **"Open the live demo"**.
 
 ---
 
-## 3. Beat 1 — listar (~15 s)
+## 2. First look at the app (~20 s)
 
-En el chat input, click en el chip **"List runtimes"**.
+**Tab 2 (demo app).** Pause. Walk the eye through the topbar first.
 
-> "Le pido al agente que liste el fleet."
+> "Up top: on the left, the badge tells me I'm live, connected to the operator over WebSocket. I can swap the transport to AXL p2p with one click — we'll get there. On the right: rotation status, and the FleetRegistry contract on Base Sepolia, where the old wallets get deprecated."
 
-El stream SSE muestra tokens en tiempo real. Esperar el bubble del assistant.
+Click the `0x7edd…b31f` chip (opens a new tab).
 
-> "Tres runtimes. Alpha registered. Beta y gamma con estado revoked de demos previas — ya vamos a resetear. La info viene del operator, **el LLM nunca tocó una privkey** en este pedido."
+> "There it is, on basescan."
 
----
+Back to the demo tab.
 
-## 4. Beat 2 — rotar alpha (~40 s)
-
-**Click en el chip "Rotate alpha".**
-
-> "Acá viene lo bueno. Le digo: **rota las claves de alpha**. Esto dispara un workflow en KeeperHub."
-
-Inmediatamente saltá a **Tab 3 (KeeperHub dashboard)**.
-
-> "Mirá: KeeperHub recibió el trigger, está corriendo los nodos del workflow. Generó cuatro nuevas EOAs, las está fondeando con un faucet de Base Sepolia, y ahora va a distribuirlas a los runtimes."
-
-Volvé a **Tab 2 (demo app)** mientras KH trabaja (~10-30 s).
-
-> "En la canvas: alpha pasa de **registered** a **awaiting**. Ven la línea cyan punteada del operator a alpha — es el data packet viajando por el handshake. Alpha firma el challenge con su privkey ed25519, valida identidad, y recibe la nueva wallet EVM."
-
-Esperar a que alpha llegue a `received`. Después scroll del MiniTimeline al pie del canvas:
-
-> "Toda esta secuencia queda en el OPERATOR STREAM y en el mini timeline acá abajo: chips por evento. La nueva address aparece en la card de alpha, y abajo en el ROTATION STATUS del topbar tienen el tx hash de la deprecation con link directo a basescan."
-
-Click en el tx hash chip si está visible → abre BaseScan en nueva tab.
-
-> "Ahí está, on-chain: `WalletsDeprecated` emitida por el FleetRegistry. La rotación cerró. La privkey vieja queda invalidada en el contrato; la nueva nunca pasó por el LLM."
+> "The canvas: three legitimate runtimes — alpha, beta, gamma — and a fourth, gamma-clone, shown in shadow. That's the silhouette of the 'attacker' we're going to test. Each card shows status, EVM address, and a live balance."
 
 ---
 
-## 5. Beat 3 — simular clone attack (~30 s)
+## 3. Beat 1 — list (~15 s)
 
-Volvé a la tab del demo. **Click en el chip "Simulate clone attack"**.
+In the chat input, click the **"List runtimes"** chip.
 
-> "Ahora el escenario que justifica todo el sistema: **un atacante con el binario del runtime alpha pero sin la identidad criptográfica**. Le pido al agente que simule el ataque."
+> "I ask the agent to list the fleet."
 
-El operator abre una WS real desde sí mismo, como un fake clone con una pubkey ed25519 random. Mirar la canvas:
+The SSE stream paints tokens in real time. Wait for the assistant bubble.
 
-> "Ven dos cosas: el card de **GAMMA-CLONE** flashea en rojo destructivo — es el ghost que representa 'cualquier intento de clone' en este demo. Y al lado de **alpha** aparece una silueta translúcida con una X — ese es el atacante real, el que el operator detectó y rechazó. Cierre del socket con código `4403 pubkey_mismatch`."
-
-Punto al OPERATOR STREAM en la sidebar:
-
-> "El log lo cuenta: `Clone rejected: alpha presented foreign pubkey; handshake denied`. La protección no es decorativa: el operator chequea la pubkey contra la registrada, y si no coincide, no hay handshake. **Sin firma válida, no hay key**, como decía la landing."
+> "Three runtimes. Alpha registered. Beta and gamma carrying revoked status from earlier runs — we'll reset them. The data comes from the operator; **the LLM never touched a private key** in this request."
 
 ---
 
-## 6. Beat 4 — toggle WS ↔ AXL (~20 s, opcional)
+## 4. Beat 2 — rotate alpha (~40 s)
 
-Solo si tenés AXL nodes + bridge corriendo.
+**Click the "Rotate alpha" chip.**
 
-**Click en el toggle "AXL"** del topbar.
+> "Here's the meat. I tell it: **rotate alpha's keys**. This fires a workflow on KeeperHub."
 
-> "Demostración rápida: el transport. Hasta ahora veníamos del WebSocket centralizado del operator. Click en AXL: ahora el browser polea una mesh peer-to-peer construida sobre **gensyn-ai/axl**. Mismo bus de eventos, transport descentralizado."
+Immediately jump to **Tab 3 (KeeperHub dashboard)**.
 
-El badge debe pasar a `VIA AXL` con accent cyan, y `last event` arrancar a tickear de nuevo.
+> "Look: KeeperHub picked up the trigger and is running the workflow nodes. It generated fresh EOAs, it's funding them with a Base Sepolia faucet, and it's about to distribute them to the runtimes."
 
-> "El contrato `ITransport` lo permite: cualquier consumidor que respete la interfaz puede enchufarse. Esto es lo que hace al sistema portable a redes p2p de verdad."
+Back to **Tab 2 (demo app)** while KH does its thing (~10–30 s).
 
-Click de vuelta a `WS` (la animación cinematográfica del EdgePulse se ve mejor en WS por latencia).
+> "On the canvas: alpha goes from **registered** to **awaiting**. See the cyan dashed line from operator to alpha — that's the data packet riding the handshake. Alpha signs the challenge with its ed25519 private key, identity validates, and it receives the new EVM wallet."
 
----
+Wait until alpha hits `received`. Then point at the MiniTimeline at the bottom of the canvas:
 
-## 7. Beat 5 — interacción directa en card (~15 s)
+> "The whole sequence lands in the OPERATOR STREAM and in the mini timeline down here as event chips. The new address shows up on alpha's card, and up in the topbar's ROTATION STATUS you have the deprecation tx hash with a direct basescan link."
 
-> "Y para el evaluador que prefiere clickear sin tipear: cada card es interactiva."
+Click the tx hash chip if it's visible → opens BaseScan in a new tab.
 
-**Click en la card de ALPHA** → aparece el menú flotante.
-
-> "Action menu: rotate, inspect, simulate attack, revoke. Cada item dispara el agente con el prompt apropiado. Cero tipeo, mismo path end-to-end."
-
-Click fuera para cerrar, o ESC.
+> "There it is, on-chain: `WalletsDeprecated`, emitted by the FleetRegistry. The rotation closed. The old private key is invalidated in the contract; the new one never went through the LLM."
 
 ---
 
-## 8. Cierre + reset (~10 s)
+## 5. Beat 3 — simulate a clone attack (~30 s)
 
-**Click en "Reset demo"**.
+Back to the demo tab. **Click the "Simulate clone attack" chip.**
 
-> "Reset deja todo limpio para la próxima corrida — los runtimes vuelven a `registered`, la mini timeline se limpia, las wallets se desasignan. El operator no necesita reiniciarse."
+> "Now the scenario that justifies the whole system: **an attacker holding alpha's binary but not its cryptographic identity**. I ask the agent to simulate the attack."
 
-Volver a la **tab de la landing** (Tab 1) por simetría.
+The operator opens a real WebSocket against itself, posing as a fake clone with a random ed25519 pubkey. Watch the canvas:
 
-> "Eso es Sonar: el LLM ve el sistema, mueve las piezas, pero nunca toca una key. **Identity-checked rotation. End-to-end on Base Sepolia. Built in 5 días.**"
+> "Two things happen. The **GAMMA-CLONE** card flashes destructive red — that's the ghost that represents 'any clone attempt' in this demo. And right next to **alpha**, a translucent silhouette with an X appears — that's the actual attacker the operator detected and rejected. Socket closed with code `4403 pubkey_mismatch`."
 
-Fin.
+Point to the OPERATOR STREAM in the sidebar:
+
+> "The log spells it out: `Clone rejected: alpha presented foreign pubkey; handshake denied`. The defense isn't decorative — the operator checks the presented pubkey against the registered one, and if it doesn't match, no handshake. **No valid signature, no key**, just like the landing said."
 
 ---
 
-## 9. Plan de recuperación — si algo se rompe en vivo
+## 6. Beat 4 — toggle WS ↔ AXL (~20 s, optional)
 
-| Síntoma | Acción inmediata |
+Only if you have AXL nodes + bridge running.
+
+**Click the "AXL" toggle** in the topbar.
+
+> "Quick demo: the transport. Until now we were on the operator's centralized WebSocket. Click AXL: now the browser is polling a peer-to-peer mesh built on **gensyn-ai/axl**. Same event bus, decentralized transport."
+
+The badge should flip to `VIA AXL` in cyan, and `last event` starts ticking again.
+
+> "The `ITransport` contract makes this possible: any consumer that respects the interface can plug in. This is what makes the system portable to real p2p networks."
+
+Click back to `WS` (the EdgePulse animation reads better on WS thanks to lower latency).
+
+---
+
+## 7. Beat 5 — direct interaction on a card (~15 s)
+
+> "And for the judge who'd rather click than type: every card is interactive."
+
+**Click the ALPHA card** → the floating menu appears.
+
+> "Action menu: rotate, inspect, simulate attack, revoke. Each item fires the agent with the right prompt. Zero typing, same end-to-end path."
+
+Click outside, or hit ESC, to close.
+
+---
+
+## 8. Close + reset (~10 s)
+
+**Click "Reset demo".**
+
+> "Reset wipes everything for the next run — runtimes back to `registered`, mini timeline cleared, wallets unassigned. The operator doesn't need to restart."
+
+Switch back to the **landing tab** (Tab 1) for symmetry.
+
+> "That's Sonar. The LLM sees the system, moves the pieces, but never touches a key. **Identity-checked rotation. End-to-end on Base Sepolia. Built in 5 days.**"
+
+Done.
+
+---
+
+## 9. Recovery plan — when something breaks live
+
+| Symptom | Immediate action |
 |---|---|
-| Badge muestra `OFFLINE` | Verificar que ngrok sigue arriba (`curl -sS -o /dev/null -w "%{http_code}" https://...trycloudflare.com/runtimes`). Si cayó, reiniciar tunnel; el badge reconecta solo en <30s. |
-| `Rotate alpha` se queda en `awaiting` >60s | Significa que el runtime alpha no está corriendo o no ackea. Tirar otra rotation contra **beta** o **gamma** mientras se diagnostica. Como last resort: `Reset demo` y arrancar de cero. |
-| `Simulate clone attack` no flashea | El operator no está al día con el código nuevo (commit `cf39652+`). En el terminal del operator: ver que el log diga `operator_listening port=8787`. Si no, restart. |
-| KeeperHub workflow falla con 5xx | Verificar `apps/keeperhub/workflow.json` apunta al ngrok URL actual. Si cambió, `pnpm --filter @sonar/keeperhub publish:workflow`. |
-| El stream de tokens del agente se cuelga | Probable hit de rate limit de Anthropic Haiku. Esperar 5s y retry. |
-| AXL toggle muestra `OFFLINE` al cambiar | El bridge `scripts/axl-bridge.mjs` se cayó. En el terminal del bridge ver el último log; restart. |
+| Badge shows `OFFLINE` | Verify ngrok is still up (`curl -sS -o /dev/null -w "%{http_code}" https://...ngrok-free.dev/runtimes -H "ngrok-skip-browser-warning: 1"`). If it's dead, restart the tunnel; the badge reconnects on its own in <30s. |
+| `Rotate alpha` stuck at `awaiting` >60s | Means the alpha runtime isn't running or isn't acking. Fire another rotation against **beta** or **gamma** while you diagnose. Last resort: `Reset demo` and start fresh. |
+| `Simulate clone attack` doesn't flash | The operator isn't on the latest code (commit `cf39652+`). In the operator terminal: confirm it logs `operator_listening port=8787`. If not, restart. |
+| KeeperHub workflow returns 5xx | Check that `apps/keeperhub/workflow.json` points at the current ngrok URL. If it changed, run `pnpm --filter @sonar/keeperhub publish:workflow`. |
+| Agent token stream hangs | Likely an Anthropic Haiku rate-limit hit. Wait 5s and retry. |
+| AXL toggle shows `OFFLINE` after switching | The `scripts/axl-bridge.mjs` bridge crashed. Check the bridge terminal's last log; restart. |
 
-**Regla de oro:** si un beat se rompe, **continúa narrando el siguiente**. El stack es resiliente: la siguiente rotación reseguramente funciona aunque la anterior haya fallado.
+**Golden rule:** if a beat breaks, **keep narrating the next one**. The stack is resilient — the next rotation almost certainly works even if the previous one didn't.
 
 ---
 
-## 10. Post-demo (opcional, para Q&A)
+## 10. Post-demo (Q&A prep)
 
-Bullets para tener listos en caso de preguntas:
+Bullets to keep ready in case of questions:
 
-- **¿Por qué el LLM no ve las privkeys?** Por construcción: las privkeys viven en el `PrivkeyVault` en memoria del operator (TTL 10min), nunca llegan al MCP, nunca aparecen en el SSE del agente, nunca quedan en el LogBus. La función `toJSON()` del vault tira excepción para que ningún `JSON.stringify` accidental las filtre.
-- **¿Y si se cae el operator mid-rotation?** El TTL del vault evicta a los 10min. La rotation queda incompleta on-chain (las nuevas wallets minted, las viejas no deprecadas). KeeperHub re-tira el workflow al detectar que el `/rotation/distribute` no devolvió 200.
-- **¿Por qué AXL?** Para no tener un único WS centralizado entre operator y consumidores. La interfaz `ITransport` permite swap; AXL es la implementación p2p de referencia. WebSocket sigue siendo el default por latencia (250ms vs sub-ms).
-- **¿Y la wallet del operator?** El operator no firma transacciones on-chain; KeeperHub lo hace. El operator solo orquesta. La address que aparece en `FLEET REGISTRY` chip es del contrato, no de un EOA.
-- **Coverage de tests.** 259/259 verde across shared/keeperhub/demo-ui/runtime/mcp/operator. Los 6 tools del agente cubiertos por tests unitarios + smoke E2E con Playwright.
+- **Why doesn't the LLM see the private keys?** By construction. Privkeys live in the operator's in-memory `PrivkeyVault` (10-min TTL), they never reach the MCP, they never appear in the agent's SSE stream, they never land in the LogBus. The vault's `toJSON()` throws so any accidental `JSON.stringify` blows up loud.
+- **What happens if the operator crashes mid-rotation?** The vault TTL evicts after 10 min. The rotation lands incomplete on-chain (new wallets minted, old ones not yet deprecated). KeeperHub re-fires the workflow when `/rotation/distribute` doesn't return 200.
+- **Why AXL?** So we don't have a single centralized WebSocket between the operator and consumers. The `ITransport` interface allows swapping; AXL is the reference p2p implementation. WebSocket stays the default for latency reasons (250 ms vs sub-ms).
+- **What about the operator's wallet?** The operator doesn't sign on-chain transactions; KeeperHub does. The operator only orchestrates. The address shown in the `FLEET REGISTRY` chip is the contract, not an EOA.
+- **Test coverage.** 259/259 green across shared / keeperhub / demo-ui / runtime / mcp / operator. The agent's 6 tools have unit tests plus end-to-end Playwright smokes.
