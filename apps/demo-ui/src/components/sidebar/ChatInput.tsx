@@ -6,8 +6,8 @@ const PLACEHOLDER = 'Ask Sonar to inspect or rotate runtime keys';
 
 const SUGGESTIONS: ReadonlyArray<{ label: string; prompt: string }> = [
   { label: 'List runtimes', prompt: 'list runtimes' },
-  { label: 'Rotate alpha', prompt: 'rota las claves de alpha' },
-  { label: 'Simulate clone attack', prompt: 'simula un clone attack contra alpha' },
+  { label: 'Rotate alpha', prompt: 'rotate the keys for alpha' },
+  { label: 'Simulate clone attack', prompt: 'simulate a clone attack against alpha' },
   { label: 'Reset demo', prompt: 'reset the demo' },
 ];
 

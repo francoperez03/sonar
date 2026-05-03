@@ -18,10 +18,10 @@ interface Action {
 }
 
 const ACTIONS: ReadonlyArray<Action> = [
-  { label: "Rotate keys", prompt: (id) => `rota las claves de ${id}` },
-  { label: "Inspect events", prompt: (id) => `trae los ultimos 5 eventos del log de ${id}` },
-  { label: "Simulate clone attack", prompt: (id) => `simula un clone attack contra ${id}` },
-  { label: "Revoke runtime", prompt: (id) => `revocá el runtime ${id}`, variant: "destructive" },
+  { label: "Rotate keys", prompt: (id) => `rotate the keys for ${id}` },
+  { label: "Inspect events", prompt: (id) => `fetch the last 5 log events for ${id}` },
+  { label: "Simulate clone attack", prompt: (id) => `simulate a clone attack against ${id}` },
+  { label: "Revoke runtime", prompt: (id) => `revoke the runtime ${id}`, variant: "destructive" },
 ];
 
 export function RuntimeActions({
