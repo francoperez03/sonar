@@ -82,8 +82,14 @@ export class HandshakeCoordinator {
 
   /**
    * Handle an inbound RegisterMsg. Enforces single-active-session (D-07) and revoked check.
+   *
+   * Async because pubkey-mismatch is gated on an *active* probe of the
+   * existing socket (see probeSocketAlive). Without this, a runtime that
+   * restarts faster than its prior WS close event propagates would race
+   * itself and produce a phantom "Clone rejected:" log — confusing both the
+   * UI and the operator.
    */
-  onRegister(ws: WebSocket, msg: RegisterMsg): void {
+  async onRegister(ws: WebSocket, msg: RegisterMsg): Promise<void> {
     const record = this.registry.get(msg.runtimeId);
     if (record?.status === 'revoked') {
       this.logBus.logEntry(msg.runtimeId, 'warn', 'register_rejected_revoked');
@@ -91,29 +97,50 @@ export class HandshakeCoordinator {
       return;
     }
     const existing = this.sessions.get(msg.runtimeId);
-    const sessionAlive = existing && existing !== ws && existing.readyState === 1 /* OPEN */;
-    // Phase 7: clone-rejection. Fire ONLY when a legitimate session is
-    // currently held — that's the meaningful clone scenario (an attacker
-    // trying to suplant a runtime that's right now connected). When no
-    // session is alive we still allow the upsert so that a legitimate
-    // restart of the runtime (which generates a fresh in-memory keypair
-    // on each boot) can rotate its identity without being mistaken for an
-    // attack. The signature gate at handshake time enforces identity for
-    // any subsequent rotation.
-    if (record && record.pubkey !== msg.pubkey && sessionAlive) {
-      this.logCloneRejection(
-        msg.runtimeId,
-        'pubkey',
-        `Clone rejected: ${msg.runtimeId} presented foreign pubkey; handshake denied.`,
-      );
-      ws.close(4403, 'pubkey_mismatch');
-      return;
+    const passivelyAlive =
+      !!existing && existing !== ws && existing.readyState === 1 /* OPEN */;
+
+    // If we appear to have a live prior session AND the incoming pubkey
+    // doesn't match, we MIGHT be looking at a clone attempt — but we might
+    // also be looking at a legitimate process restart whose old WS just
+    // hasn't FIN'd yet. Probe with a short ping/pong before firing the
+    // clone-rejection, so a hot-reload doesn't trip the alarm.
+    if (record && record.pubkey !== msg.pubkey && passivelyAlive) {
+      const stillAlive = await probeSocketAlive(existing!, 600);
+      if (stillAlive) {
+        this.logCloneRejection(
+          msg.runtimeId,
+          'pubkey',
+          `Clone rejected: ${msg.runtimeId} presented foreign pubkey; handshake denied.`,
+        );
+        ws.close(4403, 'pubkey_mismatch');
+        return;
+      }
+      // Zombie — drop it and let the legitimate re-register proceed.
+      try {
+        existing!.terminate();
+      } catch {
+        // best-effort
+      }
+      this.sessions.unbind(msg.runtimeId, existing!);
+    } else if (passivelyAlive) {
+      // Same pubkey + apparent live session: same race as above (pubkey
+      // matches because the runtime kept its identity across restart, or
+      // a duplicate dial happened). Probe once to disambiguate.
+      const stillAlive = await probeSocketAlive(existing!, 600);
+      if (stillAlive) {
+        this.logBus.logEntry(msg.runtimeId, 'warn', 'duplicate_session_rejected');
+        ws.close(4409, 'duplicate_session');
+        return;
+      }
+      try {
+        existing!.terminate();
+      } catch {
+        // best-effort
+      }
+      this.sessions.unbind(msg.runtimeId, existing!);
     }
-    if (sessionAlive) {
-      this.logBus.logEntry(msg.runtimeId, 'warn', 'duplicate_session_rejected');
-      ws.close(4409, 'duplicate_session');
-      return;
-    }
+
     this.sessions.bind(msg.runtimeId, ws);
     void this.registry.upsert({
       ...record,
@@ -293,4 +320,41 @@ export class HandshakeCoordinator {
     this.logBus.logEntry(runtimeId, 'warn', `revoked: ${reason}`);
     this.logBus.statusChange(runtimeId, 'revoked');
   }
+}
+
+/**
+ * Send a WS ping and resolve true if a pong arrives within `timeoutMs`,
+ * false otherwise (or if the socket is no longer in OPEN state). Used to
+ * disambiguate "session truly alive" from "session is a zombie whose
+ * close hasn't propagated yet" — a common race during hot-reload of
+ * the runtime process. The 20s background heartbeat in mountRuntimeSocket
+ * handles the steady-state case; this is the on-demand probe.
+ */
+function probeSocketAlive(ws: WebSocket, timeoutMs: number): Promise<boolean> {
+  if (ws.readyState !== 1 /* OPEN */) return Promise.resolve(false);
+  return new Promise<boolean>((resolve) => {
+    let settled = false;
+    const onPong = (): void => {
+      if (settled) return;
+      settled = true;
+      ws.off('pong', onPong);
+      resolve(true);
+    };
+    ws.on('pong', onPong);
+    try {
+      ws.ping();
+    } catch {
+      settled = true;
+      ws.off('pong', onPong);
+      resolve(false);
+      return;
+    }
+    const t = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      ws.off('pong', onPong);
+      resolve(false);
+    }, timeoutMs);
+    if (typeof t.unref === 'function') t.unref();
+  });
 }

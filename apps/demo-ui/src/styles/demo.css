@@ -1026,20 +1026,34 @@ textarea {
   content: '';
   position: absolute;
   inset: 0;
+  /* Neutral hatch at idle: communicates "ghost / not yet a real runtime"
+   * without the red coloration that read as "rejected" before the attack
+   * even ran. The red hatch is reapplied only on .runtime-node--clone-rejected. */
   background: repeating-linear-gradient(
     -45deg,
     transparent 0,
     transparent 10px,
-    rgba(224, 122, 122, 0.055) 10px,
-    rgba(224, 122, 122, 0.055) 11px
+    rgba(255, 255, 255, 0.04) 10px,
+    rgba(255, 255, 255, 0.04) 11px
   );
   pointer-events: none;
+  transition: background 240ms ease;
 }
 
 .runtime-node--ghost.runtime-node--clone-rejected {
   opacity: 1;
   filter: none;
   animation: clone-flash 0.6s ease-in-out 3;
+}
+
+.runtime-node--ghost.runtime-node--clone-rejected::before {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 10px,
+    rgba(224, 122, 122, 0.12) 10px,
+    rgba(224, 122, 122, 0.12) 11px
+  );
 }
 
 .status-pill {

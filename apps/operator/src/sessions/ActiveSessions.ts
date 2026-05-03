@@ -14,6 +14,12 @@ export class ActiveSessions {
     });
   }
 
+  /** Drop the binding for a runtimeId only if the currently bound socket
+   * matches `ws` (avoids racing with a new bind that already replaced it). */
+  unbind(runtimeId: string, ws: WebSocket): void {
+    if (this.map.get(runtimeId) === ws) this.map.delete(runtimeId);
+  }
+
   get(runtimeId: string): WebSocket | undefined {
     return this.map.get(runtimeId);
   }
