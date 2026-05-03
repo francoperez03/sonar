@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useRuntimes } from '../../state/hooks.js';
+import {
+  useRuntimes,
+  useAgentBusy,
+  useLastDeprecation,
+} from '../../state/hooks.js';
 import type { RuntimeId } from '../../state/reducer.js';
 import { RuntimeNode } from './RuntimeNode.js';
 import { ServiceNode } from './ServiceNode.js';
@@ -57,6 +61,39 @@ export function Canvas(): JSX.Element {
     ts != null && now - ts < windowMs;
   const operatorActive = RUNTIME_ORDER.some((rid) => recent(runtimes[rid].lastEventAt, 2500));
 
+  // Sequence-step state (the four chips next to OPERATOR). Each chip is
+  // "active" when the corresponding stage of a rotation just happened, so
+  // viewers can read where in the flow we are at any instant.
+  const agentBusy = useAgentBusy();
+  const lastDeprecation = useLastDeprecation();
+  const anyAwaiting = RUNTIME_ORDER.some(
+    (rid) => runtimes[rid].status === 'awaiting' && recent(runtimes[rid].lastEventAt, 3000),
+  );
+  const anyReceivedRecent = RUNTIME_ORDER.some(
+    (rid) => runtimes[rid].status === 'received' && recent(runtimes[rid].lastEventAt, 3000),
+  );
+  const sequence: ReadonlyArray<{ id: string; label: string; active: boolean; idleHint: string }> = [
+    { id: 'agent-asks', label: 'agent asks', active: agentBusy, idleHint: 'idle' },
+    {
+      id: 'keeperhub',
+      label: 'KeeperHub workflow',
+      active: anyAwaiting || anyReceivedRecent,
+      idleHint: 'idle',
+    },
+    {
+      id: 'runtime-receives',
+      label: 'runtime receives',
+      active: anyReceivedRecent,
+      idleHint: 'idle',
+    },
+    {
+      id: 'chain-deprecates',
+      label: 'chain deprecates',
+      active: recent(lastDeprecation?.timestamp ?? null, 6000),
+      idleHint: lastDeprecation ? 'last tx settled' : 'idle',
+    },
+  ];
+
   return (
     <section className="demo-canvas" aria-label="Canvas">
       <div className="demo-canvas-header">
@@ -70,10 +107,19 @@ export function Canvas(): JSX.Element {
       <div className="demo-canvas-services">
         <ServiceNode id="operator" active={operatorActive} />
         <div className="demo-canvas-sequence" aria-label="Rotation sequence">
-          <span>agent asks</span>
-          <span>KeeperHub workflow</span>
-          <span>runtime receives</span>
-          <span>chain deprecates</span>
+          {sequence.map((step) => (
+            <span
+              key={step.id}
+              className={`sequence-step${step.active ? ' sequence-step--active' : ''}`}
+              data-active={step.active ? 'true' : 'false'}
+              data-testid={`sequence-step-${step.id}`}
+            >
+              <span className="sequence-step-label">{step.label}</span>
+              <span className="sequence-step-state" aria-hidden="true">
+                {step.active ? 'active' : step.idleHint}
+              </span>
+            </span>
+          ))}
         </div>
       </div>
       <svg
