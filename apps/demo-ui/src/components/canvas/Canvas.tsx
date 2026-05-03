@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useRuntimes, useLastDeprecation } from '../../state/hooks.js';
+import { useRuntimes } from '../../state/hooks.js';
 import type { RuntimeId } from '../../state/reducer.js';
 import { RuntimeNode } from './RuntimeNode.js';
 import { ServiceNode } from './ServiceNode.js';
@@ -8,8 +8,7 @@ import { MiniTimeline } from './MiniTimeline.js';
 
 /**
  * Canvas — the visual hero of the demo (DEMO-03). Renders:
- *   - 3 service icons anchored at top: KEEPERHUB (left), OPERATOR (centre),
- *     CHAIN (right)
+ *   - 1 service chip anchored at top: OPERATOR (the live identity gate)
  *   - 4 runtime nodes in a row underneath: alpha, beta, gamma, gamma-clone
  *     (gamma-clone visually offset to the right per UI-SPEC §Canvas)
  *   - An SVG overlay with EdgePulse paths from Operator → each runtime,
@@ -35,9 +34,8 @@ const PATHS: Record<string, string> = {
 
 export function Canvas(): JSX.Element {
   const runtimes = useRuntimes();
-  const lastDeprecation = useLastDeprecation();
   const allRegistered = RUNTIME_ORDER.every((id) => runtimes[id].status === 'registered');
-  // Re-render every 1s so the service-node activity decay is smooth.
+  // Re-render every 1s so operator activity decay is smooth.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -53,15 +51,10 @@ export function Canvas(): JSX.Element {
     );
   };
 
-  // Service-node activity heuristics. Each lights up briefly when the
-  // corresponding system did real work.
+  // Operator is the visible system receiving live runtime events in this UI.
   const recent = (ts: number | null, windowMs: number): boolean =>
     ts != null && now - ts < windowMs;
   const operatorActive = RUNTIME_ORDER.some((rid) => recent(runtimes[rid].lastEventAt, 2500));
-  const keeperhubActive = RUNTIME_ORDER.some((rid) =>
-    recent(runtimes[rid].walletAssignedAt, 4000),
-  );
-  const chainActive = recent(lastDeprecation?.timestamp ?? null, 6000);
 
   return (
     <section className="demo-canvas" aria-label="Canvas">
@@ -74,15 +67,14 @@ export function Canvas(): JSX.Element {
         </div>
         <div className="demo-canvas-sequence" aria-label="Rotation sequence">
           <span>agent asks</span>
+          <span>KeeperHub workflow</span>
           <span>operator verifies</span>
           <span>runtime receives</span>
           <span>chain deprecates</span>
         </div>
       </div>
       <div className="demo-canvas-services">
-        <ServiceNode id="keeperhub" active={keeperhubActive} />
         <ServiceNode id="operator" active={operatorActive} />
-        <ServiceNode id="chain" active={chainActive} />
       </div>
       <svg
         className="demo-canvas-edges"

@@ -23,12 +23,12 @@ describe('Canvas', () => {
     expect(screen.getByTestId('runtime-node-gamma-clone')).toBeInTheDocument();
   });
 
-  it('renders 3 service node labels: OPERATOR, KEEPERHUB, CHAIN', async () => {
+  it('renders operator as the live service chip and KeeperHub/Chain in the sequence row', async () => {
     const { Canvas } = await loadCanvas();
     render(<Canvas />);
     expect(screen.getByText('OPERATOR')).toBeInTheDocument();
-    expect(screen.getByText('KEEPERHUB')).toBeInTheDocument();
-    expect(screen.getByText('CHAIN')).toBeInTheDocument();
+    expect(screen.getByText('KeeperHub workflow')).toBeInTheDocument();
+    expect(screen.getByText('chain deprecates')).toBeInTheDocument();
   });
 
   it("renders the idle hint when all runtimes are 'registered'", async () => {

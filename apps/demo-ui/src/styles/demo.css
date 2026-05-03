@@ -722,14 +722,14 @@ textarea {
 }
 
 .demo-canvas-services {
-  display: grid;
-  grid-template-columns: 1fr 1.16fr 1fr;
-  gap: 12px;
+  display: flex;
+  justify-content: center;
 }
 
 .service-node {
   position: relative;
   min-height: 42px;
+  width: min(460px, 100%);
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9px;
@@ -737,14 +737,13 @@ textarea {
   overflow: hidden;
 }
 
-.service-node--operator {
+.service-node {
   border-color: rgba(63, 184, 201, 0.36);
   background: rgba(63, 184, 201, 0.075);
 }
 
-/* Phase 7: each ServiceNode lights up cyan when its corresponding system
- * just did real work (KEEPERHUB on wallet_assigned, OPERATOR on any
- * status_change, CHAIN on WalletsDeprecated). */
+/* Operator is the only live service chip in the canvas; KeeperHub and Chain
+ * appear in the compact sequence row above. */
 .service-node--active {
   border-color: rgba(63, 184, 201, 0.55);
   background: rgba(63, 184, 201, 0.13);
@@ -769,7 +768,7 @@ textarea {
   box-shadow: 0 0 0 5px rgba(250, 250, 250, 0.035);
 }
 
-.service-node--operator .service-node-orbit {
+.service-node-orbit {
   background: var(--color-accent-cyan);
   box-shadow: 0 0 0 5px rgba(63, 184, 201, 0.11);
 }

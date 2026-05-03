@@ -1,4 +1,5 @@
 import { writeFile, rename, readFile, mkdir } from 'node:fs/promises';
+import { randomBytes } from 'node:crypto';
 import { dirname } from 'node:path';
 
 /**
@@ -6,7 +7,10 @@ import { dirname } from 'node:path';
  * Safe on POSIX (same fs rename is atomic). Per RESEARCH Pattern 5.
  */
 export async function persist(path: string, data: unknown): Promise<void> {
-  const tmp = `${path}.tmp.${process.pid}.${Date.now()}`;
+  // Random suffix prevents tmp-name collisions between concurrent flushes
+  // (same pid + same ms tick would otherwise share a tmp path, and the
+  // second rename would ENOENT after the first consumed the file).
+  const tmp = `${path}.tmp.${process.pid}.${Date.now()}.${randomBytes(4).toString('hex')}`;
   await mkdir(dirname(path), { recursive: true });
   await writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
   await rename(tmp, path);

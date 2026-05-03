@@ -2,26 +2,21 @@
   "runtimes": [
     {
       "runtimeId": "gamma",
-      "pubkey": "GXDXVpNjd5zAnvlZPV8a2lOcRY3fBZgbwaNc0KEKpQc=",
-      "status": "revoked",
-      "registeredAt": 1777553147140,
-      "lastHandshakeAt": 1777553150187
+      "pubkey": "+iGOGJtDhJ5tesOEqewxUW6dxZqplBFKwMsJhr7cOHk=",
+      "status": "registered",
+      "registeredAt": 1777553147140
     },
     {
       "runtimeId": "alpha",
-      "pubkey": "HaMeKve6AliVFG0yj0BA15/Cbeqa5jA57zjTH9afUec=",
+      "pubkey": "sd8pU5bfdDZmPmQhy/ga5v8wJ5SOJCVJwj4F0lEus4U=",
       "status": "registered",
-      "registeredAt": 1777553147144,
-      "lastHandshakeAt": 1777764104338,
-      "walletAddress": "0x62fb32c1C13Cb2f9D477c0b23E20A90Dc39ff31d",
-      "walletAssignedAt": 1777764104338
+      "registeredAt": 1777553147144
     },
     {
       "runtimeId": "beta",
-      "pubkey": "ZDIkoEUlA1+r+NcmP9Ldkgb/VltmQfnlbJlMXcN2M9s=",
-      "status": "revoked",
-      "registeredAt": 1777553147145,
-      "lastHandshakeAt": 1777553150153
+      "pubkey": "/CorVLePAhyNaP55ZWbcAm02wfHDPWCMabGm+hiWlYA=",
+      "status": "registered",
+      "registeredAt": 1777553147145
     }
   ]
 }

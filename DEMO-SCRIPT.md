@@ -44,7 +44,8 @@ curl -sS -o /dev/null -w "ngrok: %{http_code}\n" \
 Open `https://sonar-demo-ui.vercel.app/`. You should see:
 - Topbar: `● LIVE  christian-actinographic-…/logs  VIA WS  · last event Xs ago`
 - Topbar right: `● READY` and `FLEET REGISTRY 0x7edd…b31f`
-- Canvas: ALPHA registered with a balance, BETA/GAMMA in any state, GAMMA-CLONE as a ghost
+- Canvas: sequence row shows `agent asks → KeeperHub workflow → operator verifies → runtime receives → chain deprecates`
+- Canvas: one live `OPERATOR` chip, ALPHA registered with a small ETH balance, BETA/GAMMA in any state, GAMMA-CLONE as a ghost
 - Sidebar OPERATOR STREAM: recent events
 - If BETA or GAMMA show `revoked`, **fire "Reset demo" from the chat before you start**.
 
@@ -89,7 +90,9 @@ Click the `0x7edd…b31f` chip (opens a new tab).
 
 Back to the demo tab.
 
-> "In the canvas, we have three real runtimes: alpha, beta, and gamma. We also have gamma-clone in shadow. That one represents the attacker case. Each card shows status, wallet address, and live balance."
+> "In the canvas, the top row is the full path: agent asks, KeeperHub runs the workflow, the operator verifies identity, the runtime receives the wallet, and chain deprecates the old one. The big live chip is the Operator, because that is the identity gate we can see reacting here."
+
+> "Below that, we have three real runtimes: alpha, beta, and gamma. We also have gamma-clone in shadow. That one represents the attacker case. Each card shows status, wallet address, and live balance, even for very small testnet amounts."
 
 ---
 
@@ -121,7 +124,7 @@ Back to **Tab 2 (demo app)** while KH does its thing (~10–30 s).
 
 Wait until alpha hits `received`. Then point at the MiniTimeline at the bottom of the canvas:
 
-> "The events appear in the operator stream and in the mini timeline. The new wallet appears on alpha's card. In the topbar, we also get the deprecation transaction hash, with a direct BaseScan link."
+> "The events appear in the operator stream and in the mini timeline. The new wallet appears on alpha's card, with the tiny funded balance visible in ETH decimals. In the topbar, we also get the deprecation transaction hash, with a direct BaseScan link."
 
 Click the tx hash chip if it's visible → opens BaseScan in a new tab.
 
