@@ -2,14 +2,13 @@ import { AmbientBackground } from './components/shell/AmbientBackground.js';
 import { Sidebar } from './components/shell/Sidebar.js';
 import { ConnectionBadge } from './components/shell/ConnectionBadge.js';
 import { TransportToggle } from './components/shell/TransportToggle.js';
-import { RotationStatus } from './components/shell/RotationStatus.js';
 import { ChainBadge } from './components/shell/ChainBadge.js';
 import { Canvas } from './components/canvas/Canvas.js';
 
 /**
  * App — two regions:
  *   - <AmbientBackground/> fixed behind everything (z-0, decorative)
- *   - <header.demo-topbar/>: connection + transport + rotation status (single status row)
+ *   - <header.demo-topbar/>: connection + transport + chain status
  *   - <main.demo-shell/>: <Sidebar/> (chat — output + input together) + <Canvas/>
  *
  * The chat conversation lives in one column (history + input adjacent) so the
@@ -25,7 +24,6 @@ export function App(): JSX.Element {
           <TransportToggle />
         </div>
         <div className="demo-topbar-cluster">
-          <RotationStatus />
           <ChainBadge />
         </div>
       </header>

@@ -5,7 +5,6 @@ import { StatusPill } from '../primitives/StatusPill.js';
 import { IdentityStrip } from '../primitives/IdentityStrip.js';
 import { useBalance } from '../../state/useBalance.js';
 import { RuntimeActions } from './RuntimeActions.js';
-import { CloneGhost } from './CloneGhost.js';
 
 /**
  * RuntimeNode — visual card for a single runtime (alpha/beta/gamma/gamma-clone).
@@ -81,7 +80,6 @@ export function RuntimeNode({ runtime }: { runtime: RuntimeView }): JSX.Element 
       <div className="runtime-node-divider" aria-hidden="true" />
       <IdentityStrip pubkey={runtime.pubkey} lastEventAt={runtime.lastEventAt} />
       <RuntimeActions runtimeId={runtime.id} open={menuOpen} onClose={() => setMenuOpen(false)} />
-      {!isGhost && <CloneGhost attackedAt={runtime.attackedAt} />}
     </motion.div>
   );
 }

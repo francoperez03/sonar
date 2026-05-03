@@ -186,40 +186,6 @@ textarea {
   color: rgba(250, 250, 250, 0.42);
 }
 
-/* ----- Clone ghost overlay (rejected attacker silhouette) ----- */
-.clone-ghost {
-  position: absolute;
-  top: 18%;
-  left: -22px;
-  width: 56px;
-  height: 78%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-radius: 9px;
-  background: linear-gradient(180deg, rgba(224, 122, 122, 0.18), rgba(224, 122, 122, 0.04));
-  border: 1px dashed rgba(224, 122, 122, 0.6);
-  pointer-events: none;
-  z-index: 15;
-}
-
-.clone-ghost-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  color: rgba(224, 122, 122, 0.95);
-}
-
-.clone-ghost-x {
-  font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 800;
-  color: rgba(224, 122, 122, 0.85);
-}
-
 .demo-sidebar {
   display: grid;
   grid-template-rows: minmax(360px, auto) minmax(220px, auto);
@@ -726,8 +692,9 @@ textarea {
 
 .demo-canvas-services {
   display: grid;
-  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  column-gap: 16px;
+  row-gap: 10px;
   align-items: stretch;
 }
 
@@ -735,11 +702,18 @@ textarea {
   position: relative;
   min-height: 54px;
   width: 100%;
+  max-width: 340px;
+  justify-self: start;
   background: rgba(63, 184, 201, 0.075);
   border: 1px solid rgba(63, 184, 201, 0.36);
   border-radius: 9px;
   padding: 11px 12px 10px 34px;
   overflow: hidden;
+}
+
+.demo-canvas-services > .demo-canvas-sequence {
+  grid-column: 2;
+  min-width: 0;
 }
 
 /* Operator is the only live service chip in the canvas; KeeperHub and Chain
@@ -1210,6 +1184,18 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .demo-canvas-services {
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  }
+
+  .service-node {
+    max-width: 300px;
+  }
+
+  .demo-canvas-sequence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .demo-canvas-runtimes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1264,6 +1250,14 @@ textarea {
   .demo-canvas-services,
   .demo-canvas-runtimes {
     grid-template-columns: 1fr;
+  }
+
+  .service-node {
+    max-width: none;
+  }
+
+  .demo-canvas-services > .demo-canvas-sequence {
+    grid-column: 1;
   }
 
   .demo-canvas-sequence {
