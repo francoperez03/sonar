@@ -19,6 +19,7 @@
     "dev:axl-b": "./infra/axl/start-b.sh",
     "dev:axl-bridge": "AXL_DEST_PEER_ID=$(curl -s http://127.0.0.1:9002/topology | node -e 'process.stdin.on(\"data\",d=>console.log(JSON.parse(d).our_public_key))') node scripts/axl-bridge.mjs",
     "dev:axl": "concurrently -k -n axl-a,axl-b,fleet+ui,bridge -c blue,green,yellow,magenta \"./infra/axl/start-a.sh\" \"./infra/axl/start-b.sh\" \"pnpm dev:fleet+ui\" \"sleep 4 && pnpm dev:axl-bridge\"",
+    "dev:axl-only": "concurrently -k -n axl-a,axl-b,bridge -c blue,green,magenta \"./infra/axl/start-a.sh\" \"./infra/axl/start-b.sh\" \"sleep 4 && pnpm dev:axl-bridge\"",
     "lhci": "pnpm -F @sonar/landing lhci",
     "lint": "pnpm -F @sonar/landing lint",
     "dev:operator": "pnpm --filter @sonar/operator dev",
