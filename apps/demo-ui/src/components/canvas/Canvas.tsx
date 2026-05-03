@@ -6,7 +6,6 @@ import {
 } from '../../state/hooks.js';
 import type { RuntimeId } from '../../state/reducer.js';
 import { RuntimeNode } from './RuntimeNode.js';
-import { EdgePulse } from './EdgePulse.js';
 import { MiniTimeline } from './MiniTimeline.js';
 import { SequenceStep } from './SequenceStep.js';
 
@@ -16,26 +15,12 @@ import { SequenceStep } from './SequenceStep.js';
  *   - A compact path strip to its right for the rest of the rotation flow
  *   - 4 runtime nodes in a row underneath: alpha, beta, gamma, alpha-clone
  *     (alpha-clone visually offset to the right per UI-SPEC §Canvas)
- *   - An SVG overlay with EdgePulse paths from Operator → each runtime,
- *     active when that runtime's status is 'awaiting' or 'received' and
- *     a state event landed within the last 1500ms (heuristic per CONTEXT
- *     "Claude's discretion").
  *
  * Idle hint copy per UI-SPEC §Copywriting Contract is shown only when all
  * 4 runtimes are still in 'registered'.
  */
 
 const RUNTIME_ORDER: RuntimeId[] = ['alpha', 'beta', 'gamma', 'alpha-clone'];
-
-// Canvas geometry (Claude's discretion per CONTEXT). viewBox 0 0 800 480.
-// Operator anchored at (400, 60); runtimes spread along y=380. Soft cubic
-// curves from operator to each of the 4 runtimes.
-const PATHS: Record<string, string> = {
-  'operator-alpha': 'M 400 60 Q 200 240 120 380',
-  'operator-beta': 'M 400 60 Q 360 240 320 380',
-  'operator-gamma': 'M 400 60 Q 480 240 520 380',
-  'operator-alpha-clone': 'M 400 60 Q 700 240 720 380',
-};
 
 export function Canvas(): JSX.Element {
   const runtimes = useRuntimes();
@@ -46,15 +31,6 @@ export function Canvas(): JSX.Element {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-
-  const isActiveEdge = (rid: RuntimeId): boolean => {
-    const r = runtimes[rid];
-    return (
-      (r.status === 'awaiting' || r.status === 'received') &&
-      r.lastEventAt != null &&
-      now - r.lastEventAt < 1500
-    );
-  };
 
   // Operator is the visible system receiving live runtime events in this UI.
   const recent = (ts: number | null, windowMs: number): boolean =>
@@ -129,20 +105,6 @@ export function Canvas(): JSX.Element {
           />
         ))}
       </div>
-      <svg
-        className="demo-canvas-edges"
-        viewBox="0 0 800 480"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        {RUNTIME_ORDER.map((rid) => (
-          <EdgePulse
-            key={`operator-${rid}`}
-            d={PATHS[`operator-${rid}`]!}
-            active={isActiveEdge(rid)}
-          />
-        ))}
-      </svg>
       <div className="demo-canvas-runtimes">
         {RUNTIME_ORDER.map((rid) => (
           <RuntimeNode key={rid} runtime={runtimes[rid]} />

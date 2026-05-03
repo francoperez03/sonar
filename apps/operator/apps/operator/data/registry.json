@@ -2,19 +2,20 @@
   "runtimes": [
     {
       "runtimeId": "gamma",
-      "pubkey": "bsufNtM/66fYJvkZajuoo8mIpEgk1CjmCXaboSPr81w=",
+      "pubkey": "LQgKQLLN3R+2xmSi65bLc1h/nImn/qkYvP7srPmSEhw=",
       "status": "registered",
       "registeredAt": 1777553147140
     },
     {
       "runtimeId": "alpha",
-      "pubkey": "RVpWQHmt0Se9z/OSPZBXFOIIUzOB1FVtqrjE3us3NeM=",
+      "pubkey": "TLD/XmH/3sn3KxXGmZmvwnFpsXFmfUZyExlHHbdm5UM=",
       "status": "registered",
-      "registeredAt": 1777553147144
+      "registeredAt": 1777553147144,
+      "lastHandshakeAt": 1777817447061
     },
     {
       "runtimeId": "beta",
-      "pubkey": "ygqH0hFR4pCFVNb86tUOQMnVfNloZ0vQwmqD1HOobBk=",
+      "pubkey": "+Dowbcy6udqpYCPonafix8PRS3SjBE761D6grbuKK2k=",
       "status": "registered",
       "registeredAt": 1777553147145
     }
