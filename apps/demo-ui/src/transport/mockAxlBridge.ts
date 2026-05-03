@@ -13,7 +13,9 @@ import type { LogEntryMsg } from "@sonar/shared";
  */
 
 const FAKE_PEER_ID = "12D3KooWAxlMeshDemo7Yh4qP9rTpKv3F";
-const FAKE_BRIDGE_URL = "axl://mock-bridge.local:9090";
+// Realistic-looking ngrok-style URL (a different tunnel from the operator's),
+// so the badge reads as a real bridge endpoint on stage. Not a live host.
+const FAKE_BRIDGE_URL = "wss://sonar-axl-mesh.ngrok-free.dev/bridge";
 
 interface MockState {
   prevUrl: string | null;

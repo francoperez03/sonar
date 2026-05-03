@@ -8,10 +8,9 @@
     },
     {
       "runtimeId": "alpha",
-      "pubkey": "TLD/XmH/3sn3KxXGmZmvwnFpsXFmfUZyExlHHbdm5UM=",
+      "pubkey": "Zp07DUJft7QgF/LBgraUliM3jEKoOU49l6sV+UeBKWU=",
       "status": "registered",
-      "registeredAt": 1777553147144,
-      "lastHandshakeAt": 1777817447061
+      "registeredAt": 1777553147144
     },
     {
       "runtimeId": "beta",
