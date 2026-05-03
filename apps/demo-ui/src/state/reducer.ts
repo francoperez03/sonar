@@ -19,6 +19,8 @@ export interface RuntimeView {
   lastEventAt: number | null;
   walletAddress: `0x${string}` | null;
   walletAssignedAt: number | null;
+  /** Timestamp of the most recent rejected clone attempt against this runtime. */
+  attackedAt: number | null;
 }
 
 export interface ChatRow {
@@ -71,13 +73,15 @@ export interface DemoState {
 // RESEARCH Pattern 3 — canonical transition table.
 // `received → awaiting` is allowed for re-rotations: once a runtime has its
 // first key, subsequent rotations restart the awaiting/received cycle.
+// Phase 7: revoked/clone-rejected → registered is the reset_demo path so the
+// canvas can be wiped without restarting the operator.
 const ALLOWED: Record<RuntimeStatus, RuntimeStatus[]> = {
   registered: ["awaiting", "revoked"],
   awaiting: ["received", "revoked", "clone-rejected"],
   received: ["awaiting", "deprecated", "revoked"],
   deprecated: ["awaiting", "revoked"],
-  revoked: [],
-  "clone-rejected": [],
+  revoked: ["registered"],
+  "clone-rejected": ["registered"],
 };
 
 // Caps to mitigate T-06-10 (unbounded array growth). UI plan 04 owns virtualization.
@@ -115,6 +119,7 @@ function emptyRuntime(id: RuntimeId): RuntimeView {
     lastEventAt: null,
     walletAddress: null,
     walletAssignedAt: null,
+    attackedAt: null,
   };
 }
 
@@ -149,6 +154,11 @@ export function reduce(state: DemoState, msg: Message): DemoState {
       // msg.status is a subset of RuntimeStatus (no 'clone-rejected' on wire)
       const target = msg.status as RuntimeStatus;
       if (!allowed.includes(target)) return state;
+      // Phase 7 reset: when coming back to 'registered' from a terminal
+      // state, also wipe wallet metadata so the card reads as truly fresh.
+      const isReset =
+        target === "registered" &&
+        (current.status === "revoked" || current.status === "clone-rejected");
       return {
         ...state,
         runtimes: {
@@ -157,6 +167,9 @@ export function reduce(state: DemoState, msg: Message): DemoState {
             ...current,
             status: target,
             lastEventAt: msg.timestamp,
+            ...(isReset
+              ? { walletAddress: null, walletAssignedAt: null }
+              : {}),
           },
         },
       };
@@ -235,6 +248,20 @@ export function reduce(state: DemoState, msg: Message): DemoState {
                 status: "clone-rejected",
                 lastEventAt: msg.timestamp,
               },
+            },
+          };
+        }
+        // Phase 7 ghost overlay: stamp the *attacked* runtime so its card
+        // can render the translucent "clone trying to land" silhouette
+        // alongside it (gamma-clone gets the destructive flash; this is a
+        // separate pointer for the legitimate runtime that was targeted).
+        if (isRuntimeId(msg.runtimeId) && msg.runtimeId !== "gamma-clone") {
+          const target = next.runtimes[msg.runtimeId];
+          next = {
+            ...next,
+            runtimes: {
+              ...next.runtimes,
+              [msg.runtimeId]: { ...target, attackedAt: msg.timestamp },
             },
           };
         }

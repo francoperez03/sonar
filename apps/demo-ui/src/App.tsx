@@ -3,6 +3,7 @@ import { Sidebar } from './components/shell/Sidebar.js';
 import { ConnectionBadge } from './components/shell/ConnectionBadge.js';
 import { TransportToggle } from './components/shell/TransportToggle.js';
 import { RotationStatus } from './components/shell/RotationStatus.js';
+import { ChainBadge } from './components/shell/ChainBadge.js';
 import { Canvas } from './components/canvas/Canvas.js';
 
 /**
@@ -23,7 +24,10 @@ export function App(): JSX.Element {
           <ConnectionBadge />
           <TransportToggle />
         </div>
-        <RotationStatus />
+        <div className="demo-topbar-cluster">
+          <RotationStatus />
+          <ChainBadge />
+        </div>
       </header>
       <main className="demo-shell" data-testid="demo-ui-root" aria-label="Sonar demo">
         <Sidebar />

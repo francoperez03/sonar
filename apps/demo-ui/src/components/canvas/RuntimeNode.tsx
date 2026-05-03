@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { RuntimeView } from '../../state/reducer.js';
 import { StatusPill } from '../primitives/StatusPill.js';
 import { IdentityStrip } from '../primitives/IdentityStrip.js';
 import { useBalance } from '../../state/useBalance.js';
+import { RuntimeActions } from './RuntimeActions.js';
+import { CloneGhost } from './CloneGhost.js';
 
 /**
  * RuntimeNode — visual card for a single runtime (alpha/beta/gamma/gamma-clone).
@@ -27,12 +30,27 @@ export function RuntimeNode({ runtime }: { runtime: RuntimeView }): JSX.Element 
     `runtime-node runtime-node--${runtime.status} runtime-node--${runtime.id}` +
     (isGhost ? ' runtime-node--ghost' : '');
   const { ethFormatted, loading: balanceLoading } = useBalance(runtime.walletAddress);
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <motion.div
       className={cls}
       data-testid={`runtime-node-${runtime.id}`}
       layout
       transition={{ layout: { duration: 0.28, ease: [0.2, 0.8, 0.2, 1] } }}
+      onClick={(e) => {
+        // Don't hijack clicks on the wallet basescan link.
+        if ((e.target as HTMLElement).closest('a, button')) return;
+        setMenuOpen((open) => !open);
+      }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setMenuOpen((open) => !open);
+        }
+      }}
+      style={{ cursor: 'pointer' }}
     >
       <div className="runtime-node-topline">
         <div>
@@ -62,6 +80,8 @@ export function RuntimeNode({ runtime }: { runtime: RuntimeView }): JSX.Element 
       )}
       <div className="runtime-node-divider" aria-hidden="true" />
       <IdentityStrip pubkey={runtime.pubkey} lastEventAt={runtime.lastEventAt} />
+      <RuntimeActions runtimeId={runtime.id} open={menuOpen} onClose={() => setMenuOpen(false)} />
+      {!isGhost && <CloneGhost attackedAt={runtime.attackedAt} />}
     </motion.div>
   );
 }

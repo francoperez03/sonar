@@ -11,6 +11,7 @@ function rv(over: Partial<RuntimeView> = {}): RuntimeView {
     lastEventAt: null,
     walletAddress: null,
     walletAssignedAt: null,
+    attackedAt: null,
     ...over,
   };
 }

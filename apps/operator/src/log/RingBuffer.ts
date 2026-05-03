@@ -23,6 +23,13 @@ export class RingBuffer {
     if (this.size < this.capacity) this.size += 1;
   }
 
+  /** Phase 7 reset_demo helper: drop all retained events. */
+  clear(): void {
+    this.data = new Array(this.capacity);
+    this.head = 0;
+    this.size = 0;
+  }
+
   snapshot(filter?: { runtimeId?: string }, limit = 50): Event[] {
     const out: Event[] = [];
     const start = this.size < this.capacity ? 0 : this.head;

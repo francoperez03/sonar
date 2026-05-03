@@ -1,6 +1,7 @@
 import type { Registry } from '../registry/Registry.js';
 import type { HandshakeCoordinator } from '../handshake/HandshakeCoordinator.js';
 import type { RingBuffer } from '../log/RingBuffer.js';
+import type { LogBus } from '../log/LogBus.js';
 import { triggerKeeperhubRun, registerRunWithPoller } from './keeperhub.js';
 import { simulateCloneAttack } from './cloneAttack.js';
 
@@ -14,6 +15,7 @@ export interface AgentToolsCtx {
   registry: Registry;
   coordinator: HandshakeCoordinator;
   buffer: RingBuffer;
+  logBus: LogBus;
   keeperhub: {
     apiBaseUrl: string;
     apiToken: string;
@@ -95,6 +97,16 @@ export const TOOL_DEFS = [
         },
       },
       required: ['runtimeId'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'reset_demo',
+    description:
+      'Resets the operator state for a fresh demo run: every runtime back to status="registered", wallet addresses cleared, event log buffer wiped. Pubkey identities are preserved. Use this before re-recording the demo so the canvas shows pristine cards.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {},
       additionalProperties: false,
     },
   },
@@ -181,6 +193,20 @@ export async function dispatchTool(
         runtimeId,
       });
       return { ok: true, output: { runtimeId, ...result } };
+    }
+
+    case 'reset_demo': {
+      const ids = await ctx.registry.reset();
+      ctx.buffer.clear();
+      // Broadcast a fresh status_change for every reset runtime so the
+      // demo-ui flips its cards back to 'registered' without a page reload.
+      // The reducer's transition table allows revoked/clone-rejected → registered
+      // via the Phase 7 reset_allow extension.
+      for (const id of ids) {
+        ctx.logBus.statusChange(id, 'registered');
+      }
+      ctx.logBus.logEntry('operator', 'info', `demo reset: ${ids.length} runtimes restored`);
+      return { ok: true, output: { reset: ids } };
     }
 
     default:

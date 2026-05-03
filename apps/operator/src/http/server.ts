@@ -95,6 +95,7 @@ export function createOperatorServer(deps: OperatorDeps): { app: Express; httpSe
         registry: deps.registry,
         coordinator: deps.coordinator,
         buffer: deps.buffer,
+        logBus: deps.logBus,
         keeperhub: { ...deps.keeperhub, webhookSecret: deps.webhookSecret },
         runtimeWsUrl: deps.runtimeWsUrl,
       },

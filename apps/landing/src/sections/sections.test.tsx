@@ -21,7 +21,7 @@ describe("Sections — locked copy", () => {
     expect(container.querySelector("svg")).not.toBeNull();
   });
 
-  it("ApproachSection FlowDiagram contains all six labels", () => {
+  it("ApproachSection FlowDiagram contains the rotation map labels", () => {
     render(<ApproachSection />);
     for (const label of [
       "Prompt",
@@ -30,6 +30,14 @@ describe("Sections — locked copy", () => {
       "KeeperHub",
       "Sonar",
       "Runtime",
+      "alpha",
+      "beta",
+      "gamma",
+      "gamma-clone",
+      "generate",
+      "fund",
+      "distribute",
+      "deprecate",
     ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }

@@ -86,6 +86,27 @@ export class Registry {
     await this._flush();
   }
 
+  /**
+   * Phase 7 reset_demo helper: flip every record back to 'registered' and
+   * drop walletAddress/walletAssignedAt. Pubkey is preserved (the runtime's
+   * Ed25519 identity didn't change). Returns the runtimeIds touched.
+   */
+  async reset(): Promise<string[]> {
+    const ids: string[] = [];
+    for (const [runtimeId, record] of this.map) {
+      const reset: RegistryRecord = {
+        runtimeId: record.runtimeId,
+        pubkey: record.pubkey,
+        status: 'registered',
+        registeredAt: record.registeredAt,
+      };
+      this.map.set(runtimeId, reset);
+      ids.push(runtimeId);
+    }
+    await this._flush();
+    return ids;
+  }
+
   async snapshot(): Promise<unknown> {
     return { runtimes: [...this.list()] };
   }

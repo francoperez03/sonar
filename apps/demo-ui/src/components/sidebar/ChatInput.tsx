@@ -8,7 +8,7 @@ const SUGGESTIONS: ReadonlyArray<{ label: string; prompt: string }> = [
   { label: 'List runtimes', prompt: 'list runtimes' },
   { label: 'Rotate alpha', prompt: 'rota las claves de alpha' },
   { label: 'Simulate clone attack', prompt: 'simula un clone attack contra alpha' },
-  { label: 'Inspect last events', prompt: 'trae los ultimos 5 eventos del log' },
+  { label: 'Reset demo', prompt: 'reset the demo' },
 ];
 
 /**
