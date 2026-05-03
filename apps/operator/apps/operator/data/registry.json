@@ -9,8 +9,9 @@
     {
       "runtimeId": "alpha",
       "pubkey": "Zp07DUJft7QgF/LBgraUliM3jEKoOU49l6sV+UeBKWU=",
-      "status": "registered",
-      "registeredAt": 1777553147144
+      "status": "received",
+      "registeredAt": 1777553147144,
+      "lastHandshakeAt": 1777821449478
     },
     {
       "runtimeId": "beta",
