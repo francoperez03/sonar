@@ -1,7 +1,9 @@
 .flow {
   width: 100%;
+  max-width: 100%;
   height: auto;
   display: block;
+  overflow: hidden;
 }
 
 .horizontal {
@@ -12,7 +14,68 @@
   display: none;
 }
 
-.label {
+.lane {
+  fill: rgb(255 255 255 / 0.018);
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.laneLabel,
+.fleetLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  fill: var(--color-text-muted);
+}
+
+.fleetLabel {
+  fill: var(--color-accent-cyan);
+}
+
+.node,
+.runtimeNode,
+.chip,
+.callout {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.nodePrimary {
+  stroke: color-mix(in srgb, var(--color-accent-cyan) 70%, var(--color-border));
+  filter: drop-shadow(0 0 16px var(--color-accent-cyan-glow));
+}
+
+.nodeChain {
+  stroke: color-mix(in srgb, var(--color-accent-blue) 70%, var(--color-border));
+}
+
+.runtimeReal {
+  stroke: var(--color-accent-cyan);
+}
+
+.runtimeClone {
+  stroke: var(--color-destructive);
+  stroke-dasharray: 5 5;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--color-destructive) 28%, transparent));
+}
+
+.chip {
+  fill: color-mix(in srgb, var(--color-bg-elevated) 78%, var(--color-accent-cyan));
+  stroke: color-mix(in srgb, var(--color-accent-cyan) 54%, var(--color-border));
+}
+
+.callout {
+  fill: color-mix(in srgb, var(--color-bg-elevated) 82%, var(--color-accent-cyan));
+  stroke: color-mix(in srgb, var(--color-accent-cyan) 64%, var(--color-border));
+}
+
+.label,
+.runtimeTitle,
+.chipText,
+.calloutText {
   font-family: var(--font-mono);
   font-size: var(--text-label);
   font-weight: 600;
@@ -21,49 +84,160 @@
   fill: var(--color-text);
 }
 
-.labelActive {
+.subLabel,
+.runtimeDetail {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  fill: var(--color-text-muted);
+}
+
+.runtimeDetail {
   font-family: var(--font-mono);
-  font-size: var(--text-label);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.chipText {
+  font-size: 11px;
   fill: var(--color-accent-cyan);
 }
 
-.node {
-  fill: var(--color-surface);
-  stroke: var(--color-border);
-  stroke-width: 1;
+.calloutText {
+  fill: var(--color-accent-cyan);
 }
 
-.nodeActive {
-  fill: var(--color-surface);
-  stroke: var(--color-accent-cyan);
-  stroke-width: 1;
-}
-
-.nodeActiveBorder {
-  stroke: var(--color-accent-cyan);
-  stroke-width: 1.5;
-}
-
-.connector {
-  stroke: var(--color-accent-cyan);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 4;
+.edge,
+.edgeMuted,
+.edgeReject,
+.edgeChain,
+.mobileEdge,
+.mobileRejectEdge,
+.mobileChainEdge {
   fill: none;
-  animation: dashFlow 1.2s linear infinite;
+  stroke-width: 1.5;
+  stroke-linecap: round;
 }
 
-.ripple {
+.edge,
+.mobileEdge {
+  stroke: var(--color-accent-cyan);
+  marker-end: url("#flow-arrow");
+  stroke-dasharray: 7 7;
+  animation: dashFlow 1.4s linear infinite;
+}
+
+.mobileEdge {
+  marker-end: url("#flow-arrow-mobile");
+}
+
+.edgeMuted {
+  stroke: color-mix(in srgb, var(--color-accent-cyan) 42%, var(--color-border));
+  marker-end: url("#flow-arrow");
+}
+
+.edgeReject,
+.mobileRejectEdge {
+  stroke: var(--color-destructive);
+  stroke-dasharray: 5 7;
+  marker-end: url("#reject-arrow");
+}
+
+.mobileRejectEdge {
+  marker-end: url("#reject-arrow-mobile");
+}
+
+.edgeChain,
+.mobileChainEdge {
+  stroke: var(--color-accent-blue);
+  marker-end: url("#flow-arrow");
+  stroke-dasharray: 8 6;
+  animation: dashFlow 1.4s linear infinite;
+}
+
+.mobileChainEdge {
+  marker-end: url("#flow-arrow-mobile");
+}
+
+.edgeLabel,
+.rejectLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--color-accent-blue);
+}
+
+.rejectLabel {
+  fill: var(--color-destructive);
+}
+
+.rejectedBadge {
+  fill: color-mix(in srgb, var(--color-destructive) 22%, var(--color-bg-elevated));
+  stroke: var(--color-destructive);
+  stroke-width: 1;
+}
+
+.rejectedBadgeText {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--color-destructive);
+}
+
+.arrowHead {
+  fill: var(--color-accent-cyan);
+}
+
+.rejectArrowHead {
+  fill: var(--color-destructive);
+}
+
+.echoHalo {
   fill: none;
   stroke: var(--color-accent-cyan);
   stroke-width: 1;
+  opacity: 0.64;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: echoPulse 2.2s ease-out infinite;
 }
 
 @keyframes dashFlow {
   to {
-    stroke-dashoffset: -8;
+    stroke-dashoffset: -14;
+  }
+}
+
+@keyframes echoPulse {
+  0% {
+    opacity: 0.16;
+    transform: scale(0.92);
+  }
+
+  45% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0.16;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge,
+  .edgeChain,
+  .mobileEdge,
+  .mobileChainEdge,
+  .echoHalo {
+    animation: none;
   }
 }
 
@@ -71,7 +245,12 @@
   .horizontal {
     display: none;
   }
+
   .vertical {
     display: block;
+  }
+
+  .subLabel {
+    font-size: 12px;
   }
 }

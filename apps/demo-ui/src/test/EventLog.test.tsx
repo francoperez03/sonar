@@ -17,7 +17,7 @@ describe('EventLog', () => {
   it('renders empty-state copy when there are no events', async () => {
     const { EventLog } = await loadEventLog();
     render(<EventLog />);
-    expect(screen.getByText('Stream armed')).toBeInTheDocument();
+    expect(screen.getByText('Waiting for rotation events')).toBeInTheDocument();
     expect(screen.getByText('Rotation events will stream here.')).toBeInTheDocument();
   });
 

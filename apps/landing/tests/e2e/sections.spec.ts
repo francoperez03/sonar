@@ -19,12 +19,12 @@ test("dark theme palette resolves on body + tokens root", async ({ page }) => {
   const bg = await page.evaluate(
     () => getComputedStyle(document.body).backgroundColor,
   );
-  expect(bg).toBe("rgb(7, 9, 12)"); // #07090C
+  expect(bg).toBe("rgb(10, 10, 11)"); // #0A0A0B
 
   const cyan = await page.evaluate(() =>
     getComputedStyle(document.documentElement)
       .getPropertyValue("--color-accent-cyan")
       .trim(),
   );
-  expect(cyan.toUpperCase()).toBe("#22D3EE");
+  expect(cyan.toUpperCase()).toBe("#3FB8C9");
 });

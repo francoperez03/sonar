@@ -11,6 +11,7 @@ html,
 body {
   width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -23,7 +24,6 @@ body {
   font-size: var(--text-body);
   line-height: var(--lh-normal);
   position: relative;
-  overflow-x: hidden;
 }
 
 /* Instrument-panel cyan grid (D-10) */

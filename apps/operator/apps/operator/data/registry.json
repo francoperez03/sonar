@@ -9,10 +9,12 @@
     },
     {
       "runtimeId": "alpha",
-      "pubkey": "w0G6G+/VQKCPGIgZ8i4gDd8KD/8v8vLiKIHdMSQvQrs=",
+      "pubkey": "+n9qofigEbO3DkhJqSI8xJ4fF729zPrUs+N3+dGJABE=",
       "status": "registered",
       "registeredAt": 1777553147144,
-      "lastHandshakeAt": 1777666468247
+      "lastHandshakeAt": 1777764104338,
+      "walletAddress": "0x62fb32c1C13Cb2f9D477c0b23E20A90Dc39ff31d",
+      "walletAssignedAt": 1777764104338
     },
     {
       "runtimeId": "beta",

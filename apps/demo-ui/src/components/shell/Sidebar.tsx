@@ -1,10 +1,10 @@
 import { ChatMirror } from '../sidebar/ChatMirror.js';
 import { ChatInput } from '../sidebar/ChatInput.js';
+import { EventLog } from '../sidebar/EventLog.js';
 
 /**
- * Sidebar — single section: AGENT RUNTIME (chat history + input). The
- * OPERATOR STREAM (event log) was moved into the canvas footer so the
- * telemetry sits adjacent to the runtimes it describes.
+ * Sidebar — vertical stack: agent conversation on top, operator stream below.
+ * The user can prompt Sonar and watch the runtime telemetry in the same rail.
  */
 export function Sidebar(): JSX.Element {
   return (
@@ -20,6 +20,16 @@ export function Sidebar(): JSX.Element {
         </div>
         <ChatMirror />
         <ChatInput />
+      </section>
+      <section className="demo-sidebar-section" aria-label="Event log">
+        <div className="demo-section-head">
+          <div>
+            <div className="demo-eyebrow">OPERATOR STREAM</div>
+            <div className="demo-section-kicker">runtime, vault, chain events</div>
+          </div>
+          <span className="demo-section-index">02</span>
+        </div>
+        <EventLog />
       </section>
     </aside>
   );

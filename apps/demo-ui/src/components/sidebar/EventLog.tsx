@@ -29,7 +29,7 @@ export function EventLog(): JSX.Element {
   if (events.length === 0) {
     return (
       <div className="event-log-empty" aria-live="polite">
-        <div className="event-log-empty-heading">Stream armed</div>
+        <div className="event-log-empty-heading">Waiting for rotation events</div>
         <p className="event-log-empty-body">Rotation events will stream here.</p>
       </div>
     );

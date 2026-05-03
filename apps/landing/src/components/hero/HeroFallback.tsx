@@ -30,7 +30,43 @@ export function HeroFallback() {
         strokeOpacity="0.18"
         strokeWidth="1"
       />
-      {/* alice node — left, slightly upper */}
+      <circle
+        cx="200"
+        cy="112"
+        r="8"
+        fill="var(--color-accent-cyan)"
+        stroke="var(--color-border)"
+      />
+      <g aria-label="Central node says Rotate!">
+        <rect
+          x="166"
+          y="70"
+          width="68"
+          height="24"
+          rx="4"
+          fill="var(--color-surface)"
+          stroke="var(--color-accent-cyan)"
+          strokeOpacity="0.72"
+        />
+        <path
+          d="M196 94 L204 94 L200 101 Z"
+          fill="var(--color-surface)"
+          stroke="var(--color-accent-cyan)"
+          strokeOpacity="0.72"
+        />
+        <text
+          x="200"
+          y="86"
+          textAnchor="middle"
+          fill="var(--color-text)"
+          fontFamily="monospace"
+          fontSize="10"
+          fontWeight="700"
+        >
+          Rotate!
+        </text>
+      </g>
+      {/* alpha node — left, slightly upper */}
       <circle
         cx="100"
         cy="146"
@@ -38,7 +74,7 @@ export function HeroFallback() {
         fill="var(--color-surface)"
         stroke="var(--color-border)"
       />
-      {/* bob node — right */}
+      {/* beta node — right */}
       <circle
         cx="312"
         cy="101"
@@ -46,7 +82,7 @@ export function HeroFallback() {
         fill="var(--color-surface)"
         stroke="var(--color-border)"
       />
-      {/* charlie node — lower-mid */}
+      {/* gamma node — lower-mid */}
       <circle
         cx="220"
         cy="191"

@@ -8,7 +8,7 @@
  * §Pattern 3 — modifying any of these breaks the locked LAND-02 visual.
  */
 
-export type NodeId = "ALICE" | "BOB" | "CHARLIE";
+export type NodeId = "ALPHA" | "BETA" | "GAMMA";
 
 export interface SonarNode {
   id: NodeId;
@@ -27,9 +27,9 @@ export interface SonarNode {
 }
 
 export const NODES: readonly SonarNode[] = [
-  { id: "ALICE",   pos: [-1.4, 0,  0.6], hitAt: 0.40, overlay: { left: "22%", top: "62%" } },
-  { id: "BOB",     pos: [ 1.6, 0, -0.2], hitAt: 0.65, overlay: { left: "78%", top: "44%" } },
-  { id: "CHARLIE", pos: [ 0.2, 0,  1.4], hitAt: 0.85, overlay: { left: "55%", top: "82%" } },
+  { id: "ALPHA", pos: [-1.4, 0,  0.6], hitAt: 0.40, overlay: { left: "22%", top: "62%" } },
+  { id: "BETA",  pos: [ 1.6, 0, -0.2], hitAt: 0.65, overlay: { left: "78%", top: "44%" } },
+  { id: "GAMMA", pos: [ 0.2, 0,  1.4], hitAt: 0.85, overlay: { left: "55%", top: "82%" } },
 ] as const;
 
 /** Total loop duration in seconds (D-01: ~2-3s autonomous loop). */
