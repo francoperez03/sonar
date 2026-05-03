@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 /**
  * Polls Base Sepolia public RPC for the address' balance every `pollMs`.
- * Returns formatted-eth string (5 decimals) and an error flag. Browser-side
+ * Returns formatted-eth string (7 decimals) and an error flag. Browser-side
  * polling keeps the operator out of the read path; the trade-off is each
  * visitor hits the RPC themselves.
  */
@@ -13,6 +13,14 @@ interface BalanceResult {
   ethFormatted: string | null;
   loading: boolean;
   error: string | null;
+}
+
+export function formatWeiAsEth(wei: bigint, decimals = 7): string {
+  const scale = 10n ** BigInt(decimals);
+  const whole = wei / 1_000_000_000_000_000_000n;
+  const fractional = ((wei % 1_000_000_000_000_000_000n) * scale) / 1_000_000_000_000_000_000n;
+
+  return `${whole}.${fractional.toString().padStart(decimals, "0")}`;
 }
 
 export function useBalance(address: `0x${string}` | null, pollMs = 10_000): BalanceResult {
@@ -47,8 +55,7 @@ export function useBalance(address: `0x${string}` | null, pollMs = 10_000): Bala
           return;
         }
         const wei = BigInt(body.result);
-        const eth = Number(wei) / 1e18;
-        setState({ ethFormatted: eth.toFixed(5), loading: false, error: null });
+        setState({ ethFormatted: formatWeiAsEth(wei), loading: false, error: null });
       } catch (e) {
         if (cancelled) return;
         setState({

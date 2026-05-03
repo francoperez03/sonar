@@ -63,15 +63,15 @@ Open `https://sonar-demo-ui.vercel.app/`. You should see:
 
 **Tab 1 (landing).** Show the hero, no scroll yet.
 
-> "Sonar is a system to rotate credentials without ever showing the LLM a single private key. The promise is right there at the top: **Rotate keys without trusting the agent**."
+> "Sonar rotates keys without showing a private key to the LLM. The main idea is here: **Rotate keys without trusting the agent**."
 
 Slowly scroll to `01 / PROBLEM`.
 
-> "The problem. Today an agent holding secrets in its context is a liability — one poisoned log line and the key walks. **OWASP LLM06**. Sonar never shows the LLM a key."
+> "The problem is simple. If an agent has secrets in its context, it can leak them. One bad log line can expose a key. This is the **OWASP LLM06** risk. Sonar avoids that by never giving the LLM the key."
 
 Scroll to `02 / APPROACH`.
 
-> "The approach. The LLM orchestrates the full rotation — generate wallets, fund them, distribute, and deprecate the old ones on-chain — but every runtime has to sign a challenge before receiving anything. No valid signature, no key. Clones don't pass."
+> "The approach is: let the LLM coordinate the work, but never touch the secret. It starts the rotation, KeeperHub generates and funds wallets, the operator distributes them, and the old wallet is deprecated on-chain. Before a runtime receives anything, it must sign a challenge. If the signature is not valid, it gets nothing."
 
 Scroll to `03 / SEE IT RUN`. Click **"Open the live demo"**.
 
@@ -81,15 +81,15 @@ Scroll to `03 / SEE IT RUN`. Click **"Open the live demo"**.
 
 **Tab 2 (demo app).** Pause. Walk the eye through the topbar first.
 
-> "Up top: on the left, the badge tells me I'm live, connected to the operator over WebSocket. I can swap the transport to AXL p2p with one click — we'll get there. On the right: rotation status, and the FleetRegistry contract on Base Sepolia, where the old wallets get deprecated."
+> "At the top, the left badge tells me I am live and connected to the operator over WebSocket. I can also switch to AXL peer-to-peer with one click. On the right, I have the rotation status and the FleetRegistry contract on Base Sepolia. That is where old wallets are deprecated."
 
 Click the `0x7edd…b31f` chip (opens a new tab).
 
-> "There it is, on basescan."
+> "Here it is on BaseScan."
 
 Back to the demo tab.
 
-> "The canvas: three legitimate runtimes — alpha, beta, gamma — and a fourth, gamma-clone, shown in shadow. That's the silhouette of the 'attacker' we're going to test. Each card shows status, EVM address, and a live balance."
+> "In the canvas, we have three real runtimes: alpha, beta, and gamma. We also have gamma-clone in shadow. That one represents the attacker case. Each card shows status, wallet address, and live balance."
 
 ---
 
@@ -97,11 +97,11 @@ Back to the demo tab.
 
 In the chat input, click the **"List runtimes"** chip.
 
-> "I ask the agent to list the fleet."
+> "First, I ask the agent to list the fleet."
 
 The SSE stream paints tokens in real time. Wait for the assistant bubble.
 
-> "Three runtimes. Alpha registered. Beta and gamma carrying revoked status from earlier runs — we'll reset them. The data comes from the operator; **the LLM never touched a private key** in this request."
+> "The operator returns the runtime list. This is just inspection. The LLM can see the state of the system, but it still never sees a private key."
 
 ---
 
@@ -109,23 +109,23 @@ The SSE stream paints tokens in real time. Wait for the assistant bubble.
 
 **Click the "Rotate alpha" chip.**
 
-> "Here's the meat. I tell it: **rotate alpha's keys**. This fires a workflow on KeeperHub."
+> "Now the important part. I ask it to **rotate alpha's keys**. This starts a KeeperHub workflow."
 
 Immediately jump to **Tab 3 (KeeperHub dashboard)**.
 
-> "Look: KeeperHub picked up the trigger and is running the workflow nodes. It generated fresh EOAs, it's funding them with a Base Sepolia faucet, and it's about to distribute them to the runtimes."
+> "KeeperHub received the trigger and is running the workflow. It generates a fresh wallet, funds it on Base Sepolia, and then sends it to the operator for distribution."
 
 Back to **Tab 2 (demo app)** while KH does its thing (~10–30 s).
 
-> "On the canvas: alpha goes from **registered** to **awaiting**. See the cyan dashed line from operator to alpha — that's the data packet riding the handshake. Alpha signs the challenge with its ed25519 private key, identity validates, and it receives the new EVM wallet."
+> "Back in the app, alpha moves from **registered** to **awaiting**. The cyan line shows the operator talking to alpha. Alpha signs a challenge with its identity key. If the signature is valid, alpha receives the new EVM wallet."
 
 Wait until alpha hits `received`. Then point at the MiniTimeline at the bottom of the canvas:
 
-> "The whole sequence lands in the OPERATOR STREAM and in the mini timeline down here as event chips. The new address shows up on alpha's card, and up in the topbar's ROTATION STATUS you have the deprecation tx hash with a direct basescan link."
+> "The events appear in the operator stream and in the mini timeline. The new wallet appears on alpha's card. In the topbar, we also get the deprecation transaction hash, with a direct BaseScan link."
 
 Click the tx hash chip if it's visible → opens BaseScan in a new tab.
 
-> "There it is, on-chain: `WalletsDeprecated`, emitted by the FleetRegistry. The rotation closed. The old private key is invalidated in the contract; the new one never went through the LLM."
+> "Here is the on-chain proof: `WalletsDeprecated`, emitted by the FleetRegistry. The rotation is complete. The old wallet is deprecated, and the new key never passed through the LLM."
 
 ---
 
@@ -133,15 +133,15 @@ Click the tx hash chip if it's visible → opens BaseScan in a new tab.
 
 Back to the demo tab. **Click the "Simulate clone attack" chip.**
 
-> "Now the scenario that justifies the whole system: **an attacker holding alpha's binary but not its cryptographic identity**. I ask the agent to simulate the attack."
+> "Now let's test the attack case. Imagine someone copied a runtime binary, but does not have the real cryptographic identity. I ask the agent to simulate that attack."
 
 The operator opens a real WebSocket against itself, posing as a fake clone with a random ed25519 pubkey. Watch the canvas:
 
-> "Two things happen. The **GAMMA-CLONE** card flashes destructive red — that's the ghost that represents 'any clone attempt' in this demo. And right next to **alpha**, a translucent silhouette with an X appears — that's the actual attacker the operator detected and rejected. Socket closed with code `4403 pubkey_mismatch`."
+> "Two things happen. The **GAMMA-CLONE** card turns red. That is the visual clone attempt. Next to alpha, an attacker silhouette appears with an X. The operator detected it and rejected it. The socket closes with `4403 pubkey_mismatch`."
 
 Point to the OPERATOR STREAM in the sidebar:
 
-> "The log spells it out: `Clone rejected: alpha presented foreign pubkey; handshake denied`. The defense isn't decorative — the operator checks the presented pubkey against the registered one, and if it doesn't match, no handshake. **No valid signature, no key**, just like the landing said."
+> "The log says it clearly: `Clone rejected: alpha presented foreign pubkey; handshake denied`. This is not just UI. The operator checks the public key against the registered identity. If it does not match, there is no handshake and no key is delivered."
 
 ---
 
@@ -151,11 +151,11 @@ Only if you have AXL nodes + bridge running.
 
 **Click the "AXL" toggle** in the topbar.
 
-> "Quick demo: the transport. Until now we were on the operator's centralized WebSocket. Click AXL: now the browser is polling a peer-to-peer mesh built on **gensyn-ai/axl**. Same event bus, decentralized transport."
+> "Quick transport demo. Until now, the app used the operator WebSocket. If I click AXL, the browser reads events through a peer-to-peer mesh built on **gensyn-ai/axl**. Same events, different transport."
 
 The badge should flip to `VIA AXL` in cyan, and `last event` starts ticking again.
 
-> "The `ITransport` contract makes this possible: any consumer that respects the interface can plug in. This is what makes the system portable to real p2p networks."
+> "This works because everything uses the same `ITransport` interface. So WebSocket and AXL can be swapped without changing the rest of the app."
 
 Click back to `WS` (the EdgePulse animation reads better on WS thanks to lower latency).
 
@@ -163,11 +163,11 @@ Click back to `WS` (the EdgePulse animation reads better on WS thanks to lower l
 
 ## 7. Beat 5 — direct interaction on a card (~15 s)
 
-> "And for the judge who'd rather click than type: every card is interactive."
+> "Also, if the judge prefers clicking instead of typing, every runtime card is interactive."
 
 **Click the ALPHA card** → the floating menu appears.
 
-> "Action menu: rotate, inspect, simulate attack, revoke. Each item fires the agent with the right prompt. Zero typing, same end-to-end path."
+> "This menu has rotate, inspect, simulate attack, and revoke. Each action sends the right prompt to the agent. Same flow, no typing needed."
 
 Click outside, or hit ESC, to close.
 
@@ -177,11 +177,11 @@ Click outside, or hit ESC, to close.
 
 **Click "Reset demo".**
 
-> "Reset wipes everything for the next run — runtimes back to `registered`, mini timeline cleared, wallets unassigned. The operator doesn't need to restart."
+> "Reset prepares the next run. Runtimes go back to `registered`, the timeline is cleared, and wallets are unassigned. I do not need to restart the operator."
 
 Switch back to the **landing tab** (Tab 1) for symmetry.
 
-> "That's Sonar. The LLM sees the system, moves the pieces, but never touches a key. **Identity-checked rotation. End-to-end on Base Sepolia. Built in 5 days.**"
+> "That's Sonar. The LLM can see the system and coordinate the rotation, but it never touches a key. **Identity-checked rotation, end-to-end on Base Sepolia, built in 5 days.**"
 
 Done.
 
